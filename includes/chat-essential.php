@@ -57,7 +57,7 @@ class Chat_Essential {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/chat-essential-public.php';
 
-		$this->loader = new Plugin_Name_Loader();
+		$this->loader = new Chat_Essential_Loader();
 
 	}
 
