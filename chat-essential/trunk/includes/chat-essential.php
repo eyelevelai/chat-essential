@@ -43,9 +43,9 @@ class Chat_Essential {
 		$this->plugin_name = 'chat-essential';
 
 		$this->load_dependencies();
+		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -54,11 +54,23 @@ class Chat_Essential {
 	 */
 	private function load_dependencies() {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-loader.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-i18n.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-wp-escaper.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin-main.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/chat-essential-public.php';
 
 		$this->loader = new Chat_Essential_Loader();
+	}
 
+	/**
+	 * @since    0.0.1
+	 * @access   private
+	 */
+	private function set_locale() {
+		$plugin_i18n = new Chat_Essential_i18n();
+
+		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 	}
 
 	/**
@@ -70,7 +82,6 @@ class Chat_Essential {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
 	}
 
 	/**
