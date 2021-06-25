@@ -8,7 +8,7 @@
  * @subpackage Chat_Essential/admin
  * @author     Chat Essential <support@eyelevel.ai>
  */
-class Chat_Essential_Admin_Main {
+class Chat_Essential_Admin_Website {
 	/**
 	 * @since    0.0.1
 	 * @access   private
@@ -25,16 +25,16 @@ class Chat_Essential_Admin_Main {
 
 	/**
 	 * @since    0.0.1
-	 * @param      array    $settings       The settings to load on the main page.
+	 * @param      array    $settings       The settings to load on the website management page.
 	 */
 	public function __construct( $settings ) {
 		if (isset($settings)) {
 			$this->settings = $settings;
 		} else {
 			$this->settings = array(
-				"app_id" => "",
-				"secret" => "",
-				"identity_verification" => "",
+				'app_id' => '',
+				'secret' => '',
+				'identity_verification' => '',
 			);
 		}
 		$this->styles = $this->setStyles($settings);
@@ -44,7 +44,7 @@ class Chat_Essential_Admin_Main {
 	 * @since    0.0.1
 	 */
 	public function getAuthUrl() {
-		return "https://www.eyelevel.ai/wp/auth?state=".get_site_url()."::".wp_create_nonce('chat-essential-auth');
+		return 'https://www.eyelevel.ai/wp/auth?state='.get_site_url().'::'.wp_create_nonce('chat-essential-auth');
 	}
 
 	public function dismissibleMessage($text) {
@@ -66,10 +66,10 @@ END;
     	if (isset($_GET['appId'])) {
       		// Copying app_id from setup guide
       		$app_id = WP_Escaper::escAttr($_GET['appId']);
-      		$dismissable_message = $this->dismissibleMessage("We've copied your new Intercom app id below. click to save changes and then close this window to finish signing up for Intercom.");
+      		$dismissable_message = $this->dismissibleMessage('We\'ve copied your new Intercom app id below. click to save changes and then close this window to finish signing up for Intercom.');
     	}
     	if (isset($_GET['saved'])) {
-      		$dismissable_message = $this->dismissibleMessage("Your app id has been successfully saved. You can now close this window to finish signing up for Intercom.");
+      		$dismissable_message = $this->dismissibleMessage('Your app id has been successfully saved. You can now close this window to finish signing up for Intercom.');
     	}
     	if (isset($_GET['authenticated'])) {
       		$dismissable_message = $this->dismissibleMessage('You successfully authenticated with Intercom');
@@ -149,7 +149,7 @@ END;
     	$auth_url = $this->getAuthUrl();
     	$secret = WP_Escaper::escAttr($settings['secret']);
     	$app_id = WP_Escaper::escAttr($settings['app_id']);
-    	$auth_url_identity_verification = "";
+    	$auth_url_identity_verification = '';
     	if (empty($secret) && !empty($app_id)) {
       		$auth_url_identity_verification = $auth_url.'&enable_identity_verification=1';
     	}
@@ -208,13 +208,13 @@ END;
 		if (isset($_GET['appId'])) {
 			$app_id = WP_Escaper::escAttr($_GET['appId']);
 			$styles['app_id_state'] = 'readonly';
-			$styles['app_id_class'] = "cta__email";
+			$styles['app_id_class'] = 'cta__email';
 			$styles['button_submit_style'] = '';
 			$styles['app_id_copy_hidden'] = 'display: none;';
 			$styles['app_id_copy_title'] = '';
 			$styles['identity_verification_state'] = 'disabled'; # Prevent from sending POST data about identity_verification when using app_id form
 		} else {
-		  	$styles['app_id_class'] = "";
+		  	$styles['app_id_class'] = '';
 		  	$styles['button_submit_style'] = 'display: none;';
 		  	$styles['app_id_copy_title'] = 'display: none;';
 		  	$styles['app_id_state'] = 'disabled'; # Prevent from sending POST data about app_id when using identity_verification form

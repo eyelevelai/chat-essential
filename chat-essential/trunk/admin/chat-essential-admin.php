@@ -41,12 +41,48 @@ class Chat_Essential_Admin {
 	 */
 	public function add_menu() {
 		add_menu_page(
-			'Chat Essential',
-			'Chat Essential',
+			__('Chat Essential', 'chat-essential'),
+			__('Chat Essential', 'chat-essential'),
 			'manage_options',
 			'chat-essential',
 			array( $this, 'menu_main_page' ),
 			plugin_dir_url(__FILE__) . '../images/qr-icon-gray.png',
+			20
+		);
+		add_submenu_page(
+			'chat-essential',
+			__('Chat Essential - Integrations Settings', 'chat-essential'),
+			__('Integrations', 'chat-essential'),
+			'manage_options',
+			'chat-essential',
+			array( $this, 'menu_main_page' ),
+			20
+		);
+		add_submenu_page(
+			'chat-essential',
+			__('Chat Essential - Website Settings', 'chat-essential'),
+			__('Website', 'chat-essential'),
+			'manage_options',
+			'chat-essential-website',
+			array( $this, 'menu_main_page' ),
+			20
+		);
+		add_submenu_page(
+			'chat-essential',
+			__('Chat Essential - Facebook Page Settings', 'chat-essential'),
+			__('Facebook Page', 'chat-essential'),
+			'manage_options',
+			'chat-essential-fb-page',
+			array( $this, 'menu_main_page' ),
+			20
+		);
+		add_submenu_page(
+			'chat-essential',
+			__('Chat Essential - QR Codes Settings', 'chat-essential'),
+			__('QR Codes', 'chat-essential'),
+			'manage_options',
+			'chat-essential-qr-codes',
+			array( $this, 'menu_main_page' ),
 			20
 		);
 	}
@@ -69,25 +105,38 @@ class Chat_Essential_Admin {
 	 * @since    0.0.1
 	 */
 	public function menu_main_page() {
+		$slug = $_GET['page'];
   		$options = get_option('chat-essential');
-		$settings_page = "";
+		$settings_page = '';
+
 		if (isset($options) && !empty($options)) {
-  			$settings_page = new Chat_Essential_Admin_Main(array(
-				  "app_id" => $options['app_id'],
-				  "secret" => $options['secret'],
-				  "identity_verification" => "",
-			));
+			$options = array(
+				'app_id' => $options['app_id'],
+				'secret' => $options['secret'],
+				'identity_verification' => '',
+			);
 		} else {
-			$settings_page = new Chat_Essential_Admin_Main(array(
-				"app_id" => "",
-				"secret" => "",
-				"identity_verification" => "",
-			));
+			$options = array(
+				'app_id' => '',
+				'secret' => '',
+				'identity_verification' => '',
+			);
 		}
+
+		switch ($slug) {
+			case 'chat-essential':
+			case 'chat-essential-integrations':
+				$settings_page = new Chat_Essential_Admin_Integrations($options);
+				break;
+			case 'chat-essential-website':
+			default:
+				$settings_page = new Chat_Essential_Admin_Website($options);
+				break;
+		}
+
   		echo $settings_page->htmlUnclosed();
   		wp_nonce_field('chat-essential-update');
   		echo $settings_page->htmlClosed();
-//		include_once plugin_dir_path( __FILE__ ) . 'partials/chat-essential-admin-menu-main.php';
 	}
 
 }

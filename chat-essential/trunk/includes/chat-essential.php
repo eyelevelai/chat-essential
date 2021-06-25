@@ -57,7 +57,8 @@ class Chat_Essential {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-i18n.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-wp-escaper.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin-main.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-integrations.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-website.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/chat-essential-public.php';
 
 		$this->loader = new Chat_Essential_Loader();
