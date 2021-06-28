@@ -2,3 +2,15 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+ .web-rules-form,
+ .widefat {
+     width: 100%;
+ }
+ @media (max-width: 782px) {
+	table.web-rules-form td {
+		padding: 10px 21px 0 17px;
+	}
+	table.web-rules-form tr:last-child td {
+		padding-bottom: 20px;
+	}
+}

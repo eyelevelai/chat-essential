@@ -42,6 +42,10 @@ register_deactivation_hook( __FILE__, 'deactivate_chat_essential' );
 
 require plugin_dir_path( __FILE__ ) . 'includes/chat-essential.php';
 
+function localize($txt) {
+	return __($txt, 'chat-essential');
+}
+
 /**
  * Init plugin
  *

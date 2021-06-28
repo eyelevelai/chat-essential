@@ -25,7 +25,7 @@ class Chat_Essential_Admin_Integrations {
 
 	/**
 	 * @since    0.0.1
-	 * @param      array    $settings       The settings to load on the website management page.
+	 * @param      array    $settings       The settings to load on the integrations management page.
 	 */
 	public function __construct( $settings ) {
 		if (isset($settings)) {
@@ -75,11 +75,25 @@ END;
       		$dismissable_message = $this->dismissibleMessage('You successfully authenticated with Intercom');
     	}
 
-		$l1 = __('Duplicate Post Suffix', 'chat-essential');
-		$h1 = __('Add a suffix for duplicate or clone post as Copy, Clone etc. It will show after title.', 'chat-essential');
-		$v1 = !empty($opt['duplicate_post_suffix']) ? $opt['duplicate_post_suffix'] : '';
-		$title = __('Integrations Settings', 'chat-essential');
+		$title = localize('Integrations Settings');
 		$nonce = wp_nonce_field('duplicatepage_action', 'duplicatepage_nonce_field');
+
+		$hlc = localize('Live Chat');
+		$hlc_desc = localize('This is how you will live chat with people in chat');
+		$lit = localize('Integration Type');
+
+		$llcp = localize('Phone Number');
+		$hlcp_desc = localize('Enter the phone number that will be enabled for live chat. Only US phone numbers that are capable of SMS text are currently supported.');
+
+		$hld = localize('Lead Data');
+		$hld_desc = localize('This is how you will export lead data from chat to your own systems');
+
+		$llde = localize('Email Address');
+		$hlde_desc = localize('Enter the email address (or addresses) that will receive lead data. If you use more than 1 email address, separate each address with a comma.');
+		$hlde_val = get_option('admin_email');
+
+		$submit = localize('Save Changes');
+
     	return <<<END
 		<div class="wrap">
 			<h1>$title</h1>
@@ -90,22 +104,79 @@ END;
 							<table class="form-table">
 								<tbody>
 									<tr>
+										<th colspan="2">
+											<h2>$hlc</h2>
+											<p>$hlc_desc</p>
+										</th>
+									</tr>
+									<tr>
 										<th scope="row">
-											<label for="duplicate_post_suffix">
-												$l1
+											<label for="live-chat-type">
+												$lit
 											</label>
 										</th>
 										<td>
-											<input type="text" class="regular-text" value="$v1" id="duplicate_post_suffix" name="duplicate_post_suffix">
+											<select name="live-chat-type" id="live-chat-select">
+												<option value="sms">SMS Text with People in Chat</option>
+												<option value="slack" disabled>Slack (upgrade to premium)</option>
+												<option value="msteams" disabled>Microsoft Teams (upgrade to premium)</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											<label for="tel">
+												$llcp
+											</label>
+										</th>
+										<td>
+											<input type="tel" class="regular-text" value="" id="live-chat-phone-input" name="tel">
     										<p>
-												$h1
+												$hlcp_desc
+											</p>
+										</td>
+									</tr>
+									<tr>
+										<th colspan="2">
+											<h2>$hld</h2>
+											<p>$hld_desc</p>
+										</th>
+									</tr>
+									<tr>
+										<th scope="row">
+											<label for="track-event-type">
+												$lit
+											</label>
+										</th>
+										<td>
+											<select name="track-event-type" id="track-event-select">
+												<option value="email">Receive data by Email</option>
+												<option value="zapier" disabled>Zapier (upgrade to premium)</option>
+												<option value="mailchimp" disabled>Mailchimp (upgrade to premium)</option>
+												<option value="hubspot" disabled>Hubspot (upgrade to premium)</option>
+												<option value="marketo" disabled>Marketo (upgrade to premium)</option>
+												<option value="salesforce" disabled>Salesforce (upgrade to premium)</option>
+												<option value="custom" disabled>Custom Webhook (upgrade to premium)</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											<label for="email">
+												$llde
+											</label>
+										</th>
+										<td>
+											<input type="email" class="regular-text" value="$hlde_val" id="track-event-email-input" name="email">
+    										<p>
+												$hlde_desc
 											</p>
 										</td>
 									</tr>
 								</tbody>
 							</table>
 							<p class="submit">
-								<input type="submit" value="Save Changes" class="button button-primary" id="submit" name="submit_integrations">
+								<input type="submit" value="$submit" class="button button-primary" id="submit" name="submit_integrations">
 							</p>
 						</form>
 					</div>

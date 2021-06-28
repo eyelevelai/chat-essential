@@ -129,9 +129,10 @@ class Chat_Essential_Admin {
 				$settings_page = new Chat_Essential_Admin_Integrations($options);
 				break;
 			case 'chat-essential-website':
-			default:
 				$settings_page = new Chat_Essential_Admin_Website($options);
 				break;
+			default:
+				$settings_page = new Chat_Essential_Admin_Login($options);
 		}
 
   		echo $settings_page->htmlUnclosed();

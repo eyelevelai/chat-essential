@@ -75,71 +75,96 @@ END;
       		$dismissable_message = $this->dismissibleMessage('You successfully authenticated with Intercom');
     	}
 
+		$web_val = get_option('blogname');
+
+		$title = localize('Website Settings');
+		$nonce = wp_nonce_field('duplicatepage_action', 'duplicatepage_nonce_field');
+
+		$hl = localize('Website Chat Rules #1');
+		$hl_desc = localize('This defines the chat flow, theme, and business hours that load on your website');
+
+		$status = localize('Status');
+		$isOn = "ON";
+
+		$lit = localize('Chat Flow');
+		$chat_val = $web_val . ' Website Chat';
+		$edit_url = '?action=edit';
+		$delete_url = '?action=delete';
+
+		$lot = localize('Load On');
+		$lot_val = 'Site Wide';
+
+		$llcp = localize('Theme');
+		$theme_val = $web_val . ' Theme';
+
+		$llde = localize('Business Hours Settings');
+		$offhours_val = $web_val . ' Business Hours';
+
+		$submit = localize('Add New Settings');
+
     	return <<<END
-
-    <link rel="stylesheet" property='stylesheet' href="https://marketing.intercomassets.com/assets/redesign-ead0ee66f7c89e2930e04ac1b7e423494c29e8e681382f41d0b6b8a98b4591e1.css">
-    <style>
-      #wpcontent {
-        background-color: #ffffff;
-      }
-    </style>
-
-    <div class="wrap">
-      $dismissable_message
-
-      <section id="main_content" style="padding-top: 70px;">
-        <div class="container">
-          <div class="cta">
-
-            <div class="sp__2--lg sp__2--xlg"></div>
-            <div id="oauth_content" style="$styles[app_id_link_style]">
-              <div class="t__h1 c__red">Get started with Intercom</div>
-
-              <div class="cta__desc">
-                Chat with visitors to your website in real-time, capture them as leads, and convert them to customers. Install Intercom on your WordPress site in a couple of clicks.
-              </div>
-
-              <div id="get_intercom_btn_container" style="position:relative;margin-top:30px;">
-                <a href="$auth_url">
-                  <img src="https://static.intercomassets.com/assets/oauth/primary-7edb2ebce84c088063f4b86049747c3a.png" srcset="https://static.intercomassets.com/assets/oauth/primary-7edb2ebce84c088063f4b86049747c3a.png 1x, https://static.intercomassets.com/assets/oauth/primary@2x-0d69ca2141dfdfa0535634610be80994.png 2x, https://static.intercomassets.com/assets/oauth/primary@3x-788ed3c44d63a6aec3927285e920f542.png 3x"/>
-                </a>
-              </div>
-            </div>
-
-            <div class="t__h1 c__red" style="$styles[app_id_copy_title]">Intercom setup</div>
-            <div class="t__h1 c__red" style="$styles[app_id_saved_title]">Intercom app ID saved</div>
-            <div id="app_id_and_secret_content" style="$styles[app_id_row_style]">
-              <div class="t__h1 c__red" style="$styles[app_id_copy_hidden]">Intercom has been installed</div>
-
-              <div class="cta__desc">
-                <div style="$styles[app_id_copy_hidden]">
-                  Intercom is now set up and ready to go. You can now chat with your existing and potential new customers, send them targeted messages, and get feedback.
-                  <br/>
-                  <br/>
-                  <a class="c__blue" href="https://app.intercom.com/a/apps/$app_id" target="_blank">Click here to access your Intercom Team Inbox.</a>
-                  <br/>
-                  <br/>
-                  Need help? <a class="c__blue" href="https://docs.intercom.io/for-converting-visitors-to-users" target="_blank">Visit our documentation</a> for best practices, tips, and much more.
-                  <br/>
-                  <br/>
-                </div>
-
-                <div>
-                  <div style="font-size:0.87em;$styles[app_id_copy_hidden]">
-                  Learn more about our products : <a class="c__blue" href="https://www.intercom.com/customer-engagement" target="_blank">Messages</a>, <a class="c__blue" href="https://www.intercom.com/customer-support-software/knowledge-base" target="_blank">Articles</a> and <a class="c__blue" href="https://www.intercom.com/customer-support-software/help-desk" target="_blank">Inbox</a>.
-                  </div>
-                  <form method="post" action="" name="update_settings">
-                    <table class="form-table" align="center" style="margin-top: 16px; width: inherit;">
-                      <tbody>
-                        <tr>
-                          <th scope="row" style="text-align: center; vertical-align: middle;"><label for="intercom_app_id">App ID</label></th>
-                          <td>
-                            <input id="intercom_app_id" $styles[app_id_state] name="app_id" type="text" value="$app_id" class="$styles[app_id_class]">
-                            <button type="submit" class="btn btn__primary cta__submit" style="$styles[button_submit_style]">Save</button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+		<div class="wrap">
+			<h1>$title</h1>
+				<div class="metabox-holder columns-2">
+					<div style="position: relative;">
+						<form action="" method="post" name="web_form" class="web-rules-form">
+							$nonce
+							<table class="wp-list-table widefat fixed striped table-view-excerpt">
+								<thead class="manage-head">
+									<tr>
+										<th scope="col" id="status" class="manage-column column-status">
+											$status
+										</th>
+										<th colspan="2" scope="col" id="flow-name" class="manage-column column-flow-name">
+											$lit
+										</th>
+										<th scope="col" id="load-on" class="manage-column column-load-on">
+											$lot
+										</th>
+										<th colspan="2" scope="col" id="theme" class="manage-column column-theme">
+											$llcp
+										</th>
+										<th colspan="2" scope="col" id="offhours" class="manage-column column-offhours">
+											$llde
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td class="status column-status" data-colname="Status">
+											$isOn
+										</td>
+										<td colspan="2" class="flow-name column-flow-name" data-colname="Flow name">
+											<strong>$chat_val</strong>
+											<div class="row-actions visible">
+												<span class="edit">
+													<a href="$edit_url">Edit</a>
+												</span>
+												<span class="delete">
+													<a href="$delete_url">Delete</a>
+												</span>
+											</div>
+										</td>
+										<td class="load-on column-load-on" data-colname="Load On">
+											$lot_val
+										</td>
+										<td colspan="2" class="theme column-theme" data-colname="Theme">
+											$theme_val
+										</td>
+										<td colspan="2" class="offhours column-offhours" data-colname="Business Hours Settings">
+											$offhours_val
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<p class="submit">
+								<input disabled type="submit" value="$submit" class="button button-primary" id="submit" name="submit_web_rules">
+								<i>Upgrade to premium</i>
+							</p>
+						</form>
+					</div>
+				</div>
+		</div>
 END;
   	}
 
@@ -155,26 +180,6 @@ END;
     	}
 
     	return <<<END
-                  </form>
-                  <div style="$styles[app_id_copy_hidden]">
-                    <div style="$styles[app_secret_link_style]">
-                      <a class="c__blue" href="$auth_url_identity_verification">Authenticate with your Intercom application to enable Identity Verification</a>
-                    </div>
-                    <p style="font-size:0.86em">Identity Verification ensures that conversations between you and your users are kept private.<br/>
-                    <br/>
-                      <a class="c__blue" href="https://docs.intercom.com/configure-intercom-for-your-product-or-site/staying-secure/enable-identity-verification-on-your-web-product" target="_blank">Learn more about Identity Verification</a>
-                    </p>
-                    <br/>
-                    <div style="font-size:0.8em">If the Intercom application associated with your Wordpress is incorrect, please <a class="c__blue" href="$auth_url">click here</a> to reconnect with Intercom, to choose a new application.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
 END;
   	}
 
