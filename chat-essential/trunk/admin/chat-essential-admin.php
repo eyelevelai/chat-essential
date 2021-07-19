@@ -51,8 +51,8 @@ class Chat_Essential_Admin {
 		);
 		add_submenu_page(
 			'chat-essential',
-			__('Chat Essential - Integrations Settings', 'chat-essential'),
-			__('Integrations', 'chat-essential'),
+			__('Chat Essential - Settings', 'chat-essential'),
+			__('Settings', 'chat-essential'),
 			'manage_options',
 			'chat-essential',
 			array( $this, 'menu_main_page' ),
@@ -125,8 +125,8 @@ class Chat_Essential_Admin {
 
 		switch ($slug) {
 			case 'chat-essential':
-			case 'chat-essential-integrations':
-				$settings_page = new Chat_Essential_Admin_Integrations($options);
+			case 'chat-essential-settings':
+				$settings_page = new Chat_Essential_Admin_Settings($options);
 				break;
 			case 'chat-essential-website':
 				$settings_page = new Chat_Essential_Admin_Website($options);

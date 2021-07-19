@@ -6,6 +6,12 @@
  .widefat {
      width: 100%;
  }
+ .no-padding-bottom {
+	 padding-bottom: 0px !important;
+ }
+ .large-padding-bottom {
+	 padding-bottom: 8px !important;
+ }
  @media (max-width: 782px) {
 	table.web-rules-form td {
 		padding: 10px 21px 0 17px;
