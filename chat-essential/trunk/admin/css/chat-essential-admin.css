@@ -2,21 +2,54 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
- .web-rules-form,
- .widefat {
-     width: 100%;
- }
- .no-padding-bottom {
-	 padding-bottom: 0px !important;
- }
- .large-padding-bottom {
-	 padding-bottom: 8px !important;
- }
- @media (max-width: 782px) {
+.web-rules-form,
+.widefat {
+    width: 100%;
+}
+.no-padding-bottom {
+	padding-bottom: 0px !important;
+}
+.large-padding-bottom {
+	padding-bottom: 8px !important;
+}
+.widefat .column-logo {
+	text-align: center;
+}
+.login-logo {
+	width: 50%;
+}
+.login-form .login-body {
+	padding: 0 0 16px 32px;
+}
+.login-form .submit-button {
+	padding: 16px 0 32px 32px;
+}
+.login-form .submit-button input {
+	padding: 4px 36px;
+	font-size: 16px;
+	background: #53a497;
+	border-color: #53a497;
+	font-weight: 500;
+}
+input.login-input {
+	margin: 4px 0;
+	padding: 6px 12px;
+	width: 100%;
+}
+.widefat .med-font {
+	font-size: 16px;
+}
+@media (max-width: 782px) {
 	table.web-rules-form td {
 		padding: 10px 21px 0 17px;
 	}
 	table.web-rules-form tr:last-child td {
 		padding-bottom: 20px;
+	}
+}
+@media (min-width: 783px) {
+	.login-form {
+		max-width: 500px;
+		margin: 50px auto 0;
 	}
 }

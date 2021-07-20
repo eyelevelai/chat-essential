@@ -56,10 +56,14 @@ class Chat_Essential {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-loader.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-i18n.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-wp-escaper.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-identity-verification.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-api-client.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-login.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-website.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-facebook-page.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-qr-code.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/chat-essential-public.php';
 
 		$this->loader = new Chat_Essential_Loader();

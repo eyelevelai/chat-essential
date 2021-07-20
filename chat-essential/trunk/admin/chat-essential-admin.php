@@ -12,6 +12,13 @@ class Chat_Essential_Admin {
 
 	/**
 	 * @since    0.0.1
+	 * @access   protected
+	 * @var      Chat_Essential_API_Client    $api    Manages API calls to EyeLevel APIs.
+	 */
+	protected $api;
+
+	/**
+	 * @since    0.0.1
 	 * @access   private
 	 * @var      string    $plugin_name    The ID of this plugin.
 	 */
@@ -32,6 +39,8 @@ class Chat_Essential_Admin {
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+	
+		$this->api = new Chat_Essential_API_Client();
 
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 	}
@@ -60,7 +69,7 @@ class Chat_Essential_Admin {
 		);
 		add_submenu_page(
 			'chat-essential',
-			__('Chat Essential - Website Settings', 'chat-essential'),
+			__('Chat Essential - Website Chat', 'chat-essential'),
 			__('Website', 'chat-essential'),
 			'manage_options',
 			'chat-essential-website',
@@ -69,7 +78,7 @@ class Chat_Essential_Admin {
 		);
 		add_submenu_page(
 			'chat-essential',
-			__('Chat Essential - Facebook Page Settings', 'chat-essential'),
+			__('Chat Essential - Facebook Page Chat', 'chat-essential'),
 			__('Facebook Page', 'chat-essential'),
 			'manage_options',
 			'chat-essential-fb-page',
@@ -78,10 +87,10 @@ class Chat_Essential_Admin {
 		);
 		add_submenu_page(
 			'chat-essential',
-			__('Chat Essential - QR Codes Settings', 'chat-essential'),
+			__('Chat Essential - QR Codes Chat', 'chat-essential'),
 			__('QR Codes', 'chat-essential'),
 			'manage_options',
-			'chat-essential-qr-codes',
+			'chat-essential-qr-code',
 			array( $this, 'menu_main_page' ),
 			20
 		);
@@ -109,35 +118,43 @@ class Chat_Essential_Admin {
   		$options = get_option('chat-essential');
 		$settings_page = '';
 
+		$web_name = get_option('blogname');
 		if (isset($options) && !empty($options)) {
 			$options = array(
 				'app_id' => $options['app_id'],
 				'secret' => $options['secret'],
-				'identity_verification' => '',
+				'nonce' => wp_nonce_field('chat-essential-update'),
+				'website_name' => $web_name,
 			);
 		} else {
 			$options = array(
 				'app_id' => '',
 				'secret' => '',
-				'identity_verification' => '',
+				'nonce' => wp_nonce_field('chat-essential-update'),
+				'website_name' => $web_name,
 			);
+			$slug = 'login';
 		}
 
 		switch ($slug) {
 			case 'chat-essential':
 			case 'chat-essential-settings':
-				$settings_page = new Chat_Essential_Admin_Settings($options);
+				$settings_page = new Chat_Essential_Admin_Settings($options, $this->api);
 				break;
 			case 'chat-essential-website':
-				$settings_page = new Chat_Essential_Admin_Website($options);
+				$settings_page = new Chat_Essential_Admin_Website($options, $this->api);
+				break;
+			case 'chat-essential-fb-page':
+				$settings_page = new Chat_Essential_Admin_FacebookPage($options, $this->api);
+				break;
+			case 'chat-essential-qr-code':
+				$settings_page = new Chat_Essential_Admin_QRCode($options, $this->api);
 				break;
 			default:
-				$settings_page = new Chat_Essential_Admin_Login($options);
+				$settings_page = new Chat_Essential_Admin_Login($options, $this->api);
 		}
 
-  		echo $settings_page->htmlUnclosed();
-  		wp_nonce_field('chat-essential-update');
-  		echo $settings_page->htmlClosed();
+  		echo $settings_page->html();
 	}
 
 }

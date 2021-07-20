@@ -9,6 +9,14 @@
  * @author     Chat Essential <support@eyelevel.ai>
  */
 class Chat_Essential_Admin_Website {
+
+	/**
+	 * @since    0.0.1
+	 * @access   private
+	 * @var      Chat_Essential_API_Client     $settings    Manages API calls to EyeLevel APIs.
+	 */
+	private $api;
+
 	/**
 	 * @since    0.0.1
 	 * @access   private
@@ -18,87 +26,46 @@ class Chat_Essential_Admin_Website {
 
 	/**
 	 * @since    0.0.1
-	 * @access   private
-	 * @var      array     $styles
-	 */
-	private $styles;
-
-	/**
-	 * @since    0.0.1
 	 * @param      array    $settings       The settings to load on the website management page.
 	 */
-	public function __construct( $settings ) {
-		if (isset($settings)) {
-			$this->settings = $settings;
-		} else {
-			$this->settings = array(
-				'app_id' => '',
-				'secret' => '',
-				'identity_verification' => '',
-			);
-		}
-		$this->styles = $this->setStyles($settings);
+	public function __construct( $settings, $api ) {
+		$this->settings = $settings;
+		$this->api = $api;
 	}
 
-	/**
-	 * @since    0.0.1
-	 */
-	public function getAuthUrl() {
-		return 'https://www.eyelevel.ai/wp/auth?state='.get_site_url().'::'.wp_create_nonce('chat-essential-auth');
-	}
-
-	public function dismissibleMessage($text) {
-    	return <<<END
-  <div id="message" class="updated notice is-dismissible">
-    <p>$text</p>
-    <button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>
-  </div>
-END;
-  	}
-
-	public function htmlUnclosed() {
+	public function html() {
     	$settings = $this->getSettings();
-    	$styles = $this->getStyles();
-    	$app_id = WP_Escaper::escAttr($settings['app_id']);
-    	$secret = WP_Escaper::escAttr($settings['secret']);
-    	$auth_url = $this->getAuthUrl();
-    	$dismissable_message = '';
-    	if (isset($_GET['appId'])) {
-      		// Copying app_id from setup guide
-      		$app_id = WP_Escaper::escAttr($_GET['appId']);
-      		$dismissable_message = $this->dismissibleMessage('We\'ve copied your new Intercom app id below. click to save changes and then close this window to finish signing up for Intercom.');
-    	}
-    	if (isset($_GET['saved'])) {
-      		$dismissable_message = $this->dismissibleMessage('Your app id has been successfully saved. You can now close this window to finish signing up for Intercom.');
-    	}
-    	if (isset($_GET['authenticated'])) {
-      		$dismissable_message = $this->dismissibleMessage('You successfully authenticated with Intercom');
-    	}
 
-		$web_val = get_option('blogname');
-
-		$title = localize('Website Settings');
-		$nonce = wp_nonce_field('duplicatepage_action', 'duplicatepage_nonce_field');
+		$title = localize('Website Chat');
+		$nonce = $settings['nonce'];
 
 		$hl = localize('Website Chat Rules #1');
 		$hl_desc = localize('This defines the chat flow, theme, and business hours that load on your website');
 
-		$status = localize('Status');
+		$h1 = localize('Status');
 		$isOn = "ON";
 
-		$lit = localize('Chat Flow');
-		$chat_val = $web_val . ' Website Chat';
+		$h2 = localize('Chat Flow');
+		$chat_val = $settings['website_name'] . ' Website Chat';
+		$preview_url = '?action=preview';
+		$preview_label = localize('Preview');
 		$edit_url = '?action=edit';
+		$edit_label = localize('Edit');
 		$delete_url = '?action=delete';
+		$delete_label = localize('Delete');
 
-		$lot = localize('Load On');
+		$h3 = localize('Load On');
 		$lot_val = 'Site Wide';
 
-		$llcp = localize('Theme');
-		$theme_val = $web_val . ' Theme';
+		$h4 = localize('Analytics');
+		$v4 = localize('View');
+		$v4_url = 'https://ssp.eyelevel.ai';
 
-		$llde = localize('Business Hours Settings');
-		$offhours_val = $web_val . ' Business Hours';
+		$h5 = localize('Theme');
+		$theme_val = $settings['website_name'] . ' Theme';
+
+		$h6 = localize('Business Hours Settings');
+		$offhours_val = $settings['website_name'] . ' Business Hours';
 
 		$submit = localize('Add New Settings');
 
@@ -113,45 +80,54 @@ END;
 								<thead class="manage-head">
 									<tr>
 										<th scope="col" id="status" class="manage-column column-status">
-											$status
+											$h1
 										</th>
 										<th colspan="2" scope="col" id="flow-name" class="manage-column column-flow-name">
-											$lit
+											$h2
 										</th>
 										<th scope="col" id="load-on" class="manage-column column-load-on">
-											$lot
+											$h3
+										</th>
+										<th scope="col" id="analytics" class="manage-column column-analytics">
+											$h4
 										</th>
 										<th colspan="2" scope="col" id="theme" class="manage-column column-theme">
-											$llcp
+											$h5
 										</th>
 										<th colspan="2" scope="col" id="offhours" class="manage-column column-offhours">
-											$llde
+											$h6
 										</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
-										<td class="status column-status" data-colname="Status">
+										<td class="status column-status" data-colname="$h1">
 											$isOn
 										</td>
-										<td colspan="2" class="flow-name column-flow-name" data-colname="Flow name">
+										<td colspan="2" class="flow-name column-flow-name" data-colname="$h2">
 											<strong>$chat_val</strong>
 											<div class="row-actions visible">
+												<span class="preview-web">
+													<a href="$preview_url">$preview_label</a>
+												</span>
 												<span class="edit">
-													<a href="$edit_url">Edit</a>
+													<a href="$edit_url">$edit_label</a>
 												</span>
 												<span class="delete">
-													<a href="$delete_url">Delete</a>
+													<a href="$delete_url">$delete_label</a>
 												</span>
 											</div>
 										</td>
-										<td class="load-on column-load-on" data-colname="Load On">
+										<td class="load-on column-load-on" data-colname="$h3">
 											$lot_val
 										</td>
-										<td colspan="2" class="theme column-theme" data-colname="Theme">
+										<td class="theme column-analytics" data-colname="$h4">
+											<a href="$v4_url">$v4</a>
+										</td>
+										<td colspan="2" class="theme column-theme" data-colname="$h5">
 											$theme_val
 										</td>
-										<td colspan="2" class="offhours column-offhours" data-colname="Business Hours Settings">
+										<td colspan="2" class="offhours column-offhours" data-colname="$h6">
 											$offhours_val
 										</td>
 									</tr>
@@ -168,96 +144,11 @@ END;
 END;
   	}
 
-  	public function htmlClosed() {
-    	$settings = $this->getSettings();
-    	$styles = $this->getStyles();
-    	$auth_url = $this->getAuthUrl();
-    	$secret = WP_Escaper::escAttr($settings['secret']);
-    	$app_id = WP_Escaper::escAttr($settings['app_id']);
-    	$auth_url_identity_verification = '';
-    	if (empty($secret) && !empty($app_id)) {
-      		$auth_url_identity_verification = $auth_url.'&enable_identity_verification=1';
-    	}
-
-    	return <<<END
-END;
-  	}
-
-	public function html() {
-		return $this->htmlUnclosed() . $this->htmlClosed();
-	}
-
-	public function setStyles($settings) {
-		$styles = array();
-		$app_id = WP_Escaper::escAttr($settings['app_id']);
-		$secret = WP_Escaper::escAttr($settings['secret']);
-		$identity_verification = WP_Escaper::escAttr($settings['identity_verification']);
-
-		// Use Case : Identity Verification enabled : checkbox checked and disabled
-		if($identity_verification) {
-		  	$styles['identity_verification_state'] = 'checked disabled';
-		} else {
-		  	$styles['identity_verification_state'] = '';
-		}
-
-		// Use Case : app_id here but Identity Verification disabled
-		if (empty($secret) && !empty($app_id)) {
-		  	$styles['app_secret_row_style'] = 'display: none;';
-		  	$styles['app_secret_link_style'] = '';
-		} else {
-		  	$styles['app_secret_row_style'] = '';
-		  	$styles['app_secret_link_style'] = 'display: none;';
-		}
-
-		// Copying appId from Intercom Setup Guide for validation
-		if (isset($_GET['appId'])) {
-			$app_id = WP_Escaper::escAttr($_GET['appId']);
-			$styles['app_id_state'] = 'readonly';
-			$styles['app_id_class'] = 'cta__email';
-			$styles['button_submit_style'] = '';
-			$styles['app_id_copy_hidden'] = 'display: none;';
-			$styles['app_id_copy_title'] = '';
-			$styles['identity_verification_state'] = 'disabled'; # Prevent from sending POST data about identity_verification when using app_id form
-		} else {
-		  	$styles['app_id_class'] = '';
-		  	$styles['button_submit_style'] = 'display: none;';
-		  	$styles['app_id_copy_title'] = 'display: none;';
-		  	$styles['app_id_state'] = 'disabled'; # Prevent from sending POST data about app_id when using identity_verification form
-		  	$styles['app_id_copy_hidden'] = '';
-		}
-	
-		//Use Case App_id successfully copied
-		if (isset($_GET['saved'])) {
-		  	$styles['app_id_copy_hidden'] = 'display: none;';
-		  	$styles['app_id_saved_title'] = '';
-		} else {
-		  	$styles['app_id_saved_title'] = 'display: none;';
-		}
-	
-		// Display 'connect with intercom' button if no app_id provided (copied from setup guide or from Oauth)
-		if (empty($app_id)) {
-		  	$styles['app_id_row_style'] = 'display: none;';
-		  	$styles['app_id_link_style'] = '';
-		} else {
-		  	$styles['app_id_row_style'] = '';
-		  	$styles['app_id_link_style'] = 'display: none;';
-		}
-
-		return $styles;
-	}
-
 	/**
 	 * @since    0.0.1
 	 */
 	private function getSettings() {
     	return $this->settings;
   	}
-
-	/**
-	 * @since    0.0.1
-	 */
-	private function getStyles() {
-		return $this->styles;
-	}
 
 }
