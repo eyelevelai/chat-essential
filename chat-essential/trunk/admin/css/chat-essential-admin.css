@@ -6,6 +6,9 @@
 .widefat {
     width: 100%;
 }
+.ey-button {
+	background-color: #53a497 !important;
+}
 .no-padding-bottom {
 	padding-bottom: 0px !important;
 }
@@ -15,21 +18,127 @@
 .widefat .column-logo {
 	text-align: center;
 }
+.ey-app {
+	display: none !important;
+}
+.ey-app-open {
+	display: block !important;
+}
+.ey-badge-frame {
+	display: none !important;
+}
+.ey-alert-frame {
+	display: none !important;
+}
+.ai-checkbox {
+	width: 10%;
+}
+.ai-input-label {
+	display: inline-block;
+	vertical-align: middle;
+	width: 80%;
+}
+.ey-form th {
+	padding: 20px 10px 0 0;
+}
+.top-margin {
+	margin-top: 1em !important;
+}
+.no-top {
+	padding-top: 0px !important;
+}
+.left-space {
+	padding-left: 1em;
+}
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 60px;
+	height: 26px;
+}
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #d8d8d8;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+.slider:before {
+	position: absolute;
+	content: "";
+	height: 20px;
+	width: 20px;
+	left: 3px;
+	bottom: 3px;
+	background-color: #ffffff;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+input:checked + .slider {
+	background-color: #53a497;
+}
+input:focus + .slider {
+	box-shadow: 0 0 1px #53a497;
+}
+input:checked + .slider:before {
+	-webkit-transform: translateX(32px);
+	-ms-transform: translateX(32px);
+	transform: translateX(32px);
+}
 .login-logo {
 	width: 50%;
 }
 .login-form .login-body {
 	padding: 0 0 16px 32px;
 }
+.login-form .error-msg {
+	height: 24px;
+	color: #ff4444;
+	padding: 0 0 0 32px;
+}
 .login-form .submit-button {
 	padding: 16px 0 32px 32px;
 }
-.login-form .submit-button input {
+.login-form .submit-button input, button {
 	padding: 4px 36px;
 	font-size: 16px;
 	background: #53a497;
 	border-color: #53a497;
 	font-weight: 500;
+	text-decoration: none;
+    text-shadow: none;
+	color: white;
+	display: inline-block;
+    line-height: 2.15384615;
+    min-height: 30px;
+    margin: 0;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+.error-form .widefat th {
+	text-align: center;
+}
+.error-form td {
+	font-size: 16px;
+	padding: 16px 32px;
+}
+.error-form th {
+	font-size: 20px;
+	padding: 16px 32px;
 }
 input.login-input {
 	margin: 4px 0;
@@ -48,7 +157,8 @@ input.login-input {
 	}
 }
 @media (min-width: 783px) {
-	.login-form {
+	.login-form,
+	.error-form {
 		max-width: 500px;
 		margin: 50px auto 0;
 	}

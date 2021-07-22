@@ -53,8 +53,9 @@ class Chat_Essential_Admin_Login {
 		<div class="wrap">
 			<div class="metabox-holder columns-2">
 				<div style="position: relative;">
-					<form action="" method="post" name="login" class="web-rules-form login-form">
+					<form id="loginForm" name="login" class="web-rules-form login-form">
 						$nonce
+						<input type="hidden" name="request_type" value="login" />
 						<table class="wp-list-table widefat fixed table-view-excerpt">
 							<tr>
 								<td colspan="5" scope="col" id="logo" class="manage-column column-logo">
@@ -88,8 +89,12 @@ class Chat_Essential_Admin_Login {
 								<td class="login-spacer"></td>
 							</tr>
 							<tr>
+								<td colspan="4" class="med-font error-msg" id="errorMessage">
+								</td>
+							</tr>
+							<tr>
 								<td colspan="4" class="submit-button med-font">
-									<input type="submit" value="$submit" class="button button-primary" id="submit" name="submit_login">
+									<button id="submit_login">$submit</button>
 								</td>
 							</tr>
 						</table>
