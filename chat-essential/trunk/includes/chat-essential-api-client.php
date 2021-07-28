@@ -24,7 +24,7 @@ class Chat_Essential_API_client {
 		]);
 	}
 
-	private function request($type, $path) {
+	public function request($type, $path) {
 		try {
 			$headers = [
 				'X-API-Key' => WORDPRESS_PLUGIN_ID,
@@ -35,21 +35,27 @@ class Chat_Essential_API_client {
 			if ($response) {
 				$code = $response->getStatusCode();
 				if ($code == 200) {
-					return $response->getBody();
+					return array(
+						'code' => $code,
+						'data' => $response->getBody(),
+					);
 				}
 			}
-		} catch (GuzzleHttp\Exception\RequestException $e) {
-			echo $e;
+		} catch (GuzzleHttp\Exception\ClientException $e) {
+			if ($e->hasResponse()) {
+				$res = $e->getResponse();
+				return array(
+					'code' => $res->getStatusCode(),
+					'data' => (string)($res->getBody()),
+				);
+			}
+			return GuzzleHttp\Psr7\Message::toString($e->getRequest());
 		}
 
-		return "Internal plugin error";
-	}
-
-	/**
-	 * @since    0.0.1
-	 */
-	public function getAccountInfo() {
-		return $this->request('GET', 'customer');	
+		return array(
+			'code' => 500,
+			'data' => '{"message": "Internal plugin error"}',
+		);
 	}
 
 }

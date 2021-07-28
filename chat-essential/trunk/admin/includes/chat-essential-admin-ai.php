@@ -31,17 +31,6 @@ class Chat_Essential_Admin_AI {
 	 */
 	private $models = array(
 		'GPT-3' => 0,
-		'Home Renovations' => 1,
-		'Residential Electrical' => 1,
-		'Residential HVAC' => 1,
-		'Residential Plumbing' => 1,
-		'Tax Accounting' => 1,
-		'Personal Injury Law' => 1,
-		'Crossfit' => 1,
-		'Pilates' => 1,
-		'Yoga' => 1,
-		'Mortgages' => 1,
-		'Credit Cards' => 1
 	);
 
 	/**
@@ -53,13 +42,6 @@ class Chat_Essential_Admin_AI {
 		$this->api = $api;
 	}
 
-// 0 false
-// 1 true
-// 2 true
-// 3 true
-// 4 false
-// 5 true
-
 	public function html() {
     	$settings = $this->getSettings();
 
@@ -67,34 +49,11 @@ class Chat_Essential_Admin_AI {
 		$nonce = $settings['nonce'];
 
 		$h1 = localize('Core Knowledge');
+		$loading = localize('Loading...');
 		$h1_desc = localize('Select the topics you want your AI to be knowledgeable about');
 
-		$models = '';
-		$n_models = count($this->models);
-		$cnt = 0;
-		foreach ($this->models as $idx => $val) {
-			$col = '<td><input class="ai-checkbox" type="checkbox" name="topic-' . $idx . '" value="' . $idx . '"';
-			if (!$val) {
-				$col .= ' disabled checked';
-			}
-			$col .= ' /><div class="ai-input-label">' . $idx . '</div></td>';
-
-			if ($cnt % 4) {
-				$models .= $col;
-			} else {
-				if ($cnt > 0) {
-					$models .= '</tr>';
-				}
-				$models .= '<tr>' . $col;
-			}
-			$cnt++;
-			if ($cnt == $n_models) {
-				$models .= '</tr>';
-			}
-		}
-
 		$h2 = localize('Business Knowledge');
-		$h2_desc = localize('Select the website content you want the AI to consume to learn about your business');
+		$h2_desc = localize('Select the website content you want your AI to consume to learn about your business');
 
 		$types = Site_Options::getTypes();
 		$pages = '<tr><td colspan="4"><select name="site-type" id="siteTypeSelect">';
@@ -103,21 +62,13 @@ class Chat_Essential_Admin_AI {
 		}
 		$pages .= '</select></td></tr>';
 
-		$h3 = localize('Voice Assistant');
-		$h3_desc = localize('Turn this feature on to enable your AI to answer the phone');
-		$switch = '<tr><td colspan="4"><label class="switch"><input type="checkbox" ';
-		$switch .= 'checked';
-		$h3_desc = localize('Your AI can be reached at the following phone number');
-		$switch .= '><span class="slider"></span></label></td></tr>';
-
-		$phone_number = '<tr><td colspan="4"><p>' . $h3_desc . '</p><input disabled type="tel" class="regular-text" value="(720) 356-3009" id="aiPhone" name="tel"></tr></td>';
-
-		$submit = localize('Save Changes');
+		$submit = localize('Train Your AI');
 
     	return <<<END
 		<div class="wrap">
 			<h1>$title</h1>
-				<div class="metabox-holder columns-2">
+				<div class="med-font status-msg" id="statusMessage"></div>
+				<div id="pageContent" class="metabox-holder columns-2 ey-content">
 					<div style="position: relative;">
 						<a class="button button-primary ey-button top-margin" id="previewChat">Try It!</a>
 						<form action="" method="post" name="ai_form" class="ey-form">
@@ -130,10 +81,9 @@ class Chat_Essential_Admin_AI {
 											<p>$h1_desc</p>
 										</th>
 									</tr>
-									$models
 									<tr>
-										<td>
-											<a href="?page=2">Load More</a>
+										<td class="ai-model-container">
+											<table id="aiModels" class="form-table ai-model-table"></table>
 										</td>
 									</tr>
 									<tr>
@@ -143,13 +93,6 @@ class Chat_Essential_Admin_AI {
 										</th>
 									</tr>
 									$pages
-									<tr>
-										<th colspan="4">
-											<h2>$h3</h2>
-										</th>
-									</tr>
-									$switch
-									$phone_number
 									<tr>
 										<th colspan="4">
 											<p class="submit">

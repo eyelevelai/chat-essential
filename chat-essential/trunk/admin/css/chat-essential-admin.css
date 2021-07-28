@@ -30,6 +30,9 @@
 .ey-alert-frame {
 	display: none !important;
 }
+.ey-content {
+	display: none;
+}
 .ai-checkbox {
 	width: 10%;
 }
@@ -40,6 +43,13 @@
 }
 .ey-form th {
 	padding: 20px 10px 0 0;
+}
+td.ai-model-container {
+	margin: 0;
+	padding: 0;
+}
+td.loading-message {
+	font-style: italic;
 }
 .top-margin {
 	margin-top: 1em !important;
@@ -100,10 +110,11 @@ input:checked + .slider:before {
 .login-form .login-body {
 	padding: 0 0 16px 32px;
 }
-.login-form .error-msg {
-	height: 24px;
+.status-msg {
+	min-height: 24px;
+}
+.error-msg {
 	color: #ff4444;
-	padding: 0 0 0 32px;
 }
 .login-form .submit-button {
 	padding: 16px 0 32px 32px;

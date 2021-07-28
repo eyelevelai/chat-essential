@@ -132,7 +132,7 @@ class Chat_Essential_Admin_QRCode {
 								</tbody>
 							</table>
 							<p class="submit">
-								<input disabled type="submit" value="$submit" class="button button-primary" id="submit" name="submit_web_rules">
+								<input disabled type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_web_rules">
 								<i>Upgrade to premium</i>
 							</p>
 						</form>

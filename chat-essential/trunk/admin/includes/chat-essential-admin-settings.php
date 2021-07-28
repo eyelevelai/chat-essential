@@ -229,7 +229,7 @@ END;
 									<tr>
 										<th colspan="2">
 											<p class="submit">
-												<input type="submit" value="$submit" class="button button-primary" id="submit" name="submit_settings">
+												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
 											</p>
 										</th>
 									</tr>

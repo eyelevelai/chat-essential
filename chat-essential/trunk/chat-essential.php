@@ -28,7 +28,7 @@ require_once 'vendor/autoload.php';
 define( 'CHAT_ESSENTIAL_VERSION', '0.0.1' );
 
 define( 'WORDPRESS_PLUGIN_ID', '5ffb544f-e3f3-4108-95f8-0beb5139e22e' );
-define( 'EYELEVEL_API_URL', 'https://api.eyelevel.ai/v1/partner/' );
+define( 'EYELEVEL_API_URL', 'https://devapi.eyelevel.ai/v1/partner/' );
 
 // Plugin activation code
 function activate_chat_essential() {
