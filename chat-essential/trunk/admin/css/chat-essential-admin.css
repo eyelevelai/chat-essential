@@ -8,6 +8,7 @@
 }
 .ey-button {
 	background-color: #53a497 !important;
+	font-weight: normal !important;
 }
 .no-padding-bottom {
 	padding-bottom: 0px !important;
@@ -32,6 +33,7 @@
 }
 .ey-content {
 	display: none;
+	padding-top: 0 !important;
 }
 .ai-checkbox {
 	width: 10%;
@@ -39,10 +41,18 @@
 .ai-input-label {
 	display: inline-block;
 	vertical-align: middle;
-	width: 80%;
 }
 .ey-form th {
 	padding: 20px 10px 0 0;
+}
+.status-th {
+	padding-top: 8px !important;
+}
+.status-p {
+	margin-top: 8px !important;
+}
+.ey-form select,.selectize-control {
+	width: 400px;
 }
 td.ai-model-container {
 	margin: 0;
@@ -110,11 +120,22 @@ input:checked + .slider:before {
 .login-form .login-body {
 	padding: 0 0 16px 32px;
 }
+.demo-feature {
+	color: cadetblue;
+}
 .status-msg {
-	min-height: 24px;
+	padding-top: 4px;
+	height: 20px;
+	font-size: 14px;
+}
+td.status-msg {
+	padding: 8px 0 0;
 }
 .error-msg {
 	color: #ff4444;
+}
+.success-msg {
+	color: green;
 }
 .login-form .submit-button {
 	padding: 16px 0 32px 32px;
@@ -165,6 +186,12 @@ input.login-input {
 	}
 	table.web-rules-form tr:last-child td {
 		padding-bottom: 20px;
+	}
+	.ey-form select {
+		min-width: auto;
+	}
+	.ey-form select[multiple] {
+		height: auto;
 	}
 }
 @media (min-width: 783px) {

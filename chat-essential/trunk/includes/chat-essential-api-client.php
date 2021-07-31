@@ -24,13 +24,53 @@ class Chat_Essential_API_client {
 		]);
 	}
 
+	public function upload($name, $data) {
+		try {
+			$request = new GuzzleHttp\Psr7\Request('GET', '/upload/wordpress?name=' . $name . '&type=json');
+			$response = $this->client->send($request);
+			if ($response) {
+				$code = $response->getStatusCode();
+				if ($code == 200) {
+					$body = $response->getBody();
+					$jbody = json_decode($body, true);
+					if (!empty($jbody['URL'])) {
+						$response2 = $this->client->request('PUT', $jbody['URL'], [
+							'json' => $data,
+						]);
+						$code2 = $response2->getStatusCode();
+						if ($code == 200) {
+							return array(
+								'code' => 200,
+								'data' => 'OK',
+							);
+						}
+					}
+				}
+			}
+		} catch (GuzzleHttp\Exception\ClientException $e) {
+			if ($e->hasResponse()) {
+				$res = $e->getResponse();
+				return array(
+					'code' => $res->getStatusCode(),
+					'data' => (string)($res->getBody()),
+				);
+			}
+			return GuzzleHttp\Psr7\Message::toString($e->getRequest());
+		}
+
+		return array(
+			'code' => 500,
+			'data' => '{"message": "Internal plugin error"}',
+		);
+	}
+
 	public function request($type, $path) {
 		try {
 			$headers = [
 				'X-API-Key' => WORDPRESS_PLUGIN_ID,
 				'Content-Type' => 'application/json',
 			];
-			$request = new GuzzleHttp\Psr7\Request($type, $path, $headers);
+			$request = new GuzzleHttp\Psr7\Request($type, '/v1/partner/' . $path, $headers);
 			$response = $this->client->send($request);
 			if ($response) {
 				$code = $response->getStatusCode();

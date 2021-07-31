@@ -45,7 +45,7 @@ class Chat_Essential_Admin_Phone {
 		$h1_desc = localize('Your AI can be reached at the following phone number');
 		$switch .= '><span class="slider"></span></label></td></tr>';
 
-		$phone_number = '<tr><td colspan="4"><p>' . $h1_desc . '</p><input disabled type="tel" class="regular-text" value="(720) 356-3009" id="aiPhone" name="tel"></tr></td>';
+		$phone_number = '<tr><td colspan="4"><p>' . $h1_desc . '</p><input disabled type="tel" class="regular-text" value="(720) 806-6190" id="aiPhone" name="tel"></tr></td>';
 
 		$submit = localize('Save Changes');
 

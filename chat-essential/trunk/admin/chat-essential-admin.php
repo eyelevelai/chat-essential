@@ -28,6 +28,13 @@ class Chat_Essential_Admin {
 	/**
 	 * @since    0.0.1
 	 * @access   private
+	 * @var      array     $settings    The Chat Essential information for this WP site.
+	 */
+	private $settings;
+
+	/**
+	 * @since    0.0.1
+	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
 	private $version;
@@ -45,6 +52,8 @@ class Chat_Essential_Admin {
 
 		add_action( 'wp_ajax_chat_essential_get', array( $this, 'get_call' ) );
 		add_action( 'wp_ajax_chat_essential_post', array( $this, 'post_call' ) );
+		add_action( 'wp_ajax_chat_essential_site_options', array( $this, 'site_options' ) );
+		add_action( 'wp_ajax_chat_essential_train', array( $this, 'train_ai' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'network_admin_menu', 'add_menu');
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
@@ -123,28 +132,84 @@ class Chat_Essential_Admin {
 	 * @since    0.0.1
 	 */
 	public function add_footer() {
-		$slug = $_GET['page'];
-		switch ($slug) {
-			case 'chat-essential':
-			case 'chat-essential-ai':
-				echo "<!-- EyeLevel Chat --> <script>!function(){if(window.eyelevel)return;window.eyelevel = [];window.eyusername = 'f2a864f6-987b-4dac-90f3-1029671c8e77';window.eyflowname = '01FB7YHH3TXCCZM4MHP4PT5FX4';window.eyelevel.push(['init', { username: window.eyusername, flowname: window.eyflowname, origin: 'web', reset: true, env: 'dev', clearcache: true }]);var t=document.createElement('script');t.type='text/javascript',t.async=!0,t.src='https://cdn.eyelevel.ai/chat/eyelevel.js?v=1.3';var e=document.getElementsByTagName('script')[0];e.parentNode.insertBefore(t,e)}();</script> <!-- End EyeLevel Chat -->";
-				break;
+		if (!empty($_GET['page'])) {
+			$slug = $_GET['page'];
+			$options = get_option('chat-essential');
+			switch ($slug) {
+				case 'chat-essential':
+				case 'chat-essential-ai':
+					if (!empty($options) && !empty($options['apiKey'])) {
+						echo "<!-- EyeLevel Chat --> <script>!function(){if(window.eyelevel)return;window.eyelevel = [];window.eyusername = '" . $options['apiKey'] . "';window.eyflowname = '01FB7YHH3TXCCZM4MHP4PT5FX4';window.eyelevel.push(['init', { username: window.eyusername, flowname: window.eyflowname, origin: 'web', reset: true, env: 'dev', clearcache: true }]);var t=document.createElement('script');t.type='text/javascript',t.async=!0,t.src='https://cdn.eyelevel.ai/chat/eyelevel.js?v=1.3';var e=document.getElementsByTagName('script')[0];e.parentNode.insertBefore(t,e)}();</script> <!-- End EyeLevel Chat -->";
+					}
+					break;
+			}
 		}
+	}
+
+	public function site_options() {
+		global $wpdb;
+	}
+
+	/**
+	 * @since    0.0.1
+	 */
+	public function train_ai() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+
+		if (empty($_POST['body'])) {
+			wp_die('{"message":"Missing request data"}', 400);
+		}
+
+		$content = Site_Options::processOptions($_POST['body']);
+		if (count($content) < 1) {
+			wp_die('{"message":"No pages or posts fit the criteria you specified"}', 404);
+		}
+		$contentLen = 0;
+		foreach ($content as $post) {
+			$contentLen += strlen($post['content']);
+		}
+		if ($contentLen < MIN_TRAINING_CONTENT) {
+			wp_die('{"message":"You have not included sufficient content to train your AI"}', 400);
+		}
+
+		$fname = uniqid(random_int(0, 10), true);
+		$res = $this->api->upload($fname, $content);
+		if ($res['code'] != 200) {
+			wp_die($res['data'], $res['code']);
+		}
+
+// send nlp/model/train/{apiKey}
+
+		$options = get_option('chat-essential');
+		$options['training'] = $_POST['body'];
+		update_option( 'chat-essential', $options );
+
+		echo $res['data'];
+
+		die();
 	}
 
 	/**
 	 * @since    0.0.1
 	 */
 	public function get_call() {
-		if (wp_verify_nonce($_GET['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
             wp_die('', 403);
         }
 
-		if (empty($_GET['path'])) {
-			wp_die('{"message":"path parameter is missing"}', 403);
+		if (empty($_POST['path'])) {
+			wp_die('{"message":"Path parameter is missing"}', 400);
 		}
 
-		$res = $this->api->request('GET', $_GET['path']);
+		$options = get_option('chat-essential');
+		$path = $_POST['path'];
+		if (!empty($options) && !empty($options['apiKey'])) {
+			$path = str_replace('{apiKey}', $options['apiKey'], $_POST['path']);
+		}
+
+		$res = $this->api->request('GET', $path);
 		if ($res['code'] != 200) {
 			wp_die($res['data'], $res['code']);
 		}
@@ -158,9 +223,26 @@ class Chat_Essential_Admin {
 	 * @since    0.0.1
 	 */
 	public function post_call() {
-		check_ajax_referer(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
 
-		wp_send_json($_POST);
+		if (empty($_POST['path'])) {
+			wp_die('{"message":"Path parameter is missing"}', 403);
+		}
+
+		$options = get_option('chat-essential');
+		$path = $_POST['path'];
+		if (!empty($options) && !empty($options['apiKey'])) {
+			$path = str_replace('{apiKey}', $options['apiKey'], $path);
+		}
+
+		$res = $this->api->request('POST', $path);
+		if ($res['code'] != 200) {
+			wp_die($res['data'], $res['code']);
+		}
+
+		echo $res['data'];
 
 		die();
 	}
@@ -176,18 +258,24 @@ class Chat_Essential_Admin {
 	 * @since    0.0.1
 	 */
 	public function enqueue_scripts() {
-		$options = get_option('chat-essential');
-		if (!isset($options) || empty($options) || empty($options['apiKey'])) {
-			$options = array(
-				'apiKey' => 'f2a864f6-987b-4dac-90f3-1029671c8e77',
-			);
-		}
-
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/chat-essential-admin.js', array( 'jquery' ), $this->version, false );
 
-		$page_params = array(
-			'slug' => $_GET['page'],
-		);
+		$page_params = array();
+		if (!empty($_GET['page'])) {
+			$page_params['slug'] = $_GET['page'];
+			switch ($page_params['slug']) {
+				case 'chat-essential':
+				case 'chat-essential-ai':
+					wp_register_script( 'showTypeOptions', plugin_dir_url( __FILE__ ) . 'js/show-site-options.js', array( 'jquery' ) );
+					wp_enqueue_script( 'showTypeOptions' );
+					wp_register_style( 'selectize-css', plugins_url( 'css/selectize.bootstrap3.css', __FILE__ ) );
+					wp_enqueue_style( 'selectize-css' );
+					wp_register_script( 'selectize-js', plugins_url( 'js/selectize.min.js', __FILE__ ), array( 'jquery' ) );
+					wp_enqueue_script( 'selectize-js' );
+			}
+		} else {
+			$page_params['slug'] = '';
+		}
 
 		wp_localize_script( $this->plugin_name, 'pageParams', $page_params );
 	}
@@ -203,28 +291,24 @@ class Chat_Essential_Admin {
   		}
 
 		$slug = $_GET['page'];
-  		$options = get_option('chat-essential');
-		$settings_page = '';
-
-		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
+		$options = get_option('chat-essential');
 		$web_name = get_option('blogname');
-		if (isset($options) && !empty($options)) {
-			$options = array(
-				'app_id' => $options['app_id'],
-				'secret' => $options['secret'],
-				'nonce' => $nonce,
-				'website_name' => $web_name,
-			);
+		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
+		if (isset($options) && !empty($options) && !empty($options['apiKey'])) {
+			$options['nonce'] = $nonce;
+			$options['slug'] = $slug;
+			$options['website_name'] = $web_name;
 		} else {
+//			$slug = 'login';
 			$options = array(
-				'app_id' => '',
-				'secret' => '',
+				'apiKey' => '',
 				'nonce' => $nonce,
+				'slug' => $slug,
 				'website_name' => $web_name,
 			);
-//			$slug = 'login';
 		}
 
+		$settings_page = '';
 		switch ($slug) {
 			case 'chat-essential':
 			case 'chat-essential-ai':

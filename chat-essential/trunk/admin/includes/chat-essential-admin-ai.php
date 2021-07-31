@@ -55,47 +55,49 @@ class Chat_Essential_Admin_AI {
 		$h2 = localize('Business Knowledge');
 		$h2_desc = localize('Select the website content you want your AI to consume to learn about your business');
 
-		$types = Site_Options::getTypes();
-		$pages = '<tr><td colspan="4"><select name="site-type" id="siteTypeSelect">';
-		foreach ($types as $idx => $val) {
-			$pages .= '<option value="' . $idx . '">' . $val . '</option>';
+		$training = array();
+		if (!empty($settings['training'])) {
+			$training = $settings['training'];
 		}
-		$pages .= '</select></td></tr>';
+		$siteOptions = Site_Options::typeSelector($training);
 
 		$submit = localize('Train Your AI');
 
     	return <<<END
 		<div class="wrap">
 			<h1>$title</h1>
-				<div class="med-font status-msg" id="statusMessage"></div>
+				<div class="med-font status-msg" id="statusMessage1"></div>
 				<div id="pageContent" class="metabox-holder columns-2 ey-content">
 					<div style="position: relative;">
 						<a class="button button-primary ey-button top-margin" id="previewChat">Try It!</a>
-						<form action="" method="post" name="ai_form" class="ey-form">
+						<form id="aiForm" action="" method="post" name="ai_form" class="ey-form">
 							$nonce
 							<table class="form-table">
 								<tbody>
 									<tr>
-										<th colspan="4" class="no-top">
+										<th colspan="2" class="no-top">
 											<h2>$h1</h2>
 											<p>$h1_desc</p>
 										</th>
 									</tr>
 									<tr>
-										<td class="ai-model-container">
+										<td colspan="2" class="ai-model-container">
 											<table id="aiModels" class="form-table ai-model-table"></table>
 										</td>
 									</tr>
 									<tr>
-										<th colspan="4">
+										<th colspan="2">
 											<h2>$h2</h2>
 											<p>$h2_desc</p>
 										</th>
 									</tr>
-									$pages
+									$siteOptions
 									<tr>
-										<th colspan="4">
-											<p class="submit">
+										<td colspan="2" class="med-font status-msg" id="statusMessage2"></td>
+									</tr>
+									<tr>
+										<th colspan="2" class="status-th">
+											<p class="submit status-p">
 												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
 											</p>
 										</th>
