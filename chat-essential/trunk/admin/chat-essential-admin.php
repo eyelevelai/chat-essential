@@ -167,6 +167,7 @@ class Chat_Essential_Admin {
 			wp_die('{"message":"No pages or posts fit the criteria you specified"}', 404);
 		}
 		$contentLen = 0;
+		$submit = array();
 		foreach ($content as $post) {
 			$contentLen += strlen($post['content']);
 		}
@@ -180,11 +181,17 @@ class Chat_Essential_Admin {
 			wp_die($res['data'], $res['code']);
 		}
 
-// send nlp/model/train/{apiKey}
-
 		$options = get_option('chat-essential');
-		$options['training'] = $_POST['body'];
-		update_option( 'chat-essential', $options );
+		$res = $this->api->request('POST', 'nlp/train/' . $options['apiKey'], array(
+			'nlp' => array(
+				'fileUrl' => UPLOAD_BASE_URL . '/' . $fname . '.json',
+				'metadata' => json_encode($_POST['body']),
+				'modelId' => $options['modelId'],
+			),
+		));
+		if ($res['code'] > 299) {
+			wp_die($res['data'], $res['code']);
+		}
 
 		echo $res['data'];
 
@@ -209,7 +216,7 @@ class Chat_Essential_Admin {
 			$path = str_replace('{apiKey}', $options['apiKey'], $_POST['path']);
 		}
 
-		$res = $this->api->request('GET', $path);
+		$res = $this->api->request('GET', $path, null);
 		if ($res['code'] != 200) {
 			wp_die($res['data'], $res['code']);
 		}
@@ -237,7 +244,7 @@ class Chat_Essential_Admin {
 			$path = str_replace('{apiKey}', $options['apiKey'], $path);
 		}
 
-		$res = $this->api->request('POST', $path);
+		$res = $this->api->request('POST', $path, null);
 		if ($res['code'] != 200) {
 			wp_die($res['data'], $res['code']);
 		}

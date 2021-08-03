@@ -10,7 +10,6 @@
  */
 class Site_Options {
 
-
 	public static function cleanContent($content) {
 		$pg = $content->to_array();
 		$raw_txt = html_entity_decode(wp_strip_all_tags(apply_filters('the_content', $content->post_content)));
@@ -20,6 +19,7 @@ class Site_Options {
 		if (strlen($c_txt) > MIN_TRAINING_PAGE_CONTENT) {
 			$pg['c_len'] = strlen($c_txt);
 			$pg['content'] = $raw_txt;
+			$pg['url'] = get_page_link($content);
 			return $pg;
 		}
 		return;
@@ -46,14 +46,14 @@ class Site_Options {
 			if (!empty($options['ex_pages'])) {
 				$ex = array();
 				foreach ($options['ex_pages'] as $exp) {
-					array_push($ex, intval($exp));
+					$ex[] = intval($exp);
 				}
 				$q['exclude'] = $ex;
 			}
 			if (!empty($options['in_pages'])) {
 				$in = array();
 				foreach ($options['in_pages'] as $inp) {
-					array_push($in, intval($inp));
+					$in[] = intval($inp);
 				}
 				$q['include'] = $in;
 			}
@@ -62,7 +62,7 @@ class Site_Options {
 				if (Site_Options::shouldInclude($options, $page)) {
 					$pg = Site_Options::cleanContent($page);
 					if ($pg) {
-						$content[$page->ID] = $pg;
+						$content[] = $pg;
 					}
 				}
 			}
@@ -75,14 +75,14 @@ class Site_Options {
 			if (!empty($options['ex_posts'])) {
 				$ex = array();
 				foreach ($options['ex_posts'] as $exp) {
-					array_push($ex, intval($exp));
+					$ex[] = intval($exp);
 				}
 				$q['exclude'] = $ex;
 			}
 			if (!empty($options['in_posts'])) {
 				$in = array();
 				foreach ($options['in_posts'] as $inp) {
-					array_push($in, intval($inp));
+					$in[] = intval($inp);
 				}
 				$q['include'] = $in;
 			}
@@ -94,7 +94,7 @@ class Site_Options {
 				if (Site_Options::shouldInclude($options, $post)) {
 					$pg = Site_Options::cleanContent($post);
 					if ($pg) {
-						$content[$post->ID] = $pg;
+						$content[] = $pg;
 					}
 				}
 			}
@@ -145,8 +145,15 @@ class Site_Options {
 	 * @since    0.0.1
 	 */
 	public static function typeSelector($training) {
-		$pages = get_pages();
-		$posts = get_posts();
+		$pages = get_pages(array(
+			'hierarchical' => true,
+			'post_type' => 'page',
+			'sort_order' => 'desc',
+			'sort_column' => 'post_modified',
+		));
+		$posts = get_posts(array(
+			'numberposts' => 100,
+		));
 
 		$args = array( 'hide_empty' => 0 );
 		$categories = get_categories( $args );

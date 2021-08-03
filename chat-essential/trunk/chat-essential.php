@@ -29,6 +29,7 @@ define( 'CHAT_ESSENTIAL_VERSION', '0.0.1' );
 
 define( 'WORDPRESS_PLUGIN_ID', '5ffb544f-e3f3-4108-95f8-0beb5139e22e' );
 define( 'EYELEVEL_API_URL', 'https://devapi.eyelevel.ai' );
+define( 'UPLOAD_BASE_URL', 'https://upload.eyelevel.ai/wordpress' );
 
 define( 'MIN_TRAINING_CONTENT', 1000 );
 define( 'MIN_TRAINING_PAGE_CONTENT', 100 );

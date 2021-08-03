@@ -55,10 +55,33 @@ class Chat_Essential_Admin_AI {
 		$h2 = localize('Business Knowledge');
 		$h2_desc = localize('Select the website content you want your AI to consume to learn about your business');
 
-		$training = array();
-		if (!empty($settings['training'])) {
-			$training = $settings['training'];
+
+		if (empty($settings) || empty($settings['apiKey'])) {
+			echo 'LOGIN';
+			die();
 		}
+
+		$res = $this->api->request('GET', 'nlp/model/' . $settings['apiKey'], null);
+		if ($res['code'] != 200) {
+			wp_die('There was an issue loading your settings.', $res['code']);
+		}
+
+		$training = array();
+		$model_script = '<script>const model = { training: {} };</script>';
+		if (!empty($res['data'])) {
+			$data = json_decode($res['data']);
+			if (!empty($data->nlp) &&
+				!empty($data->nlp->model)) {
+				$model_script = '<script>const model = ' . json_encode($data->nlp->model) . ';</script>';
+				if (!empty($data->nlp->model->training) &&
+					!empty($data->nlp->model->training->metadata)
+				) {
+					$training = json_decode($data->nlp->model->training->metadata, true);
+				}
+			}
+		}
+		echo $model_script;
+
 		$siteOptions = Site_Options::typeSelector($training);
 
 		$submit = localize('Train Your AI');

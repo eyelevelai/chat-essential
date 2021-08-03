@@ -64,17 +64,20 @@ class Chat_Essential_API_client {
 		);
 	}
 
-	public function request($type, $path) {
+	public function request($type, $path, $body) {
 		try {
 			$headers = [
 				'X-API-Key' => WORDPRESS_PLUGIN_ID,
 				'Content-Type' => 'application/json',
 			];
-			$request = new GuzzleHttp\Psr7\Request($type, '/v1/partner/' . $path, $headers);
+			if ($body !== null) {
+				$body = json_encode($body);
+			}
+			$request = new GuzzleHttp\Psr7\Request($type, '/v1/partner/' . $path, $headers, $body);
 			$response = $this->client->send($request);
 			if ($response) {
 				$code = $response->getStatusCode();
-				if ($code == 200) {
+				if ($code < 300 && $code > 199) {
 					return array(
 						'code' => $code,
 						'data' => $response->getBody(),

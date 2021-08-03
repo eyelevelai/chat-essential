@@ -137,6 +137,9 @@ td.status-msg {
 .success-msg {
 	color: green;
 }
+.warn-msg {
+	color: #ff9007;
+}
 .login-form .submit-button {
 	padding: 16px 0 32px 32px;
 }

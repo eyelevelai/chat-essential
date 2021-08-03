@@ -9,6 +9,8 @@
 		}
 	];
 
+	let apiInProgress = false;
+
 	$(document).ready(function(){
 		var ChatEssential = {
 			aiTopicSelect: function(e) {
@@ -20,7 +22,7 @@
 							$('#' + key).prop('checked', false);
 							delete this.aiTopics[key];
 						}
-						this.showStatus('Upgrade to premium to select more than 1 topic', -1);
+						this.showStatus('Upgrade to premium to select more than 1 topic', 'error');
 					}
 					this.aiTopics[e.target.id] = e.target.value;
 				} else if (this.aiTopics[e.target.id]) {
@@ -91,30 +93,36 @@
 				return models;
 			},
 			loadModels: function() {
-				$.when(
-					api(this.n, 'chat_essential_get', 'nlp/model/{apiKey}'),
-					api(this.n, 'chat_essential_get', 'nlp/kit'),
-				)
-				.then((function(v1, v2) {
-					let model, kits;
-					if (v1 && v1.nlp && v1.nlp.model) {
-						model = v1.nlp.model;
-					}
-					if (v2 && v2.nlp && v2.nlp.kits) {
-						kits = v2.nlp.kits;
+				if (apiInProgress) {
+					return;
+				}
+				apiInProgress = true;
+
+				api(this.n, 'chat_essential_get', 'nlp/kit')
+				.then((function(v) {
+					apiInProgress = false;
+					let kits;
+					if (v && v.nlp && v.nlp.kits) {
+						kits = v.nlp.kits;
 					}
 					let allKits = coreModels;
 					if (kits && kits.length) {
 						allKits = coreModels.concat(kits);
 					}
+					if (model && model.training && model.training.taskId && model.training.status !== 'complete') {
+						this.showTrainingStatus(model.training.status);
+						this.pollTrainingStatus();
+					} else {
+						this.printTrainingDate();
+					}
 					const models = this.renderModels(model, allKits);
 					this.aiModels.html(models);
-					this.hideStatus();
 					this.pageContent.show();
 					this.aiTopic = $('.ai-checkbox');
 					this.aiTopic.click(this.aiTopicSelect.bind(this));
 				}).bind(this))
 				.catch((function(e1, e2) {
+					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
 						err = parseError(e1);
@@ -122,40 +130,105 @@
 						err = parseError(e2);
 					}
 					if (err) {
-						this.showStatus(err, -1);
+						this.showStatus(err, 'error');
 					}
 				}).bind(this));
 			},
 			onAISubmit: function (e) {
+				if (apiInProgress) {
+					return false;
+				}
+				if (model && model.training && model.training.status && model.training.status !== 'complete') {
+					this.showStatus('You have already submitted a training request that is not yet complete', 'error');
+					return false;
+				}
+
 				this.showStatus('Uploading training data...This might take a while...');
 				const data = this.siteOptionValues();
 				if (!data) {
 					return false;
 				}
+
+				apiInProgress = true;
 				api(this.n, 'chat_essential_train', null, null, data)
 				.then((function(v1) {
+					apiInProgress = false;
 					console.log(v1);
-					this.showStatus('Upload complete! Training started...This might also take a while...', 1);
+					if (v1 && v1.nlp && v1.nlp.task) {
+						model.training = v1.nlp.task;
+					}
+					this.showStatus('Upload complete! Training started...This might also take a while...', 'success');
+					this.pollTrainingStatus();
 				}).bind(this))
 				.catch((function(e1) {
+					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
 						err = parseError(e1);
-						this.showStatus(err, -1);
+						this.showStatus(err, 'error');
 					} else {
-						this.showStatus(e1, -1);
+						this.showStatus(e1, 'error');
 					}
 				}).bind(this));
 				return false;
 			},
 			onStartSubmit: function (e) {
 				console.log('submit');
-				this.showStatus('Something went wrong.', -1);
+				this.showStatus('Something went wrong', 'error');
 				return false;
 			},
 			previewChat: function (e) {
 				if (window.toggleChat) {
 					window.toggleChat();
+				}
+			},
+			pollTrainingStatus: function() {
+				setTimeout((function() {
+					if (model && model.training && model.training.taskId) {
+						api(this.n, 'chat_essential_get', 'nlp/task/' + model.training.taskId)
+						.then((function(data) {
+							if (data && data.nlp && data.nlp.task && data.nlp.task.status) {
+								model.training.status = data.nlp.task.status;
+								this.showTrainingStatus(data.nlp.task.status);
+							}
+						}).bind(this))
+						.catch((function(e1) {
+							var err = '';
+							if (e1.responseText) {
+								err = parseError(e1);
+							}
+							if (err) {
+								console.error(err);
+							}
+						}).bind(this));
+					}
+				}).bind(this), 5000);
+			},
+			printTrainingDate: function() {
+				if (model && model.training && model.training.started) {
+					const dt = new Date(model.training.started);
+      				const dtf = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
+      				const [{ value: mo }, , { value: da }, , { value: yr }, , { value: hr }, , { value: min }, , { value: per }] = dtf.formatToParts(dt);
+					this.showStatus('<i>Your AI was last trained on ' + mo + ' ' + da + ', ' + yr + ' at ' + hr + ':' + min + per + '</i>');
+				} else {
+					this.hideStatus();
+				}
+			},
+			showTrainingStatus: function(status) {
+				if (status === 'queued') {
+					this.showStatus('Your training request is queued but has not started yet', 'warn');
+					this.pollTrainingStatus();
+				} else if (status === 'generating') {
+					this.showStatus('Your custom AI model is currently being generated', 'warn');
+					this.pollTrainingStatus();
+				} else if (status === 'complete') {
+					this.showStatus('Training is now complete!', 'success');
+					setTimeout((function(){
+						this.printTrainingDate();
+					}).bind(this), 5000);
+				} else {
+					this.showStatus('Your training request is currently being processed', 'warn');
+					this.pollTrainingStatus();
 				}
 			},
 			siteOptionValues: function() {
@@ -177,7 +250,7 @@
 					case 'pages':
 						dt1 = $('#inPages').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one page', -1);
+							this.showStatus('Choose at least one page', 'error');
 							return;
 						}
 						data.in_pages = dt1;
@@ -185,7 +258,7 @@
 					case 'posts':
 						dt1 = $('#inPosts').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one post', -1);
+							this.showStatus('Choose at least one post', 'error');
 							return;
 						}
 						data.in_posts = dt1;
@@ -193,7 +266,7 @@
 					case 'categories':
 						dt1 = $('#inCategories').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one category', -1);
+							this.showStatus('Choose at least one category', 'error');
 							return;
 						}
 						data.in_categories = dt1;
@@ -201,7 +274,7 @@
 					case 'tags':
 						dt1 = $('#inTags').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one tag', -1);
+							this.showStatus('Choose at least one tag', 'error');
 							return;
 						}
 						data.in_tags = dt1;
@@ -209,7 +282,7 @@
 					case 'postTypes':
 						dt1 = $('#inPostTypes').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one post type', -1);
+							this.showStatus('Choose at least one post type', 'error');
 							return;
 						}
 						data.in_postTypes = dt1;
@@ -222,12 +295,15 @@
 				for (var idx in this.status) {
 					const st = $('#' + this.status[idx].id);
 					st.removeClass('error-msg');
+					st.removeClass('warn-msg');
 					st.removeClass('success-msg');
 					if (msgType !== undefined) {
-						if (msgType < 0) {
+						if (msgType === 'error') {
 							st.addClass('error-msg');
-						} else {
+						} else if (msgType === 'success') {
 							st.addClass('success-msg');
+						} else if (msgType === 'warn') {
+							st.addClass('warn-msg');
 						}
 					}
             		st.html(message).fadeIn();
