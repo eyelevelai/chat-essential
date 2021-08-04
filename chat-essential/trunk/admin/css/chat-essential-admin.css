@@ -38,6 +38,9 @@
 .ai-checkbox {
 	width: 10%;
 }
+.ai-model-checkbox {
+	width: 10%;
+}
 .ai-input-label {
 	display: inline-block;
 	vertical-align: middle;

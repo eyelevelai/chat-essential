@@ -1,11 +1,10 @@
 (function( $ ) {
 	'use strict';
 
-	const coreModels = [
+	const coreEngines = [
 		{
-			kitId: 0,
-			modelType: 'gpt3',
 			name: 'GPT-3',
+			engine: 'gpt3',
 		}
 	];
 
@@ -13,22 +12,6 @@
 
 	$(document).ready(function(){
 		var ChatEssential = {
-			aiTopicSelect: function(e) {
-				this.showStatus('');
-				if (e.target.checked) {
-					var len = Object.keys(this.aiTopics).length;
-					if (len > 0) {
-						for (var key in this.aiTopics) {
-							$('#' + key).prop('checked', false);
-							delete this.aiTopics[key];
-						}
-						this.showStatus('Upgrade to premium to select more than 1 topic', 'error');
-					}
-					this.aiTopics[e.target.id] = e.target.value;
-				} else if (this.aiTopics[e.target.id]) {
-					delete this.aiTopics[e.target.id];
-				}
-			},
 			init: function() {
             	this.status = $('.status-msg');
 				this.pageContent = $('#pageContent');
@@ -48,12 +31,45 @@
 							this.aiPreview = $('#previewChat');
 							this.aiPreview.click(this.previewChat.bind(this));
 							this.aiTopics = {};
+							this.aiEngines = [];
 							this.loadModels();
 							return;
 					}
 				}
 				this.showStatus('');
 				this.pageContent.show();
+			},
+			aiModelSelect: function(e) {
+				this.showStatus('');
+				if (e.target.checked) {
+					if (this.aiEngines.length > 0) {
+						for (var idx in this.aiEngines) {
+							const key = this.aiEngines[idx];
+							$('#' + key).prop('checked', false);
+							this.aiEngines.splice(idx);
+						}
+						this.showStatus('Upgrade to premium to select more than 1 model', 'error');
+					}
+					this.aiEngines.push(e.target.id);
+				} else if (this.aiEngines.indexOf(e.target.id) > -1) {
+					this.aiEngines.splice(this.aiEngines.indexOf(e.target.id));
+				}
+			},
+			aiTopicSelect: function(e) {
+				this.showStatus('');
+				if (e.target.checked) {
+					var len = Object.keys(this.aiTopics).length;
+					if (len > 0) {
+						for (var key in this.aiTopics) {
+							$('#' + key).prop('checked', false);
+							delete this.aiTopics[key];
+						}
+						this.showStatus('Upgrade to premium to select more than 1 topic', 'error');
+					}
+					this.aiTopics[e.target.id] = e.target.value;
+				} else if (this.aiTopics[e.target.id]) {
+					delete this.aiTopics[e.target.id];
+				}
 			},
 			renderModels: function(model, kits) {
 				let idx = 0;
@@ -65,15 +81,24 @@
 						modelKits[k.kitId] = k;
 					}
 				}
+				let modelSelected = false;
 				for (const val of kits) {
 					const id = val.name.replace(' ', '-');
-					let col = '<td><input id="topic-' + id + '" class="ai-checkbox" type="checkbox" name="topic-' + id + '" value="' + val.name + '"';
+					let col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
 					let classes = 'ai-input-label';
-					if (val.kitId < 1) {
-						col += ' disabled checked';
-					} else if (modelKits[val.kitId]) {
-						col += ' checked';
-						this.aiTopics['topic-' + id] = val.name;
+					if (val.engine) {
+						col += ' class="ai-model-checkbox" value="' + val.engine + '"';
+						if (!modelSelected) {
+							modelSelected = true;
+							this.aiEngines.push('topic-' + id);
+						}
+						col += ' checked disabled';
+					} else {
+						col += ' value="' + val.kitId + '" class="ai-checkbox"';
+						if (modelKits[val.kitId]) {
+							col += ' checked';
+							this.aiTopics['topic-' + id] = val.kitId;
+						}
 					}
 					col += ' /><div class="' + classes + '">' + val.name + '</div></td>';
 
@@ -105,9 +130,9 @@
 					if (v && v.nlp && v.nlp.kits) {
 						kits = v.nlp.kits;
 					}
-					let allKits = coreModels;
+					let allKits = coreEngines;
 					if (kits && kits.length) {
-						allKits = coreModels.concat(kits);
+						allKits = coreEngines.concat(kits);
 					}
 					if (model && model.training && model.training.taskId && model.training.status !== 'complete') {
 						this.showTrainingStatus(model.training.status);
@@ -120,6 +145,8 @@
 					this.pageContent.show();
 					this.aiTopic = $('.ai-checkbox');
 					this.aiTopic.click(this.aiTopicSelect.bind(this));
+					this.aiModel = $('.ai-model-checkbox');
+					this.aiModel.click(this.aiModelSelect.bind(this));
 				}).bind(this))
 				.catch((function(e1, e2) {
 					apiInProgress = false;
@@ -146,6 +173,7 @@
 				this.showStatus('Uploading training data...This might take a while...');
 				const data = this.siteOptionValues();
 				if (!data) {
+					this.showStatus('There was an internal issue submitting your request', 'error');
 					return false;
 				}
 
@@ -235,6 +263,22 @@
 				const data = {
 					siteType: $('#siteTypeSelect').val(),
 				};
+
+				var topics = Object.keys(this.aiTopics).length;
+				if (topics > 0) {
+					data['kits'] = [];
+					for (var k in this.aiTopics) {
+						data['kits'].push(parseInt(this.aiTopics[k]));
+					}
+				}
+				if (this.aiEngines.length > 0) {
+					data['engines'] = [];
+					for (var k in this.aiEngines) {
+						const md = $('#' + this.aiEngines[k]);
+						data['engines'].push(md.val());
+					}
+				}
+
 				let dt1, dt2;
 				switch (data.siteType) {
 					case 'all':

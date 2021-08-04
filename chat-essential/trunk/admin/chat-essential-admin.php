@@ -162,6 +162,19 @@ class Chat_Essential_Admin {
 			wp_die('{"message":"Missing request data"}', 400);
 		}
 
+		$kits = array();
+		$engines = array();
+		if (!empty($_POST['body']['engines'])) {
+			$engines = $_POST['body']['engines'];
+			unset($_POST['body']['engines']);
+		}
+		if (!empty($_POST['body']['kits'])) {
+			foreach ($_POST['body']['kits'] as $kid) {
+				$kits[] = intval($kid);
+			}
+			unset($_POST['body']['kits']);
+		}
+
 		$content = Site_Options::processOptions($_POST['body']);
 		if (count($content) < 1) {
 			wp_die('{"message":"No pages or posts fit the criteria you specified"}', 404);
@@ -182,12 +195,20 @@ class Chat_Essential_Admin {
 		}
 
 		$options = get_option('chat-essential');
+		$reqData = array(
+			'fileUrl' => UPLOAD_BASE_URL . '/' . $fname . '.json',
+			'metadata' => json_encode($_POST['body']),
+			'modelId' => $options['modelId'],
+		);
+		if (!empty($kits)) {
+			$reqData['kits'] = $kits;
+		}
+		if (!empty($engines)) {
+			$reqData['engines'] = $engines;
+		}
+
 		$res = $this->api->request('POST', 'nlp/train/' . $options['apiKey'], array(
-			'nlp' => array(
-				'fileUrl' => UPLOAD_BASE_URL . '/' . $fname . '.json',
-				'metadata' => json_encode($_POST['body']),
-				'modelId' => $options['modelId'],
-			),
+			'nlp' => $reqData,
 		));
 		if ($res['code'] > 299) {
 			wp_die($res['data'], $res['code']);
