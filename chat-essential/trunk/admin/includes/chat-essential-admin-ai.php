@@ -55,13 +55,7 @@ class Chat_Essential_Admin_AI {
 		$h2 = localize('Business Knowledge');
 		$h2_desc = localize('Select the website content you want your AI to consume to learn about your business');
 
-
-		if (empty($settings) || empty($settings['apiKey'])) {
-			echo 'LOGIN';
-			die();
-		}
-
-		$res = $this->api->request('GET', 'nlp/model/' . $settings['apiKey'], null);
+		$res = $this->api->request($settings['apiKey'], 'GET', 'nlp/model/' . $settings['apiKey'], null, null);
 		if ($res['code'] != 200) {
 			wp_die('There was an issue loading your settings.', $res['code']);
 		}

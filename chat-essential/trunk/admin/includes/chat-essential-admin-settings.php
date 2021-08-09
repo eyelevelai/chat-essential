@@ -103,6 +103,7 @@ END;
 			<h1>$title</h1>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
+						<a class="button button-primary ey-button top-margin" id="logoutBtn">Log Out</a>
 						<form action="" method="post" name="settings_form">
 							$nonce
 							<table class="form-table">

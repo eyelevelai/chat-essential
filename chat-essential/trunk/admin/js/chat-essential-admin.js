@@ -1,13 +1,6 @@
 (function( $ ) {
 	'use strict';
 
-	const coreEngines = [
-		{
-			name: 'GPT-3',
-			engine: 'gpt3',
-		}
-	];
-
 	let apiInProgress = false;
 
 	$(document).ready(function(){
@@ -20,11 +13,11 @@
         	},
 			loadPage: function() {
 				this.pageContent.hide();
-				this.showStatus('Loading...');
 				if (pageParams && pageParams.slug) {
 					switch(pageParams.slug) {
 						case 'chat-essential':
 						case 'chat-essential-ai':
+							this.showStatus('Loading...');
 							this.form = $('#aiForm');
             				this.form.submit(this.onAISubmit.bind(this));
 							this.aiModels = $('#aiModels');
@@ -33,6 +26,17 @@
 							this.aiTopics = {};
 							this.aiEngines = [];
 							this.loadModels();
+							return;
+						case 'chat-essential-settings':
+							this.logoutBtn = $('#logoutBtn');
+							this.logoutBtn.click(this.logout.bind(this));
+							return;
+						case 'signup':
+						case 'login':
+							this.form = $('#loginForm');
+							this.form.submit(this.onAuthSubmit.bind(this));
+							this.switchBtn = $('#footerBtn');
+							this.switchBtn.click(this.switchAuth.bind(this));
 							return;
 					}
 				}
@@ -121,6 +125,9 @@
 				if (apiInProgress) {
 					return;
 				}
+				if (typeof(model) === 'undefined' || !pageParams.coreEngines) {
+					return;
+				}
 				apiInProgress = true;
 
 				api(this.n, 'chat_essential_get', 'nlp/kit')
@@ -130,16 +137,17 @@
 					if (v && v.nlp && v.nlp.kits) {
 						kits = v.nlp.kits;
 					}
-					let allKits = coreEngines;
+					let allKits = pageParams.coreEngines;
 					if (kits && kits.length) {
-						allKits = coreEngines.concat(kits);
+						allKits = pageParams.coreEngines.concat(kits);
 					}
-					if (model && model.training && model.training.taskId && model.training.status !== 'complete') {
+					if(model.training && model.training.taskId && model.training.status !== 'complete') {
 						this.showTrainingStatus(model.training.status);
 						this.pollTrainingStatus();
 					} else {
-						this.printTrainingDate();
+							this.printTrainingDate();
 					}
+
 					const models = this.renderModels(model, allKits);
 					this.aiModels.html(models);
 					this.pageContent.show();
@@ -158,6 +166,28 @@
 					}
 					if (err) {
 						this.showStatus(err, 'error');
+					} else {
+						console.error(e1, e2);
+					}
+				}).bind(this));
+			},
+			logout: function() {
+				if (apiInProgress) {
+					return;
+				}
+				apiInProgress = true;
+				api(this.n, 'chat_essential_logout')
+				.then((function(v) {
+					location.reload();
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
 					}
 				}).bind(this));
 			},
@@ -176,9 +206,9 @@
 					this.showStatus('There was an internal issue submitting your request', 'error');
 					return false;
 				}
-
 				apiInProgress = true;
-				api(this.n, 'chat_essential_train', null, null, data)
+
+				api(this.n, 'chat_essential_train', null, data)
 				.then((function(v1) {
 					apiInProgress = false;
 					console.log(v1);
@@ -195,14 +225,42 @@
 						err = parseError(e1);
 						this.showStatus(err, 'error');
 					} else {
-						this.showStatus(e1, 'error');
+						console.error(e1);
 					}
 				}).bind(this));
 				return false;
 			},
-			onStartSubmit: function (e) {
-				console.log('submit');
-				this.showStatus('Something went wrong', 'error');
+			onAuthSubmit: function (e) {
+				if (apiInProgress) {
+					return false;
+				}
+				const data = this.authValues();
+				if (!data) {
+					return false;
+				}
+				apiInProgress = true;
+				if (data.type === 'login') {
+					this.showStatus('Submitting...');
+				} else {
+					this.showStatus('Submitting...');
+				}
+
+				api(this.n, 'chat_essential_auth', null, data)
+				.then((function(v1) {
+					location.reload();
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.status && e1.status === 405) {
+						this.showStatus('An account with this email already exists', 'error');
+					} else if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
 				return false;
 			},
 			previewChat: function (e) {
@@ -224,9 +282,9 @@
 							var err = '';
 							if (e1.responseText) {
 								err = parseError(e1);
-							}
-							if (err) {
-								console.error(err);
+								this.showStatus(err, 'error');
+							} else {
+								console.error(e1);
 							}
 						}).bind(this));
 					}
@@ -258,6 +316,57 @@
 					this.showStatus('Your training request is currently being processed', 'warn');
 					this.pollTrainingStatus();
 				}
+			},
+			authValues: function() {
+				let err = '';
+				const data = {
+					type: pageParams.slug,
+				};
+				this.hideStatus();
+
+				const email = $('#email');
+				email.removeClass('error-value');
+				const pass1 = $('#password1');
+				pass1.removeClass('error-value');
+				const pass2 = $('#password2');
+				if (pass2) {
+					pass2.removeClass('error-value');
+				}
+
+				err = validateEmail(email.val());
+				if (err) {
+					this.showStatus(err, 'error');
+					email.addClass('error-value');
+					return;
+				}
+				data['email'] = email.val();
+
+				err = validatePassword(pass1.val());
+				if (err) {
+					this.showStatus(err, 'error');
+					pass1.addClass('error-value');
+					return;
+				}
+				data['password'] = pass1.val();
+				switch (pageParams.slug) {
+					case 'login':
+						return data;
+					case 'signup':
+						if (pass1.val() !== pass2.val()) {
+							this.showStatus('Passwords are not the same', 'error');
+							pass2.addClass('error-value');
+							return;
+						}
+						err = validatePassword(pass2.val());
+						if (err) {
+							this.showStatus(err, 'error');
+							pass2.addClass('error-value');
+							return;
+						}
+						return data;
+				}
+
+				return;
 			},
 			siteOptionValues: function() {
 				const data = {
@@ -353,6 +462,27 @@
             		st.html(message).fadeIn();
 				}
         	},
+			switchAuth: function() {
+				if (apiInProgress) {
+					return;
+				}
+				apiInProgress = true;
+				api(this.n, 'chat_essential_switch_auth')
+				.then((function(v) {
+					apiInProgress = false;
+					location.reload();
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+			},
         	hideStatus: function () {
 				for (var idx in this.status) {
 					const st = $('#' + this.status[idx].id);
@@ -381,21 +511,19 @@
 		return 'Internal server error';
 	};
 
-	const api = function(nonce, action, path, query, body, response) {
-		return $.post(ajaxurl, {
+	const api = function(nonce, action, path, body) {
+		const options = {
 			'action': action,
 			'path': path,
-			'query': query,
 			'body': body,
 			'_wpnonce': nonce,
-		})
+		};
+		return $.post(ajaxurl, options)
 			.then(function(data) {
 				try {
 					const jdata = JSON.parse(data);
-					if (response) response(null, jdata);
 					return jdata;
 				} catch(e) {
-					if (response) response(null, data);
 					return data;
 				}
 			})
@@ -404,21 +532,63 @@
 					try {
 						const jdata = JSON.parse(err.responseText);
 						if (jdata.message) {
-							if (response) response(jdata.message);
 							return jdata.message;
 						} else {
-							if (response) response(jdata);
 							return jdata;
 						}
 					} catch(e) {
-						if (response) response(err.responseText);
 						return err.responseText
 					}
 				} else {
-					if (response) response('Internal server error');
+					console.error(err);
 					return 'Internal server error';
 				}
 			});
+	};
+
+	const validateEmail = function(email) {
+		if (!email)
+			return 'Email is required';
+
+		if (email.length > 254) {
+			return 'Email must be less than 255 characters';
+		}
+
+		const emailRegex = new RegExp(pageParams.emailRegex, 'g');
+		const res = emailRegex.exec(email);
+		if (!res) {
+			return 'Enter a valid email address';
+		}
+
+		const parts = email.split("@");
+		if (parts[0].length > 64) {
+			return 'Email before @ must be less than 65 characters';
+		}
+
+		const domainParts = parts[1].split(".");
+		if (domainParts.some(function(part) {
+			return part.length > 63;
+		})) {
+			return 'Email domain must be less than 64 characters';
+		}
+
+		return;
+	};
+
+	const validatePassword = function(pass) {
+		if (!pass || pass.length < 1) {
+			return 'Password is required';
+		}
+		if (pass.length < 8 || pass > 16) {
+			return 'Password must be between 8 and 16 characters';
+		}
+
+		const passwordRegex = new RegExp(pageParams.passwordRegex, 'g');
+		const res = passwordRegex.exec(pass);
+		if (!res) {
+			return 'Password must contain at least 1 special character';
+		}
+		return;
 	};
 
 })( jQuery );

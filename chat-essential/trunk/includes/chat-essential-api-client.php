@@ -64,16 +64,22 @@ class Chat_Essential_API_client {
 		);
 	}
 
-	public function request($type, $path, $body) {
+	public function request($apiKey, $type, $path, $body, $auth) {
 		try {
 			$headers = [
 				'X-API-Key' => WORDPRESS_PLUGIN_ID,
 				'Content-Type' => 'application/json',
+				'X-WordPress-Subscription' => PLUGIN_SUBSCRIPTION,
+				'X-Customer-Key' => $apiKey,
 			];
+			if ($auth !== null) {
+				$credentials = base64_encode($auth['username'] . ':' . $auth['password']);
+				$headers['Authorization'] = 'Basic ' . $credentials;
+			}
 			if ($body !== null) {
 				$body = json_encode($body);
 			}
-			$request = new GuzzleHttp\Psr7\Request($type, '/v1/partner/' . $path, $headers, $body);
+			$request = new GuzzleHttp\Psr7\Request($type, '/wordpress/' . $path, $headers, $body);
 			$response = $this->client->send($request);
 			if ($response) {
 				$code = $response->getStatusCode();

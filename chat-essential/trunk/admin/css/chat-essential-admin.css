@@ -134,17 +134,31 @@ input:checked + .slider:before {
 td.status-msg {
 	padding: 8px 0 0;
 }
-.error-msg {
+.error-msg, td.error-msg {
 	color: #ff4444;
 }
-.success-msg {
+input.error-value {
+	border-color: #ff4444;
+}
+.success-msg, td.success-msg {
 	color: green;
 }
-.warn-msg {
+.warn-msg, td.warn-msg {
 	color: #ff9007;
 }
+.ey-link {
+	color: #53a497;
+	cursor: pointer;
+}
+.ey-bold {
+	color: #53a497;
+	font-weight: bold;
+}
+td.login-left {
+	padding: 0 0 0 32px;
+}
 .login-form .submit-button {
-	padding: 16px 0 32px 32px;
+	padding: 16px 0 16px 32px;
 }
 .login-form .submit-button input, button {
 	padding: 4px 36px;
