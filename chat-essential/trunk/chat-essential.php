@@ -27,13 +27,21 @@ require_once 'vendor/autoload.php';
 // Plugin version - https://semver.org
 define( 'CHAT_ESSENTIAL_VERSION', '0.0.1' );
 
+define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
+define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
+
 define( 'PLUGIN_SUBSCRIPTION', 'basic' );
 define( 'WORDPRESS_PLUGIN_ID', '5ffb544f-e3f3-4108-95f8-0beb5139e22e' );
 define( 'EYELEVEL_API_URL', 'https://devapi.eyelevel.ai' );
+define( 'DASHBOARD_URL', 'https://devssp.eyelevel.ai' );
 define( 'UPLOAD_BASE_URL', 'https://upload.eyelevel.ai/wordpress' );
+define( 'HOSTED_URL', 'https://chat.eyelevel.ai' );
 
 define( 'MIN_TRAINING_CONTENT', 1000 );
 define( 'MIN_TRAINING_PAGE_CONTENT', 100 );
+
+global $chat_essential_db_version;
+$chat_essential_db_version = '0.1';
 
 $engines = array();
 $engines[] = array(

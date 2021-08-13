@@ -14,7 +14,7 @@ class Chat_Essential_Activator {
 	 * @since    0.0.1
 	 */
 	public static function activate() {
-
+		Chat_Essential_Utility::db_install();
 	}
 
 }

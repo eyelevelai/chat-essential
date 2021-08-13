@@ -33,39 +33,119 @@ class Chat_Essential_Admin_Website {
 		$this->api = $api;
 	}
 
+	private function row($settings, $web) {
+		$rule = Chat_Essential_Utility::get_rules($web->platformId);
+		if (empty($rule)) {
+			return;
+		}
+
+		$checked = '';
+		if ($rule->status === 'active') {
+			$checked = 'checked';
+		}
+		$isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' .$web->platformId . '" /><label class="ey-switch" for="status' .$web->platformId . '">Toggle</label>';
+
+		$edit_url = DASHBOARD_URL . '/view/' . $web->versionId;
+		$edit = localize('Edit');
+		$lot_val = localize('Site Wide');
+		$analytics = localize('View');
+		$analytics_url = DASHBOARD_URL . '/analytics/' . $web->id;
+		$theme_name = '';
+		if (!empty($web->theme) && !empty($web->theme->name)) {
+			$theme_name = $web->theme->name;
+		}
+		$offhours_name = '';
+		if (!empty($web->offhoursSetting) && !empty($web->offhoursSetting->name)) {
+			$offhours_name = $web->offhoursSetting->name;
+		}
+
+		$preview = '';
+		$preview_url = '';
+		
+		$res = $this->api->request($settings['apiKey'], 'GET', 'publish/' . $settings['apiKey'] . '/' . $web->id, null, null);
+		if ($res['code'] != 200) {
+			wp_die('There was an issue loading your settings.', $res['code']);
+		}
+
+		if (empty($res['data'])) {
+			wp_die('There was an issue loading your settings.', 500);
+		}
+		$data = json_decode($res['data'], true);
+
+		if (!empty($data)) {
+			if (!empty($data['publish'])) {
+				if (!empty($data['publish']['url'])) {
+					$disp = '';
+					if ($rule->status === 'inactive') {
+						$disp = 'style="display:none;"';
+					}
+					$preview_url = $data['publish']['url'] . '&eystate=open&eyreset=true&clearcache=true';
+					$preview = '<span ' . $disp . ' id="status' .$web->platformId . '-preview" class="preview-web"><a href="' . $preview_url . '" target="_blank">' . localize('Preview') . '</a></span>';
+				}
+			}
+		}
+
+		return <<<END
+	<tr>
+		<td class="status column-status">$isOn</td>
+		<td class="flow-name column-flow-name">
+			<strong>$web->name</strong>
+			<div class="row-actions visible">
+				$preview
+				<span class="edit">
+					<a href="$edit_url" target="_blank">$edit</a>
+				</span>
+			</div>
+		</td>
+		<td class="load-on column-load-on">
+			$lot_val
+		</td>
+		<td class="theme column-analytics">
+			<a href="$analytics_url" target="_blank">$analytics</a>
+		</td>
+		<td class="theme column-theme">
+			$theme_name
+		</td>
+		<td class="offhours column-offhours">
+			$offhours_name
+		</td>
+	</tr>
+END;
+	}
+
 	public function html() {
     	$settings = $this->getSettings();
 
+		Chat_Essential_Utility::update_web_status(27, 'inactive');
+
 		$title = localize('Website Chat');
 		$nonce = $settings['nonce'];
+	
+		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=web&type=flow&data=full', null, null);
+		if ($res['code'] != 200) {
+			wp_die('There was an issue loading your settings.', $res['code']);
+		}
 
-		$hl = localize('Website Chat Rules #1');
-		$hl_desc = localize('This defines the chat flow, theme, and business hours that load on your website');
+		if (empty($res['data'])) {
+			wp_die('There was an issue loading your settings.', 500);
+		}
+		$data = json_decode($res['data']);
+
+		$webflows = '';
+		if (!empty($data->flows)) {
+			foreach ($data->flows as $flow) {
+				$webflows .= $this->row($settings, $flow);
+			}
+		} else {
+			// empty state?
+		}
 
 		$h1 = localize('Status');
-		$isOn = "ON";
-
 		$h2 = localize('Chat Flow');
-		$chat_val = $settings['website_name'] . ' Website Chat';
-		$preview_url = '?action=preview';
-		$preview_label = localize('Preview');
-		$edit_url = '?action=edit';
-		$edit_label = localize('Edit');
-		$delete_url = '?action=delete';
-		$delete_label = localize('Delete');
-
 		$h3 = localize('Load On');
-		$lot_val = 'Site Wide';
-
 		$h4 = localize('Analytics');
-		$v4 = localize('View');
-		$v4_url = 'https://ssp.eyelevel.ai';
-
 		$h5 = localize('Theme');
-		$theme_val = $settings['website_name'] . ' Theme';
-
 		$h6 = localize('Business Hours Settings');
-		$offhours_val = $settings['website_name'] . ' Business Hours';
 
 		$submit = localize('Add New Settings');
 
@@ -82,7 +162,7 @@ class Chat_Essential_Admin_Website {
 										<th scope="col" id="status" class="manage-column column-status">
 											$h1
 										</th>
-										<th colspan="2" scope="col" id="flow-name" class="manage-column column-flow-name">
+										<th scope="col" id="flow-name" class="manage-column column-flow-name">
 											$h2
 										</th>
 										<th scope="col" id="load-on" class="manage-column column-load-on">
@@ -91,46 +171,16 @@ class Chat_Essential_Admin_Website {
 										<th scope="col" id="analytics" class="manage-column column-analytics">
 											$h4
 										</th>
-										<th colspan="2" scope="col" id="theme" class="manage-column column-theme">
+										<th scope="col" id="theme" class="manage-column column-theme">
 											$h5
 										</th>
-										<th colspan="2" scope="col" id="offhours" class="manage-column column-offhours">
+										<th scope="col" id="offhours" class="manage-column column-offhours">
 											$h6
 										</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td class="status column-status" data-colname="$h1">
-											$isOn
-										</td>
-										<td colspan="2" class="flow-name column-flow-name" data-colname="$h2">
-											<strong>$chat_val</strong>
-											<div class="row-actions visible">
-												<span class="preview-web">
-													<a href="$preview_url">$preview_label</a>
-												</span>
-												<span class="edit">
-													<a href="$edit_url">$edit_label</a>
-												</span>
-												<span class="delete">
-													<a href="$delete_url">$delete_label</a>
-												</span>
-											</div>
-										</td>
-										<td class="load-on column-load-on" data-colname="$h3">
-											$lot_val
-										</td>
-										<td class="theme column-analytics" data-colname="$h4">
-											<a href="$v4_url">$v4</a>
-										</td>
-										<td colspan="2" class="theme column-theme" data-colname="$h5">
-											$theme_val
-										</td>
-										<td colspan="2" class="offhours column-offhours" data-colname="$h6">
-											$offhours_val
-										</td>
-									</tr>
+									$webflows
 								</tbody>
 							</table>
 							<p class="submit">

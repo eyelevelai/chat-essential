@@ -28,15 +28,33 @@
 							this.loadModels();
 							return;
 						case 'chat-essential-settings':
+							this.form = $('#settingsForm');
+							this.form.submit(this.onSettingsSubmit.bind(this));
 							this.logoutBtn = $('#logoutBtn');
 							this.logoutBtn.click(this.logout.bind(this));
+							this.emailInput = $('#email');
+							this.emailInput.change(this.onSettingsChange.bind(this));
+							this.phoneInput = $('#phone');
+							this.phoneInput.change(this.onSettingsChange.bind(this));
+							this.submitBtn = $('#submit');
+							this.submitBtn.prop('disabled', true);
 							return;
-						case 'signup':
-						case 'login':
+						case 'chat-essential-signup':
+						case 'chat-essential-login':
 							this.form = $('#loginForm');
 							this.form.submit(this.onAuthSubmit.bind(this));
 							this.switchBtn = $('#footerBtn');
 							this.switchBtn.click(this.switchAuth.bind(this));
+							return;
+						case 'chat-essential-signup-phone':
+							this.form = $('#loginForm');
+							this.form.submit(this.onPhoneSubmit.bind(this));
+							this.skipBtn = $('#footerBtn');
+							this.skipBtn.click(this.skipPhone.bind(this));
+							return;
+						case 'chat-essential-website':
+							this.switches = $('.ey-switch');
+							this.switches.click(this.websiteSwitch.bind(this));
 							return;
 					}
 				}
@@ -125,7 +143,7 @@
 				if (apiInProgress) {
 					return;
 				}
-				if (typeof(model) === 'undefined' || !pageParams.coreEngines) {
+				if (model === undefined || !pageParams.coreEngines) {
 					return;
 				}
 				apiInProgress = true;
@@ -239,7 +257,7 @@
 					return false;
 				}
 				apiInProgress = true;
-				if (data.type === 'login') {
+				if (data.type === 'chat-essential-login') {
 					this.showStatus('Submitting...');
 				} else {
 					this.showStatus('Submitting...');
@@ -255,6 +273,102 @@
 					if (e1.status && e1.status === 405) {
 						this.showStatus('An account with this email already exists', 'error');
 					} else if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+				return false;
+			},
+			onPhoneSubmit: function() {
+				if (apiInProgress) {
+					return false;
+				}
+				const data = this.phoneValue();
+				if (!data) {
+					return false;
+				}
+				apiInProgress = true;
+
+				this.showStatus('Submitting...');
+
+				api(this.n, 'chat_essential_phone_signup', null, data)
+				.then((function(v1) {
+					location.reload();
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+				return false;
+			},
+			confirmSettingsSubmit: function(data) {
+console.log('confirm the phone change', data);
+this.processSettingsSubmit(data);
+				return false;
+			},
+			onSettingsSubmit: function() {
+				if (apiInProgress) {
+					return false;
+				}
+				const data = this.settingsValue();
+				if (!data) {
+					return false;
+				}
+				apiInProgress = true;
+				if (data.phones !== undefined) {
+					if (data.phones === '' || og_phones === '') {
+						return this.confirmSettingsSubmit(data);
+					}
+				}
+
+				return this.processSettingsSubmit(data);
+			},
+			processSettingsSubmit: function(data) {
+console.log('processing submit', data);	
+				apiInProgress = false;
+				if (data.email !== undefined) {
+					og_email = data.email;
+				}
+				if (data.phones !== undefined) {
+					og_phones = data.phones;
+				}
+
+				return false;
+			},
+			onSettingsChange: function(evt) {
+				const data = this.settingsValue();
+				if (!data) {
+					this.submitBtn.prop('disabled', true);
+					return false;
+				}
+				this.submitBtn.prop('disabled', false);
+			},
+			skipPhone: function() {
+				if (apiInProgress) {
+					return false;
+				}
+				apiInProgress = true;
+
+				this.showStatus('Submitting...');
+				const phone = $('#phone');
+				phone.removeClass('error-value');
+
+				api(this.n, 'chat_essential_phone_signup', null, { phone: 'skip' })
+				.then((function(v1) {
+					location.reload();
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
 						err = parseError(e1);
 						this.showStatus(err, 'error');
 					} else {
@@ -317,6 +431,80 @@
 					this.pollTrainingStatus();
 				}
 			},
+			phoneValue: function() {
+				this.hideStatus();
+
+				const phone = $('#phone');
+				phone.removeClass('error-value');
+
+				const val = libphonenumber.parseNumber(phone.val(), 'US');
+
+				if (!val.phone || 
+					!libphonenumber.isValidNumber(val.phone, 'US')) {
+					if (val.phone && val.phone === '5550000000') {
+					} else {
+						this.showStatus('Enter a valid US mobile number', 'error');
+						phone.addClass('error-value');
+						return;
+					}
+				}
+
+				return {
+					phone: val.phone
+				};
+			},
+			settingsValue: function() {
+				this.hideStatus();
+
+				this.phoneInput.removeClass('error-value');
+				const phones = this.phoneInput.val();
+
+				this.emailInput.removeClass('error-value');
+				const email = this.emailInput.val();
+
+				const data = {};
+				if (phones) {
+					const phone1 = libphonenumber.parseNumber(og_phones, 'US');
+					const phone2 = libphonenumber.parseNumber(phones, 'US');
+					if (phone2.phone) {
+						if (!libphonenumber.isValidNumber(phone2.phone, 'US')) {
+							if (phone2.phone && phone2.phone === '5550000000') {
+							} else {
+								this.showStatus('Enter a valid US mobile number', 'error');
+								this.phoneInput.addClass('error-value');
+								return;
+							}
+						}
+					} else {
+						this.showStatus('Enter a valid US mobile number', 'error');
+						this.phoneInput.addClass('error-value');
+						return;
+					}
+					if (phone2.phone !== phone1.phone) {
+						data.phones = phone2.phone;
+					}
+				} else if (phones !== og_phones) {
+					data.phones = phones;
+				}
+
+				if (og_email !== email) {
+					const err = validateEmail(email);
+					if (err) {
+						this.showStatus(err, 'error');
+						this.emailInput.addClass('error-value');
+						return;
+					}
+					data.email = email;
+				}
+
+				if (data.email === undefined &&
+					data.phones === undefined
+				) {
+					return;
+				}
+
+				return data;
+			},
 			authValues: function() {
 				let err = '';
 				const data = {
@@ -349,9 +537,9 @@
 				}
 				data['password'] = pass1.val();
 				switch (pageParams.slug) {
-					case 'login':
+					case 'chat-essential-login':
 						return data;
-					case 'signup':
+					case 'chat-essential-signup':
 						if (pass1.val() !== pass2.val()) {
 							this.showStatus('Passwords are not the same', 'error');
 							pass2.addClass('error-value');
@@ -474,6 +662,35 @@
 				}).bind(this))
 				.catch((function(e1) {
 					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+			},
+			websiteSwitch: function(e) {
+				const swt = $(e.target);
+				const inp = $('#' + swt.attr('for'));
+				if (apiInProgress) {
+					e.preventDefault();
+					return;
+				}
+				apiInProgress = true;
+				const swtch = $('#' + swt.attr('for') + '-preview');
+				swtch.toggle();
+				api(this.n, 'chat_essential_switch_platform_status', null, {
+					platformId: swt.attr('for').replace('status', ''),
+					status: !inp.is(':checked') ? 'active' : 'inactive',
+				})
+				.then((function(v) {
+					apiInProgress = false;
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					swtch.toggle();
 					var err = '';
 					if (e1.responseText) {
 						err = parseError(e1);

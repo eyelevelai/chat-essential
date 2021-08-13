@@ -44,6 +44,7 @@ class Chat_Essential {
 
 		$this->load_dependencies();
 		$this->set_locale();
+		$this->check_db();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 	}
@@ -56,9 +57,11 @@ class Chat_Essential {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-loader.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-i18n.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-site-options.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-pixel.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-wp-escaper.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-identity-verification.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-api-client.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-utility.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-error.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-login.php';
@@ -71,6 +74,18 @@ class Chat_Essential {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/chat-essential-public.php';
 
 		$this->loader = new Chat_Essential_Loader();
+	}
+
+	private function check_db() {
+		$plugin_util = new Chat_Essential_Utility();
+
+		$this->loader->add_action( 'plugins_loaded', $plugin_util, 'db_check' );
+	}
+
+	private function check_hosted() {
+		$plugin_util = new Chat_Essential_Utility();
+
+		$this->loader->add_action( 'init', $plugin_util, 'hosted_check' );
 	}
 
 	/**
@@ -104,6 +119,7 @@ class Chat_Essential {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+		$this->loader->add_action( 'wp_footer', $plugin_public, 'manage_footer' );
 	}
 
 	/**

@@ -14,7 +14,9 @@ class Chat_Essential_Deactivator {
 	 * @since    0.0.1
 	 */
 	public static function deactivate() {
+		Chat_Essential_Utility::db_uninstall();
 
+		delete_option(CHAT_ESSENTIAL_OPTION);
 	}
 
 }

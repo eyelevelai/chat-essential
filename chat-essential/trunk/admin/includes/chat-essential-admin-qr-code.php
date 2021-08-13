@@ -33,37 +33,114 @@ class Chat_Essential_Admin_QRCode {
 		$this->api = $api;
 	}
 
+	private function row($settings, $qr) {
+		$edit_url = DASHBOARD_URL . '/view/' . $qr->versionId;
+		$edit = localize('Edit');
+		$analytics = localize('View');
+		$analytics_url = DASHBOARD_URL . '/analytics/' . $qr->id;
+		$theme_name = '';
+		if (!empty($qr->theme) && !empty($qr->theme->name)) {
+			$theme_name = $qr->theme->name;
+		}
+		$qr_theme_name = '';
+		if (!empty($qr->qrTheme) && !empty($qr->qrTheme->name)) {
+			$qr_theme_name = $qr->qrTheme->name;
+		}
+		$offhours_name = '';
+		if (!empty($qr->offhoursSetting) && !empty($qr->offhoursSetting->name)) {
+			$offhours_name = $qr->offhoursSetting->name;
+		}
+
+		$res = $this->api->request($settings['apiKey'], 'GET', 'publish/' . $settings['apiKey'] . '/' . $qr->id, null, null);
+		if ($res['code'] != 200) {
+			wp_die('There was an issue loading your settings.', $res['code']);
+		}
+
+		if (empty($res['data'])) {
+			wp_die('There was an issue loading your settings.', 500);
+		}
+		$data = json_decode($res['data'], true);
+
+		$download = '';
+		$download_url = '';
+		$preview = '';
+		$preview_url = '';
+		if (!empty($data)) {
+			if (!empty($data['publish'])) {
+				if (!empty($data['publish']['url'])) {
+					$preview_url = $data['publish']['url'] . '&clearcache=true';
+					$preview = localize('Preview');
+				}
+				if (!empty($data['publish']['qrLinks']) && !empty($data['publish']['qrLinks']['png@1000'])) {
+					$download = localize('Download');
+					$download_url = $data['publish']['qrLinks']['png@1000'];
+				}
+			}
+		}
+
+		return <<<END
+		<tr>
+		<td class="flow-name column-flow-name">
+			<strong>$qr->name</strong>
+			<div class="row-actions visible">
+				<span class="preview-web">
+					<a href="$preview_url" target="_blank">$preview</a>
+				</span>
+				<span class="edit">
+					<a href="$edit_url" target="_blank">$edit</a>
+				</span>
+			</div>
+		</td>
+		<td class="theme column-qr-download">
+			<a href="$download_url" target="_blank">$download</a>
+		</td>
+		<td class="theme column-analytics">
+			<a href="$analytics_url" target="_blank">$analytics</a>
+		</td>
+		<td class="theme column-theme">
+			$theme_name
+		</td>
+		<td class="theme column-qr-style">
+			$qr_theme_name
+		</td>
+		<td class="offhours column-offhours">
+			$offhours_name
+		</td>
+	</tr>
+END;
+	}
+
 	public function html() {
     	$settings = $this->getSettings();
 
 		$title = localize('QR Code Chat');
 		$nonce = $settings['nonce'];
 
+		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=qr&type=flow&data=full', null, null);
+		if ($res['code'] != 200) {
+			wp_die('There was an issue loading your settings.', $res['code']);
+		}
+
+		if (empty($res['data'])) {
+			wp_die('There was an issue loading your settings.', 500);
+		}
+		$data = json_decode($res['data']);
+
+		$qrflows = '';
+		if (!empty($data->flows)) {
+			foreach ($data->flows as $flow) {
+				$qrflows .= $this->row($settings, $flow);
+			}
+		} else {
+			// empty state?
+		}
+
 		$h1 = localize('Chat Flow');
-		$v1 = $settings['website_name'] . ' QR Code Chat';
-		$preview_url = '?action=preview';
-		$preview_label = localize('Preview');
-		$edit_url = '?action=edit';
-		$edit_label = localize('Edit');
-		$delete_url = '?action=delete';
-		$delete_label = localize('Delete');
-
 		$h2 = localize('QR Code');
-		$l2 = localize('Download');
-		$v2_url = 'https://ssp.eyelevel.ai';
-
 		$h3 = localize('Analytics');
-		$v3 = localize('View');
-		$v3_url = 'https://ssp.eyelevel.ai';
-
 		$h4 = localize('Theme');
-		$v4 = $settings['website_name'] . ' Theme';
-
 		$h5 = localize('QR Code Style');
-		$v5 = $settings['website_name'] . ' QR Code Style';
-
 		$h6 = localize('Business Hours Settings');
-		$v6 = $settings['website_name'] . ' Business Hours';
 
 		$submit = localize('Add New Settings');
 
@@ -77,7 +154,7 @@ class Chat_Essential_Admin_QRCode {
 							<table class="wp-list-table widefat fixed striped table-view-excerpt">
 								<thead class="manage-head">
 									<tr>
-										<th colspan="2" scope="col" id="flow-name" class="manage-column column-flow-name">
+										<th scope="col" id="flow-name" class="manage-column column-flow-name">
 											$h1
 										</th>
 										<th scope="col" id="qr-download" class="manage-column column-qr-download">
@@ -86,49 +163,19 @@ class Chat_Essential_Admin_QRCode {
 										<th scope="col" id="analytics" class="manage-column column-analytics">
 											$h3
 										</th>
-										<th colspan="2" scope="col" id="theme" class="manage-column column-theme">
+										<th scope="col" id="theme" class="manage-column column-theme">
 											$h4
 										</th>
-										<th colspan="2" scope="col" id="qr-style" class="manage-column column-qr-style">
+										<th scope="col" id="qr-style" class="manage-column column-qr-style">
 											$h5
 										</th>
-										<th colspan="2" scope="col" id="offhours" class="manage-column column-offhours">
+										<th scope="col" id="offhours" class="manage-column column-offhours">
 											$h6
 										</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td colspan="2" class="flow-name column-flow-name" data-colname="$h1">
-											<strong>$v1</strong>
-											<div class="row-actions visible">
-												<span class="preview-web">
-													<a href="$preview_url">$preview_label</a>
-												</span>
-												<span class="edit">
-													<a href="$edit_url">$edit_label</a>
-												</span>
-												<span class="delete">
-													<a href="$delete_url">$delete_label</a>
-												</span>
-											</div>
-										</td>
-										<td class="theme column-qr-download" data-colname="$h2">
-											<a href="$v2_url">$l2</a>
-										</td>
-										<td class="theme column-analytics" data-colname="$h3">
-											<a href="$v3_url">$v3</a>
-										</td>
-										<td colspan="2" class="theme column-theme" data-colname="$h4">
-											$v4
-										</td>
-										<td colspan="2" class="theme column-qr-style" data-colname="$h5">
-											$v5
-										</td>
-										<td colspan="2" class="offhours column-offhours" data-colname="$h6">
-											$v6
-										</td>
-									</tr>
+									$qrflows
 								</tbody>
 							</table>
 							<p class="submit">

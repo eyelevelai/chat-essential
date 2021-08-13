@@ -38,67 +38,173 @@ class Chat_Essential_Admin_Login {
 		$nonce = $settings['nonce'];
 
 		$logo = plugin_dir_url(__FILE__) . '../../images/logo.png';
-
-		$h1 = localize('<span class="ey-bold">SIGN IN</span> to your Chat Essential account.');
-		$h2 = localize('');
-		$footer = localize('Need an account? Click here to Sign Up.');
-		$password_confirm = '';
-		if (empty($settings[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
-			$h1 = localize('<span class="ey-bold">SIGN UP</span> for a Chat Essential account.');
-			$h2 = localize('No credit card required.');
-			$footer = localize('Already have an account? Click here to Sign In.');
-
-			$lc = localize('CONFIRM PASSWORD');
-			$password_confirm = '<tr><td colspan="4" class="login-body med-font"><label for="password2">' . $lc . '</label><input autocomplete="password" type="password" class="login-input" id="password2" name="password2"></td><td class="login-spacer"></td></tr>';
-		}
+		$submit = localize('SUBMIT');
 
 		$l1 = localize('EMAIL');
 		$l1_val = get_option('admin_email');
-
 		$l2 = localize('PASSWORD');
 
-		$submit = localize('SUBMIT');
-
-    	return <<<END
+		$h1 = '';
+		$h2 = '';
+		$form = '';
+		$footer = '';
+		$progress_bar = '';
+		switch($settings['slug']) {
+			case 'chat-essential-signup':
+				$ht1a = localize('SIGN UP');
+				$ht1b = localize(' for a Chat Essential account.');
+				$h1 = <<<END
+				<tr>
+					<td colspan="4" class="login-body med-font">
+						<span class="ey-bold">$ht1a</span> $ht1b
+					</td>
+					<td class="login-spacer"></td>
+				</tr>
+END;
+				$ht2 = localize('No credit card required.');
+				$h2 = <<<END
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							$ht2
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+END;
+				$foottext = localize('Already have an account? Click here to Sign In.');
+				$lc = localize('CONFIRM PASSWORD');
+				$progress_bar = '<table class="wp-list-table widefat fixed table-view-excerpt progress-container"><tr><td id="step1" class="progress-step active-step"></td><td id="step2" class="progress-step"></td></tr></table>';
+				$form = <<<END
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							<label for="email">$l1</label>
+							<input autocomplete="email" type="email" class="login-input" value="$l1_val" id="email" name="email">
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							<label for="password">$l2</label>
+							<input autocomplete="password" type="password" class="login-input" id="password1" name="password">
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							<label for="password2">$lc</label>
+							<input autocomplete="password" type="password" class="login-input" id="password2" name="password2">
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+END;
+				$footer = <<<END
+					<tr>
+						<td colspan="4" class="login-body">
+							<a class="ey-link" id="footerBtn">$foottext</a>
+						</td>
+					</tr>
+END;
+				break;
+			case 'chat-essential-login':
+				$ht1a = localize('SIGN IN');
+				$ht1b = localize(' to your Chat Essential account.');
+				$h1 = <<<END
+				<tr>
+					<td colspan="4" class="login-body med-font">
+						<span class="ey-bold">$ht1a</span> $ht1b
+					</td>
+					<td class="login-spacer"></td>
+				</tr>
+END;
+				$foottext = localize('Need an account? Click here to Sign Up.');
+				$form = <<<END
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							<label for="email">$l1</label>
+							<input autocomplete="email" type="email" class="login-input" value="$l1_val" id="email" name="email">
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							<label for="password">$l2</label>
+							<input autocomplete="password" type="password" class="login-input" id="password1" name="password">
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+END;
+				$footer = <<<END
+					<tr>
+						<td colspan="4" class="login-body">
+							<a class="ey-link" id="footerBtn">$foottext</a>
+						</td>
+					</tr>
+END;
+				break;
+			case 'chat-essential-signup-phone':
+				$h1 = <<<END
+					<tr>
+						<td colspan="5" class="phone-body med-font">
+							<video class="phone-video" autoplay loop muted playsinline>
+								<source src="https://cdn.eyelevel.ai/assets/wordpress/why-phone.webm" type="video/webm">
+								<source src="https://cdn.eyelevel.ai/assets/wordpress/why-phone.mp4" type="video/mp4">
+							</video>
+						</td>
+					</tr>
+END;
+				$ht1a = localize('ENTER A US MOBILE NUMBER');
+				$ht1b = localize(' to enable SMS live chat. This is how you will chat with your website visitors.');
+				$h3 = localize('(your number <span class="ey-bold">WILL NOT</span> be used for marketing purposes)');
+				$l2 = localize('PHONE NUMBER');
+				$foottext = localize('SKIP');
+				$progress_bar = '<table class="wp-list-table widefat fixed table-view-excerpt progress-container"><tr><td id="step1" class="progress-step"></td><td id="step2" class="progress-step active-step"></td></tr></table>';
+				$form = <<<END
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							<span class="ey-bold">$ht1a</span> $ht1b
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							<label for="phone">$l2</label>
+							<input autocomplete="mobile tel" type="tel" class="login-input" id="phone" name="phone">
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+					<tr>
+						<td colspan="4" class="login-body med-font">
+							$h3
+						</td>
+						<td class="login-spacer"></td>
+					</tr>
+END;
+				$footer = <<<END
+				<tr>
+					<td colspan="4" class="login-body">
+						<a class="ey-link" id="footerBtn">$foottext</a>
+						<div class="small-font">(if you skip this step you will not be able to live chat with your website visitors)</div>
+					</td>
+				</tr>
+END;
+				break;
+		}
+		return <<<END
 		<div class="wrap">
 			<div class="metabox-holder columns-2">
 				<div style="position: relative;">
 					<form id="loginForm"  action="" method="post" name="login" class="web-rules-form login-form">
 						$nonce
 						<input type="hidden" name="request_type" value="login" />
+						$progress_bar
 						<table class="wp-list-table widefat fixed table-view-excerpt">
 							<tr>
 								<td colspan="5" scope="col" id="logo" class="manage-column column-logo">
 									<img class="login-logo" src="$logo" />
 								</td>
 							</tr>
-							<tr>
-								<td colspan="4" class="login-body med-font">
-									$h1
-								</td>
-								<td class="login-spacer"></td>
-							</tr>
-							<tr>
-								<td colspan="4" class="login-body med-font">
-									$h2
-								</td>
-								<td class="login-spacer"></td>
-							</tr>
-							<tr>
-								<td colspan="4" class="login-body med-font">
-									<label for="email">$l1</label>
-									<input autocomplete="email" type="email" class="login-input" value="$l1_val" id="email" name="email">
-								</td>
-								<td class="login-spacer"></td>
-							</tr>
-							<tr>
-								<td colspan="4" class="login-body med-font">
-									<label for="password">$l2</label>
-									<input autocomplete="password" type="password" class="login-input" id="password1" name="password">
-								</td>
-								<td class="login-spacer"></td>
-							</tr>
-							$password_confirm
+							$h1
+							$h2
+							$form
 							<tr>
 								<td colspan="4" class="status-msg login-left" id="statusMessage1"></td>
 							</tr>
@@ -107,11 +213,7 @@ class Chat_Essential_Admin_Login {
 									<button id="submit_login">$submit</button>
 								</td>
 							</tr>
-							<tr>
-								<td colspan="4" class="login-body">
-									<a class="ey-link" id="footerBtn">$footer</a>
-								</td>
-							</tr>
+							$footer
 						</table>
 					</form>
 				</div>

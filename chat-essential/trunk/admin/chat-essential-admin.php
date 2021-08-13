@@ -55,11 +55,12 @@ class Chat_Essential_Admin {
 		$this->api = new Chat_Essential_API_Client();
 
 		add_action( 'wp_ajax_chat_essential_switch_auth', array( $this, 'switch_auth' ) );
+		add_action( 'wp_ajax_chat_essential_switch_platform_status', array( $this, 'switch_platform_status' ) );
 		add_action( 'wp_ajax_chat_essential_auth', array( $this, 'auth' ) );
+		add_action( 'wp_ajax_chat_essential_phone_signup', array( $this, 'phone_signup' ) );
 		add_action( 'wp_ajax_chat_essential_logout', array( $this, 'logout_call' ) );
 		add_action( 'wp_ajax_chat_essential_get', array( $this, 'ajax_call' ) );
 		add_action( 'wp_ajax_chat_essential_post', array( $this, 'ajax_call' ) );
-		add_action( 'wp_ajax_chat_essential_site_options', array( $this, 'site_options' ) );
 		add_action( 'wp_ajax_chat_essential_train', array( $this, 'train_ai' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'network_admin_menu', 'add_menu');
@@ -124,6 +125,7 @@ class Chat_Essential_Admin {
 			array( $this, 'menu_main_page' ),
 			20
 		);
+/*
 		add_submenu_page(
 			'chat-essential',
 			__('Chat Essential - Phone Chat', 'chat-essential'),
@@ -133,6 +135,7 @@ class Chat_Essential_Admin {
 			array( $this, 'menu_main_page' ),
 			20
 		);
+*/
 	}
 
 	/**
@@ -141,20 +144,23 @@ class Chat_Essential_Admin {
 	public function add_footer() {
 		if (!empty($_GET['page'])) {
 			$slug = $_GET['page'];
-			$options = get_option('chat-essential');
+			$options = get_option(CHAT_ESSENTIAL_OPTION);
 			switch ($slug) {
 				case 'chat-essential':
 				case 'chat-essential-ai':
-					if (!empty($options) && !empty($options['apiKey'])) {
-						echo "<!-- EyeLevel Chat --> <script>!function(){if(window.eyelevel)return;window.eyelevel = [];window.eyusername = '" . $options['apiKey'] . "';window.eyflowname = '01FB7YHH3TXCCZM4MHP4PT5FX4';window.eyelevel.push(['init', { username: window.eyusername, flowname: window.eyflowname, origin: 'web', reset: true, env: 'dev', clearcache: true }]);var t=document.createElement('script');t.type='text/javascript',t.async=!0,t.src='https://cdn.eyelevel.ai/chat/eyelevel.js?v=1.3';var e=document.getElementsByTagName('script')[0];e.parentNode.insertBefore(t,e)}();</script> <!-- End EyeLevel Chat -->";
+					if (!empty($options) &&
+						!empty($options['apiKey']) &&
+						!empty($options['previewChat'])) {
+						echo Chat_Essential_Pixel::generatePixel($options['apiKey'], $options['previewChat'], array(
+							'origin' => 'web',
+							'reset' => true,
+							'env' => 'dev',
+							'clearcache' => true,
+						));
 					}
 					break;
 			}
 		}
-	}
-
-	public function site_options() {
-		global $wpdb;
 	}
 
 	/**
@@ -166,7 +172,7 @@ class Chat_Essential_Admin {
         }
 
 		if (empty($_POST['body'])) {
-			wp_die('{"message":"Missing request data"}', 400);
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
 		}
 
 		$kits = array();
@@ -201,7 +207,7 @@ class Chat_Essential_Admin {
 			wp_die($res['data'], $res['code']);
 		}
 
-		$options = get_option('chat-essential');
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		$reqData = array(
 			'fileUrl' => UPLOAD_BASE_URL . '/' . $fname . '.json',
 			'metadata' => json_encode($_POST['body']),
@@ -246,7 +252,7 @@ class Chat_Essential_Admin {
 			$action = 'POST';
 		}
 
-		$options = get_option('chat-essential');
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		$path = $_POST['path'];
 		$path = str_replace('{apiKey}', $options['apiKey'], $_POST['path']);
 
@@ -262,206 +268,83 @@ class Chat_Essential_Admin {
 
 	/**
 	 * @since    0.0.1
-	 * @access   private
-	 * @param    string               $color            Background color.
-	 * @param    string               $dark             Darkest reference color.
-	 * @param    string               $light            Lightest reference color.
-	 * @return   string                                 The color that goes best with the given background.
 	 */
-	private function light_or_dark($color, $dark = '#000000', $light = '#FFFFFF') {
-		return $this->is_light( $color ) ? $dark : $light;
-	}
-
-	/**
-	 * @since    0.0.1
-	 * @access   private
-	 * @param    string               $color            Hex color.
-	 * @return   boolean                                Whether the color is light or dark.
-	 */
-	private function is_light($hex) {
-		$c_r = hexdec( substr( $hex, 0, 2 ) );
-		$c_g = hexdec( substr( $hex, 2, 2 ) );
-		$c_b = hexdec( substr( $hex, 4, 2 ) );
-
-		$brightness = ( ( $c_r * 299 ) + ( $c_g * 587 ) + ( $c_b * 114 ) ) / 1000;
-
-		return array(
-			'is_light' => $brightness > 155,
-			'brightness' => $brightness,
-		);
-	}
-
-	/**
-	 * @since    0.0.1
-	 * @access   private
-	 * @param    string               $color            Hex color.
-	 * @return   string                                 Color with # removed and set to 6 characters.
-	 */
-	private function clean_color($color) {
-		$hex = str_replace( '#', '', $color );
-		$len = strlen($hex);
-		if ($len != 3 && $len != 6 && $len != 9) {
-			return;
+	public function phone_signup() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+		if (empty($_POST['body']) ||
+			empty($_POST['body']['phone'])) {
+			wp_die('{"message":"Missing request parameters"}', 400);
 		}
-		if ($len == 3) {
-			$hex = $hex . $hex;
-		} else if ($len == 9) {
-			$hex = substr($hex, 0, 6);
+		$body = $_POST['body'];
+
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (empty($options) ||
+			empty($options['apiKey'])) {
+			wp_die('{"message":"Options are corrupted"}', 500);
 		}
 
-		return $hex;
-	}
-
-	/**
-	 * @since    0.0.1
-	 * @access   private
-	 * @param    string               $email            The email address for signup.
-	 * @return   array                                  The collection of actions and filters registered with WordPress.
-	 */
-	private function signup_data($email) {
 		$web_name = get_option('blogname');
-		$home_url = get_option('home');
-
-		$options = array(
+		$path = 'customer/' . $options['apiKey'];
+		$data = array(
 			'customer' => array(
-				'email' => $email,
+				'updateType' => 'phone-signup',
 			),
 			'integration' => array(
-				'installations' => array()
-			)
+				'sms' => array(
+					'name' => $web_name . ' Phone',
+					'phones' => array(
+						$body['phone'],
+					),
+				),
+			),
 		);
-		$options['integration']['installations'][] = array(
-			'url' => $home_url,
-			'name' => $web_name,
-			'platform' => 'web'
-		);
-
-		$qrTheme = array();
-		$theme = array();
-
-		global $_wp_admin_css_colors;
-		$opt = get_user_option( 'admin_color' );
-		if ($opt) {
-			$curr = $_wp_admin_css_colors[$opt];
-			if (isset($curr)) {
-				$primary = null;
-				$secondary = null;
-				$background = null;
-				if (!empty($curr->colors)) {
-					$c = $this->clean_color($curr->colors[0]);
-					$cc = $this->is_light($c);
-					$cc['color'] = '#'.$c;
-					$primary = $cc;
-				}
-				if (!empty($curr->icon_colors)) {
-					$choices = array();
-					if (!empty($curr->icon_colors['base'])) {
-						$c = $this->clean_color($curr->icon_colors['base']);
-						$cc = $this->is_light($c);
-						if ($cc['is_light'] != $primary['is_light']) {
-							$cc['color'] = '#'.$c;
-							$choices[] = $cc;
-						}
-					}
-					if (!empty($curr->icon_colors['current'])) {
-						$c = $this->clean_color($curr->icon_colors['current']);
-						$cc = $this->is_light($c);
-						if ($cc['is_light'] != $primary['is_light']) {
-							$cc['color'] = '#'.$c;
-							$choices[] = $cc;
-						}
-					}
-					if (count($choices) == 2) {
-						$light = $choices[0];
-						$dark = $choices[1];
-						if ($light['brightness'] < $dark['brightness']) {
-							$light = $choices[1];
-							$dark = $choices[0];
-						}
-						$secondary = $this->light_or_dark($primary['color'], $light['color'], $dark['color']);
-					} else if (count($choices) == 1) {
-						$secondary = $choices[0]['color'];
-					}
-
-				}
-				if ($primary && $secondary) {
-					$pc = $primary['color'];
-					$theme['header'] = $pc;
-					$theme['bubble'] = $pc;
-					$theme['bubbleBackground'] = $secondary;
-					if ($primary['is_light']) {
-						$theme['button'] = $secondary;
-						$theme['responseBackground'] = $secondary;
-						$qrTheme['background'] = $pc;
-						$qrTheme['foreground'] = $secondary;
-					} else {
-						$theme['button'] = $pc;
-						$theme['responseBackground'] = $pc;
-						$qrTheme['foreground'] = $pc;
-						$qrTheme['background'] = $secondary;
-					}
-				}
-			}
-		}
-
-		$icon = get_site_icon_url(200);
-		$logo = get_theme_mod( 'custom_logo' );
-		if ($icon || $logo) {
-			if ($icon) {
-				$theme['iconUrl'] = $icon;
-				$qrTheme['imageUrl'] = $icon;
-			}
-			if ($logo) {
-				$logo = wp_get_attachment_url($logo);
-				if ($logo) {
-					$logo = esc_url($logo);
-					$theme['logoUrl'] = $logo;
-				}
-			}
-		}
-
-		if (!empty($theme)) {
-			$theme['name'] = 'WordPress Plugin';
-			$options['theme'] = $theme;
-		}
-		if (!empty($qrTheme)) {
-			$qrTheme['name'] = 'WordPress Plugin';
-			$options['qrTheme'] = $qrTheme;
-		}
-
-		$settings = get_option('chat-essential');
-		if (!isset($settings) || empty($settings['dedicated_url'])) {
-			if (!isset($settings)) {
-				$settings = array();
-			}
-			$pid = wp_insert_post(array(
-				'post_title' => 'Chat with Us | ' . $web_name,
-				'post_status' => 'publish',
-				'post_author' => get_current_user_id(),
-				'post_type' => 'page'
-			));
-
-			if (!empty($pid)) {
-				$url = get_page_link($pid);
-				if ($url) {
-					$options['integration']['installations'][] = array(
-						'url' => $url,
-						'name' => $web_name . ' - Chat Only',
-						'platform' => 'web'
-					);
-					$settings['dedicated_url'] = $url;
-					update_option('chat-essential', $settings);
-				}
-			}
+		if ($body['phone'] === 'skip') {
+			$data['customer']['updateType'] = 'phone-skip';
 		} else {
-			$options['integration']['installations'][] = array(
-				'url' => $settings['dedicated_url'],
-				'name' => $web_name . ' - Chat Only',
-				'platform' => 'web'
-			);
+			try {
+				$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+				$pv = $phoneUtil->parse($body['phone'], 'US');
+			} catch (\libphonenumber\NumberParseException $e) {
+				wp_die('{"message":"Invalid phone number"}', 400);
+			}
 		}
 
-		return $options;
+		$res = $this->api->request($options['apiKey'], 'POST', $path, $data, null);
+		if ($res['code'] != 200) {
+			wp_die($res['data'], $res['code']);
+		}
+
+		$jdata = json_decode($res['data'], true);
+		if (empty($jdata) ||
+			empty($jdata['apiKey']) ||
+			empty($jdata['flows']) ||
+			count($jdata['flows']) < 1) {
+			wp_die('{"message":"Missing user account information"}', 500);
+		}
+
+		$webs = array();
+		foreach ($jdata['flows'] as $flow) {
+			if ($flow['platform'] === 'web') {
+				$webs[] = $flow;
+			}
+		}
+
+		if (empty($webs)) {
+			wp_die('{"message":"Missing user account information"}', 500);
+		}
+
+		Chat_Essential_Utility::init_user($jdata['apiKey'], $webs);
+
+		$options['phones'] = array(
+			$body['phone'],
+		);
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+
+		echo $res['data'];
+
+		die();
 	}
 
 	/**
@@ -471,14 +354,22 @@ class Chat_Essential_Admin {
 		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
             wp_die('', 403);
         }
+		if (empty($_POST['body'])) {
+			wp_die('{"message":"Body is missing"}', 400);
+		}
+
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (empty($options)) {
+			$options = array();
+		}
 
 		$body = $_POST['body'];
 		$path = 'customer';
 		$data = null;
-		if ($body['type'] == 'login') {
+		if ($body['type'] == 'chat-essential-login') {
 			$path = 'customer/' . $body['email'];
 		} else {
-			$data = $this->signup_data($body['email']);
+			$data = Chat_Essential_Utility::signup_data($body['email']);
 		}
 
 		$res = $this->api->request($body['email'], 'POST', $path, $data, array(
@@ -497,10 +388,10 @@ class Chat_Essential_Admin {
 			empty($jdata['nlp']['model']['modelId'])) {
 			wp_die('{"message":"Missing user account information"}', 500);
 		}
-		update_option('chat-essential', array(
-			'apiKey' => $jdata['apiKey'],
-			'modelId' => $jdata['nlp']['model']['modelId'],		
-		));
+
+		$options['apiKey'] = $jdata['apiKey'];
+		$options['modelId'] = $jdata['nlp']['model']['modelId'];
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
 
 		echo $res['data'];
 
@@ -515,7 +406,15 @@ class Chat_Essential_Admin {
             wp_die('', 403);
         }
 
-		update_option('chat-essential', array(
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (empty($options) ||
+			empty($options['apiKey'])) {
+				wp_die('Missing options information', 500);
+		}
+
+		Chat_Essential_Utility::logout($options['apiKey']);
+
+		update_option(CHAT_ESSENTIAL_OPTION, array(
 			Chat_Essential_Admin::LOGGED_OUT_OPTION => true,
 		));
 
@@ -532,7 +431,7 @@ class Chat_Essential_Admin {
             wp_die('', 403);
         }
 
-		$options = get_option('chat-essential');
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		if (!isset($options) || empty($options)) {
 			$options = array(
 				Chat_Essential_Admin::LOGGED_OUT_OPTION => true,
@@ -543,7 +442,26 @@ class Chat_Essential_Admin {
 			$options[Chat_Essential_Admin::LOGGED_OUT_OPTION] = true;
 		}
 
-		update_option('chat-essential', $options);
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+
+		echo 'OK';
+
+		die();
+	}
+
+	/**
+	 * @since    0.0.1
+	 */
+	public function switch_platform_status() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+		if (empty($_POST['body'])) {
+			wp_die('{"message":"Body is missing"}', 400);
+		}
+
+		$body = $_POST['body'];
+		Chat_Essential_Utility::update_web_status($body['platformId'], $body['status']);
 
 		echo 'OK';
 
@@ -571,6 +489,26 @@ class Chat_Essential_Admin {
 		);
 		if (!empty($_GET['page'])) {
 			$slug = $_GET['page'];
+			if (!empty($_GET['logout']) &&
+				$_GET['logout'] === 'true') {
+				$slug = 'chat-essential-logout';
+			} 
+			if ($slug !== 'chat-essential-logout') {
+				$options = get_option(CHAT_ESSENTIAL_OPTION);
+				if (!isset($options) || empty($options)) {
+					$slug = 'chat-essential-signup';
+				} else {
+					if (empty($options['apiKey'])) {
+						$slug = 'chat-essential-signup';
+						if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
+							$slug = 'chat-essential-login';
+						}
+					} else if (empty($options['phones'])) {
+						$slug = 'chat-essential-signup-phone';
+					}
+				}
+			}
+
 			switch ($slug) {
 				case 'chat-essential':
 				case 'chat-essential-ai':
@@ -581,24 +519,19 @@ class Chat_Essential_Admin {
 					wp_enqueue_style( 'selectize-css' );
 					wp_register_script( 'selectize-js', plugins_url( 'js/selectize.min.js', __FILE__ ), array( 'jquery' ) );
 					wp_enqueue_script( 'selectize-js' );
+					break;
+				case 'chat-essential-settings':
+					add_thickbox();
+				case 'chat-essential-signup-phone':
+					wp_register_script( 'libphonenumber', plugins_url( 'js/libphonenumber-js.min.js', __FILE__ ), array( 'jquery' ) );
+					wp_enqueue_script( 'libphonenumber' );
+					break;
 			}
 		} else {
 			$slug = '';
 		}
 
-		$options = get_option('chat-essential');
-		if (!isset($options) || empty($options)) {
-			$slug = 'signup';
-		} else {
-			if (empty($options['apiKey'])) {
-				$slug = 'signup';
-				if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
-					$slug = 'login';
-				}
-			}
-		}
 		$page_params['slug'] = $slug;
-
 		wp_localize_script( $this->plugin_name, 'pageParams', $page_params );
 	}
 
@@ -613,17 +546,26 @@ class Chat_Essential_Admin {
   		}
 
 		$slug = $_GET['page'];
-		$options = get_option('chat-essential');
+		if (!empty($_GET['logout']) &&
+			$_GET['logout'] === 'true') {
+			$slug = 'chat-essential-logout';
+		} 
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		$web_name = get_option('blogname');
 		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
-		if (!isset($options) || empty($options)) {
-			$options = array();
-			$slug = 'signup';
-		} else {
-			if (empty($options['apiKey'])) {
-				$slug = 'signup';
-				if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
-					$slug = 'login';
+
+		if ($slug !== 'chat-essential-logout') {
+			if (!isset($options) || empty($options)) {
+				$options = array();
+				$slug = 'chat-essential-signup';
+			} else {
+				if (empty($options['apiKey'])) {
+					$slug = 'chat-essential-signup';
+					if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
+						$slug = 'chat-essential-login';
+					}
+				} else if (empty($options['phones'])) {
+					$slug = 'chat-essential-signup-phone';
 				}
 			}
 		}
@@ -636,6 +578,24 @@ class Chat_Essential_Admin {
 		switch ($slug) {
 			case 'chat-essential':
 			case 'chat-essential-ai':
+				if (empty($options['previewChat'])) {
+					$res = $this->api->request($options['apiKey'], 'GET', 'flow/' . $options['apiKey'] . '?type=nlp', null, null);
+					if ($res['code'] != 200) {
+						$settings_page = new Chat_Essential_Admin_Error('There was an issue loading your AI settings.');
+						break;
+					}
+					$data = json_decode($res['data']);
+					if ($data->count !== 1 ||
+						empty($data->flows) ||
+						empty($data->flows[0]) ||
+						empty($data->flows[0]->id)) {
+						$settings_page = new Chat_Essential_Admin_Error('There was an issue loading your AI settings.');
+						break;
+					}
+					$newOptions = get_option(CHAT_ESSENTIAL_OPTION);
+					$newOptions['previewChat'] = $data->flows[0]->id;
+					update_option(CHAT_ESSENTIAL_OPTION, $newOptions);
+				}
 				$settings_page = new Chat_Essential_Admin_AI($options, $this->api);
 				break;
 			case 'chat-essential-settings':
@@ -653,6 +613,15 @@ class Chat_Essential_Admin {
 			case 'chat-essential-phone':
 				$settings_page = new Chat_Essential_Admin_Phone($options, $this->api);
 				break;
+			case 'chat-essential-logout':
+				if (!empty($options) && !empty($options['apiKey'])) {
+					Chat_Essential_Utility::logout($options['apiKey']);
+				}
+
+				update_option(CHAT_ESSENTIAL_OPTION, array(
+					Chat_Essential_Admin::LOGGED_OUT_OPTION => true,
+				));
+				return;
 			default:
 				$settings_page = new Chat_Essential_Admin_Login($options, $this->api);
 		}
