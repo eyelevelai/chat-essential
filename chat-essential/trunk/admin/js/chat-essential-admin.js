@@ -36,6 +36,11 @@
 							this.emailInput.change(this.onSettingsChange.bind(this));
 							this.phoneInput = $('#phone');
 							this.phoneInput.change(this.onSettingsChange.bind(this));
+							this.confirmContent = $('#confirmContent');
+							this.confirmChange = $('#confirmChange');
+							this.confirmChange.click(this.settingsConfirmed.bind(this));
+							this.cancelChange = $('#cancelChange');
+							this.cancelChange.click(this.settingsCancelled.bind(this));
 							this.submitBtn = $('#submit');
 							this.submitBtn.prop('disabled', true);
 							return;
@@ -309,9 +314,26 @@
 				}).bind(this));
 				return false;
 			},
-			confirmSettingsSubmit: function(data) {
-console.log('confirm the phone change', data);
-this.processSettingsSubmit(data);
+			confirmSettingsSubmit: function(addingNumber) {
+				if (addingNumber) {
+					this.confirmContent.html('<p>We will automatically update your chat to enable live chatting.</p><p>Any changes you may have made to your chat flows will be overwritten by these updates.</p><p>Do you wish to proceed?</p>');
+				} else {
+					this.confirmContent.html('<p>We will automatically update your chat to disable live chatting.</p><p>Any changes you may have made to your chat flows will be overwritten by these updates.</p><p>Do you wish to proceed?</p>');
+				}
+				const url = '#TB_inline?inlineId=confirmModal';
+				tb_show('CONFIRM UPDATES TO YOUR CHATS', url);
+				return false;
+			},
+			settingsCancelled: function() {
+				tb_remove();
+			},
+			settingsConfirmed: function() {
+				const data = this.settingsValue();
+				if (data) {
+					data['updateType'] = og_phones === '' ? 'live' : 'automated';
+					this.processSettingsSubmit(data);
+				}
+				tb_remove();
 				return false;
 			},
 			onSettingsSubmit: function() {
@@ -322,24 +344,48 @@ this.processSettingsSubmit(data);
 				if (!data) {
 					return false;
 				}
-				apiInProgress = true;
+
 				if (data.phones !== undefined) {
 					if (data.phones === '' || og_phones === '') {
-						return this.confirmSettingsSubmit(data);
+						return this.confirmSettingsSubmit(og_phones === '');
 					}
 				}
 
 				return this.processSettingsSubmit(data);
 			},
 			processSettingsSubmit: function(data) {
-console.log('processing submit', data);	
-				apiInProgress = false;
-				if (data.email !== undefined) {
-					og_email = data.email;
+				if (apiInProgress) {
+					return false;
 				}
-				if (data.phones !== undefined) {
-					og_phones = data.phones;
-				}
+				apiInProgress = true;
+				this.showStatus('Saving...');
+
+				api(this.n, 'chat_essential_settings_change', null, data)
+				.then((function(v1) {
+					apiInProgress = false;
+					this.showStatus('Saved!', 'success');
+					setTimeout((function() {
+						this.hideStatus();
+					}).bind(this), 1000);
+					if (data.email !== undefined) {
+						og_email = data.email;
+					}
+					if (data.phones !== undefined) {
+						og_phones = data.phones;
+					}
+					this.submitBtn.prop('disabled', true);
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+				
 
 				return false;
 			},

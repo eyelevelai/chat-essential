@@ -58,6 +58,7 @@ class Chat_Essential_Admin {
 		add_action( 'wp_ajax_chat_essential_switch_platform_status', array( $this, 'switch_platform_status' ) );
 		add_action( 'wp_ajax_chat_essential_auth', array( $this, 'auth' ) );
 		add_action( 'wp_ajax_chat_essential_phone_signup', array( $this, 'phone_signup' ) );
+		add_action( 'wp_ajax_chat_essential_settings_change', array( $this, 'settings_change' ) );
 		add_action( 'wp_ajax_chat_essential_logout', array( $this, 'logout_call' ) );
 		add_action( 'wp_ajax_chat_essential_get', array( $this, 'ajax_call' ) );
 		add_action( 'wp_ajax_chat_essential_post', array( $this, 'ajax_call' ) );
@@ -288,9 +289,6 @@ class Chat_Essential_Admin {
 		$web_name = get_option('blogname');
 		$path = 'customer/' . $options['apiKey'];
 		$data = array(
-			'customer' => array(
-				'updateType' => 'phone-signup',
-			),
 			'integration' => array(
 				'sms' => array(
 					'name' => $web_name . ' Phone',
@@ -300,15 +298,20 @@ class Chat_Essential_Admin {
 				),
 			),
 		);
-		if ($body['phone'] === 'skip') {
-			$data['customer']['updateType'] = 'phone-skip';
-		} else {
+		if ($body['phone'] !== 'skip') {
 			try {
 				$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 				$pv = $phoneUtil->parse($body['phone'], 'US');
 			} catch (\libphonenumber\NumberParseException $e) {
 				wp_die('{"message":"Invalid phone number"}', 400);
 			}
+			$data['customer'] = array(
+				'updateType' => 'phone-signup',
+			);
+		} else {
+			$data['customer'] = array(
+				'updateType' => 'phone-skip',
+			);
 		}
 
 		$res = $this->api->request($options['apiKey'], 'POST', $path, $data, null);
@@ -337,9 +340,91 @@ class Chat_Essential_Admin {
 
 		Chat_Essential_Utility::init_user($jdata['apiKey'], $webs);
 
-		$options['phones'] = array(
-			$body['phone'],
+		$options['signup-complete'] = true;
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+
+		echo $res['data'];
+
+		die();
+	}
+
+	/**
+	 * @since    0.0.1
+	 */
+	public function settings_change() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+
+		if (empty($_POST['body']) ||
+			(!isset($_POST['body']['phones']) && empty($_POST['body']['email']))) {
+			wp_die('{"message":"Missing request parameters"}', 400);
+		}
+		$body = $_POST['body'];
+
+		if (!empty($body['phones'])) {
+			try {
+				$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+				$pv = $phoneUtil->parse($body['phones'], 'US');
+			} catch (\libphonenumber\NumberParseException $e) {
+				wp_die('{"message":"Invalid phone number"}', 400);
+			}
+		}
+
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (empty($options) ||
+			empty($options['apiKey'])) {
+			wp_die('{"message":"Options are corrupted"}', 500);
+		}
+
+		$path = 'partner/settings/' . $options['apiKey'];
+
+		$data = array();
+		if (!empty($body['phones'])) {
+			$data['integration'] = array(
+				'sms' => array(
+					'name' => $web_name . ' Phone',
+					'phones' => array(
+						$body['phones'],
+					),
+				),
+			);
+		}
+
+		$email = $options['email'];
+		if (!empty($body['email'])) {
+			$email = $body['email'];
+			$options['email'] = $email;
+		}
+		$data['customer'] = array(
+			'email' => $email,
 		);
+
+		$res = $this->api->request($options['apiKey'], 'POST', $path, $data, null);
+		if ($res['code'] != 200) {
+			wp_die($res['data'], $res['code']);
+		}
+
+		$jdata = json_decode($res['data'], true);
+		if (empty($jdata) ||
+			empty($jdata['flows']) ||
+			count($jdata['flows']) < 1) {
+			wp_die('{"message":"Missing user account information"}', 500);
+		}
+
+		$webs = array();
+		foreach ($jdata['flows'] as $flow) {
+			if ($flow['platform'] === 'web') {
+				$webs[] = $flow;
+			}
+		}
+
+		if (empty($webs)) {
+			wp_die('{"message":"Missing user account information"}', 500);
+		}
+
+		Chat_Essential_Utility::init_user($jdata['apiKey'], $webs);
+
 		update_option(CHAT_ESSENTIAL_OPTION, $options);
 
 		echo $res['data'];
@@ -389,8 +474,28 @@ class Chat_Essential_Admin {
 			wp_die('{"message":"Missing user account information"}', 500);
 		}
 
+		if ($body['type'] == 'chat-essential-login') {
+			if (!empty($jdata['flows']) &&
+				count($jdata['flows']) > 0) {
+				$webs = array();
+				foreach ($jdata['flows'] as $flow) {
+					if ($flow['platform'] === 'web') {
+						$webs[] = $flow;
+					}
+				}
+
+				if (empty($webs)) {
+					wp_die('{"message":"Missing user account information"}', 500);
+				}
+
+				Chat_Essential_Utility::init_user($jdata['apiKey'], $webs);
+				$options['signup-complete'] = true;
+			}
+		}
+
 		$options['apiKey'] = $jdata['apiKey'];
 		$options['modelId'] = $jdata['nlp']['model']['modelId'];
+		$options['email'] = $body['email'];
 		update_option(CHAT_ESSENTIAL_OPTION, $options);
 
 		echo $res['data'];
@@ -503,7 +608,7 @@ class Chat_Essential_Admin {
 						if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
 							$slug = 'chat-essential-login';
 						}
-					} else if (empty($options['phones'])) {
+					} else if (empty($options['signup-complete'])) {
 						$slug = 'chat-essential-signup-phone';
 					}
 				}
@@ -564,7 +669,7 @@ class Chat_Essential_Admin {
 					if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
 						$slug = 'chat-essential-login';
 					}
-				} else if (empty($options['phones'])) {
+				} else if (empty($options['signup-complete'])) {
 					$slug = 'chat-essential-signup-phone';
 				}
 			}

@@ -82,8 +82,8 @@ class Chat_Essential_Admin_Settings {
 		$h2_desc = localize('This is how you will export lead data from chat to your own systems');
 
 		$l3 = localize('Email Address');
-		$l3_desc = localize('Enter the email address (or addresses) that will receive lead data. If you use more than 1 email address, separate each address with a comma.');
-		$l3_val = get_option('admin_email');
+		$l3_desc = localize('Enter the email address that will receive lead data.');
+		$l3_val = $settings['email'];
 		echo '<script>let og_email = "' . $l3_val . '";</script>';
 
 		$h3 = localize('Chat Interface Themes');
@@ -276,6 +276,13 @@ END;
 								</tbody>
 							</table>
 						</form>
+						<div id="confirmModal" style="display:none;">
+    						<p id="confirmContent"></p>
+							<div class="ey-modal-buttons">
+								<input class="button button-primary ey-button" id="confirmChange" value="PROCEED">
+								<input class="button button-primary ey-button-secondary ey-button-cancel" id="cancelChange" value="CANCEL">
+							</div>
+						</div>
 					</div>
 				</div>
 		</div>

@@ -8,7 +8,19 @@
 }
 .ey-button {
 	background-color: #53a497 !important;
+	border-color: #53a497 !important;
 	font-weight: normal !important;
+	text-align: center;
+}
+.ey-button-secondary {
+	color: #3c434a !important;
+	background-color: #d8d8d8 !important;
+	border-color: #d8d8d8 !important;
+	font-weight: normal !important;
+	text-align: center;
+}
+.ey-button-cancel {
+	width: 80px;
 }
 .no-padding-bottom {
 	padding-bottom: 0px !important;
