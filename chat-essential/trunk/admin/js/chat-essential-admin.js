@@ -168,7 +168,7 @@
 						this.showTrainingStatus(model.training.status);
 						this.pollTrainingStatus();
 					} else {
-							this.printTrainingDate();
+						this.printTrainingDate();
 					}
 
 					const models = this.renderModels(model, allKits);
@@ -234,7 +234,6 @@
 				api(this.n, 'chat_essential_train', null, data)
 				.then((function(v1) {
 					apiInProgress = false;
-					console.log(v1);
 					if (v1 && v1.nlp && v1.nlp.task) {
 						model.training = v1.nlp.task;
 					}
@@ -435,7 +434,7 @@
 						.then((function(data) {
 							if (data && data.nlp && data.nlp.task && data.nlp.task.status) {
 								model.training.status = data.nlp.task.status;
-								this.showTrainingStatus(data.nlp.task.status);
+								this.showTrainingStatus(data.nlp.task.status, data.nlp.task);
 							}
 						}).bind(this))
 						.catch((function(e1) {
@@ -460,7 +459,7 @@
 					this.hideStatus();
 				}
 			},
-			showTrainingStatus: function(status) {
+			showTrainingStatus: function(status, task) {
 				if (status === 'queued') {
 					this.showStatus('Your training request is queued but has not started yet', 'warn');
 					this.pollTrainingStatus();
@@ -469,6 +468,12 @@
 					this.pollTrainingStatus();
 				} else if (status === 'complete') {
 					this.showStatus('Training is now complete!', 'success');
+					setTimeout((function(){
+						this.printTrainingDate();
+					}).bind(this), 5000);
+				} else if (status === 'error') {
+					this.showStatus('Training failed! Reverted to last successful trained model.', 'error');
+console.log(task);
 					setTimeout((function(){
 						this.printTrainingDate();
 					}).bind(this), 5000);

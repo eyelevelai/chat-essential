@@ -1,5 +1,10 @@
 <?php
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Message;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Client;
+
 /**
  * @link       https://www.chatessential.com
  * @since      0.0.1
@@ -19,14 +24,14 @@ class Chat_Essential_API_client {
 	protected $client;
 
 	public function __construct() {
-		$this->client = new GuzzleHttp\Client([
+		$this->client = new Client([
 			'base_uri' => EYELEVEL_API_URL,
 		]);
 	}
 
 	public function upload($name, $data) {
 		try {
-			$request = new GuzzleHttp\Psr7\Request('GET', '/upload/wordpress?name=' . $name . '&type=json');
+			$request = new Request('GET', '/upload/wordpress?name=' . $name . '&type=json');
 			$response = $this->client->send($request);
 			if ($response) {
 				$code = $response->getStatusCode();
@@ -47,7 +52,7 @@ class Chat_Essential_API_client {
 					}
 				}
 			}
-		} catch (GuzzleHttp\Exception\ClientException $e) {
+		} catch (ClientException $e) {
 			if ($e->hasResponse()) {
 				$res = $e->getResponse();
 				return array(
@@ -55,7 +60,7 @@ class Chat_Essential_API_client {
 					'data' => (string)($res->getBody()),
 				);
 			}
-			return GuzzleHttp\Psr7\Message::toString($e->getRequest());
+			return Message::toString($e->getRequest());
 		}
 
 		return array(
@@ -79,7 +84,7 @@ class Chat_Essential_API_client {
 			if ($body !== null) {
 				$body = json_encode($body);
 			}
-			$request = new GuzzleHttp\Psr7\Request($type, '/wordpress/' . $path, $headers, $body);
+			$request = new Request($type, '/wordpress/' . $path, $headers, $body);
 			$response = $this->client->send($request);
 			if ($response) {
 				$code = $response->getStatusCode();
@@ -90,7 +95,7 @@ class Chat_Essential_API_client {
 					);
 				}
 			}
-		} catch (GuzzleHttp\Exception\ClientException $e) {
+		} catch (ClientException $e) {
 			if ($e->hasResponse()) {
 				$res = $e->getResponse();
 				return array(
@@ -98,7 +103,7 @@ class Chat_Essential_API_client {
 					'data' => (string)($res->getBody()),
 				);
 			}
-			return GuzzleHttp\Psr7\Message::toString($e->getRequest());
+			return Message::toString($e->getRequest());
 		}
 
 		return array(

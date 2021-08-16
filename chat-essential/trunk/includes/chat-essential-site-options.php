@@ -168,7 +168,7 @@ class Site_Options {
 			$postTypes[] = $cpdata;
 		}
 
-		if (count($training) < 1) {
+		if (empty($training) || count($training) < 1) {
 			$training = array(
 				'siteType' => 'all',
 			);

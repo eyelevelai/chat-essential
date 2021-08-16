@@ -164,6 +164,51 @@ class Chat_Essential_Admin {
 		}
 	}
 
+	private function init_ai() {	
+		$body = array(
+			'siteType' => 'all',
+		);
+
+		$content = Site_Options::processOptions($body);
+		if (count($content) < 1) {
+			return;
+		}
+		$contentLen = 0;
+		$submit = array();
+		foreach ($content as $post) {
+			$contentLen += strlen($post['content']);
+		}
+		if ($contentLen < MIN_TRAINING_CONTENT) {
+			return;
+		}
+
+		$fname = uniqid(random_int(0, 10), true);
+		$res = $this->api->upload($fname, $content);
+		if ($res['code'] != 200) {
+			return;
+		}
+
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		$reqData = array(
+			'fileUrl' => UPLOAD_BASE_URL . '/' . $fname . '.json',
+			'metadata' => json_encode($body),
+			'modelId' => $options['modelId'],
+			'engines' => array(
+				'gpt3',
+			),
+		);
+
+		$res = $this->api->request($options['apiKey'], 'POST', 'nlp/train/' . $options['apiKey'], array(
+			'nlp' => $reqData,
+		), null);
+		if ($res['code'] > 299) {
+			return;
+		}
+
+		$options['initAI'] = true;
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+	}
+
 	/**
 	 * @since    0.0.1
 	 */
@@ -678,6 +723,12 @@ class Chat_Essential_Admin {
 		$options['nonce'] = $nonce;
 		$options['slug'] = $slug;
 		$options['website_name'] = $web_name;
+
+		if (!empty($options['apiKey']) &&
+			!empty($options['modelId']) &&
+			empty($options['initAI'])) {
+			$this->init_ai();
+		}
 
 		$settings_page = '';
 		switch ($slug) {
