@@ -102,6 +102,7 @@ class Chat_Essential_Admin_Settings {
 		$h4_desc = localize('This defines the behavior of your chat during and after business hours');
 		$hours = '';
 		if (!empty($data->offhoursSettings)) {
+			$hours = '<tr><th colspan="2" class="no-padding-bottom"><h2>'.$h4.'</h2><p>'.$h4_desc.'</p></th></tr>';
 			foreach ($data->offhoursSettings as $off) {
 				$editUrl = DASHBOARD_URL . '/account?hoursId=' . $off->hoursId;
 				$hours .= '<tr><td class="large-padding-bottom">' . $off->name . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
@@ -122,6 +123,7 @@ class Chat_Essential_Admin_Settings {
 // create theme button
 		}
 
+/*
 		$h6 = localize('Connected Facebook Pages');
 		$h6_desc = localize('These are the Facebook Pages you have connected to the plugin');
 
@@ -133,6 +135,15 @@ class Chat_Essential_Admin_Settings {
 				<a href="https://ssp.eyelevel.ai/account">Edit</a>
 			</td>
 END;
+
+									<tr>
+										<th colspan="2" class="no-padding-bottom">
+											<h2>$h6</h2>
+											<p>$h6_desc</p>
+										</th>
+									</tr>
+									$l7_val
+*/
 
 		$fb_pages = array();
 		$num_pages = count($fb_pages);
@@ -152,6 +163,18 @@ END;
 END;
 			}
 		}
+
+/*
+<option value="slack" disabled>Slack (upgrade to premium)</option>
+<option value="msteams" disabled>Microsoft Teams (upgrade to premium)</option>
+
+<option value="zapier" disabled>Zapier (upgrade to premium)</option>
+<option value="mailchimp" disabled>Mailchimp (upgrade to premium)</option>
+<option value="hubspot" disabled>Hubspot (upgrade to premium)</option>
+<option value="marketo" disabled>Marketo (upgrade to premium)</option>
+<option value="salesforce" disabled>Salesforce (upgrade to premium)</option>
+<option value="custom" disabled>Custom Webhook (upgrade to premium)</option>
+*/
 
 		$submit = localize('Save Changes');
 
@@ -180,8 +203,6 @@ END;
 										<td>
 											<select name="live-chat-type" id="liveChatSelect">
 												<option value="sms">SMS Text with People in Chat</option>
-												<option value="slack" disabled>Slack (upgrade to premium)</option>
-												<option value="msteams" disabled>Microsoft Teams (upgrade to premium)</option>
 											</select>
 										</td>
 									</tr>
@@ -213,12 +234,6 @@ END;
 										<td>
 											<select name="track-event-type" id="track-event-select">
 												<option value="email">Receive data by Email</option>
-												<option value="zapier" disabled>Zapier (upgrade to premium)</option>
-												<option value="mailchimp" disabled>Mailchimp (upgrade to premium)</option>
-												<option value="hubspot" disabled>Hubspot (upgrade to premium)</option>
-												<option value="marketo" disabled>Marketo (upgrade to premium)</option>
-												<option value="salesforce" disabled>Salesforce (upgrade to premium)</option>
-												<option value="custom" disabled>Custom Webhook (upgrade to premium)</option>
 											</select>
 										</td>
 									</tr>
@@ -252,12 +267,6 @@ END;
 										</th>
 									</tr>
 									$themes
-									<tr>
-										<th colspan="2" class="no-padding-bottom">
-											<h2>$h4</h2>
-											<p>$h4_desc</p>
-										</th>
-									</tr>
 									$hours
 									<tr>
 										<th colspan="2" class="no-padding-bottom">
@@ -266,13 +275,6 @@ END;
 										</th>
 									</tr>
 									$qrThemes
-									<tr>
-										<th colspan="2" class="no-padding-bottom">
-											<h2>$h6</h2>
-											<p>$h6_desc</p>
-										</th>
-									</tr>
-									$l7_val
 								</tbody>
 							</table>
 						</form>

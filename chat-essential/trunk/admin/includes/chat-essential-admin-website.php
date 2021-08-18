@@ -183,16 +183,19 @@ END;
 									$webflows
 								</tbody>
 							</table>
-							<p class="submit">
-								<input disabled type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_web_rules">
-								<i>Upgrade to premium</i>
-							</p>
 						</form>
 					</div>
 				</div>
 		</div>
 END;
   	}
+
+/*
+<p class="submit">
+<input disabled type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_web_rules">
+<i>Upgrade to premium</i>
+</p>
+*/
 
 	/**
 	 * @since    0.0.1

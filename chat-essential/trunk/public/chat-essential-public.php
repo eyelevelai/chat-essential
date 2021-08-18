@@ -71,10 +71,13 @@ class Chat_Essential_Public {
 				switch ( $data->display_on ) {
 					case 'all':
 						$flowName = $data->flow_name;
-						$out .= Chat_Essential_Pixel::generatePixel($apiKey, $data->flow_name, array(
+						$chat = array(
 							'origin' => 'web',
-							'env' => 'dev',
-						));
+						);
+						if (CHAT_ESSENTIAL_ENV !== 'prod') {
+							$chat['env'] = CHAT_ESSENTIAL_ENV;
+						}
+						$out .= Chat_Essential_Pixel::generatePixel($apiKey, $data->flow_name, $chat);
 						break;
 					case 'posts':
 					case 'pages':

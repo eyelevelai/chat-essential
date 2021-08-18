@@ -44,6 +44,7 @@ class Chat_Essential {
 
 		$this->load_dependencies();
 		$this->set_locale();
+//		$this->set_error_handler();
 		$this->check_db();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
@@ -62,6 +63,7 @@ class Chat_Essential {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-identity-verification.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-api-client.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-utility.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/chat-essential-errors.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/chat-essential-admin.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-error.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-login.php';
@@ -96,6 +98,16 @@ class Chat_Essential {
 		$plugin_i18n = new Chat_Essential_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+	}
+
+	/**
+	 * @since    0.0.1
+	 * @access   private
+	 */
+	private function set_error_handler() {
+		$plugin_errors = new Chat_Essential_Errors();
+
+		$this->loader->add_action( 'wp_error_added', $plugin_errors, 'handler' );
 	}
 
 	/**

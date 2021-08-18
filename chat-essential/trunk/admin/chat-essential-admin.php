@@ -108,6 +108,7 @@ class Chat_Essential_Admin {
 			array( $this, 'menu_main_page' ),
 			20
 		);
+/*
 		add_submenu_page(
 			'chat-essential',
 			__('Chat Essential - Facebook Page Chat', 'chat-essential'),
@@ -117,6 +118,7 @@ class Chat_Essential_Admin {
 			array( $this, 'menu_main_page' ),
 			20
 		);
+*/
 		add_submenu_page(
 			'chat-essential',
 			__('Chat Essential - QR Codes Chat', 'chat-essential'),
@@ -152,12 +154,15 @@ class Chat_Essential_Admin {
 					if (!empty($options) &&
 						!empty($options['apiKey']) &&
 						!empty($options['previewChat'])) {
-						echo Chat_Essential_Pixel::generatePixel($options['apiKey'], $options['previewChat'], array(
+						$chat = array(
 							'origin' => 'web',
 							'reset' => true,
-							'env' => 'dev',
 							'clearcache' => true,
-						));
+						);
+						if (CHAT_ESSENTIAL_ENV !== 'prod') {
+							$chat['env'] = CHAT_ESSENTIAL_ENV;
+						}
+						echo Chat_Essential_Pixel::generatePixel($options['apiKey'], $options['previewChat'], $chat);
 					}
 					break;
 			}
@@ -235,7 +240,9 @@ class Chat_Essential_Admin {
 		}
 
 		$content = Site_Options::processOptions($_POST['body']);
-		if (count($content) < 1) {
+		if (count($content) < 1 &&
+			!empty($_POST['body']['siteType']) &&
+			$_POST['body']['siteType'] !== 'none') {
 			wp_die('{"message":"No pages or posts fit the criteria you specified"}', 404);
 		}
 		$contentLen = 0;
@@ -243,22 +250,28 @@ class Chat_Essential_Admin {
 		foreach ($content as $post) {
 			$contentLen += strlen($post['content']);
 		}
-		if ($contentLen < MIN_TRAINING_CONTENT) {
+		if ($contentLen < MIN_TRAINING_CONTENT &&
+			!empty($_POST['body']['siteType']) &&
+			$_POST['body']['siteType'] !== 'none') {
 			wp_die('{"message":"You have not included sufficient content to train your AI"}', 400);
-		}
-
-		$fname = uniqid(random_int(0, 10), true);
-		$res = $this->api->upload($fname, $content);
-		if ($res['code'] != 200) {
-			wp_die($res['data'], $res['code']);
 		}
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		$reqData = array(
-			'fileUrl' => UPLOAD_BASE_URL . '/' . $fname . '.json',
 			'metadata' => json_encode($_POST['body']),
 			'modelId' => $options['modelId'],
 		);
+		if (!empty($_POST['body']['siteType']) &&
+			$_POST['body']['siteType'] !== 'none') {
+			$fname = uniqid(random_int(0, 10), true);
+			$res = $this->api->upload($fname, $content);
+			if ($res['code'] != 200) {
+				wp_die($res['data'], $res['code']);
+			}
+
+			$reqData['fileUrl'] = UPLOAD_BASE_URL . '/' . $fname . '.json';
+		}
+
 		if (!empty($kits)) {
 			$reqData['kits'] = $kits;
 		}
@@ -426,6 +439,7 @@ class Chat_Essential_Admin {
 
 		$data = array();
 		if (!empty($body['phones'])) {
+			$web_name = get_option('blogname');
 			$data['integration'] = array(
 				'sms' => array(
 					'name' => $web_name . ' Phone',
@@ -534,7 +548,12 @@ class Chat_Essential_Admin {
 				}
 
 				Chat_Essential_Utility::init_user($jdata['apiKey'], $webs);
-				$options['signup-complete'] = true;
+				$options['signup-complete'] = true;				
+			}
+			if (!empty($jdata['nlp']['model']['training']) &&
+				!empty($jdata['nlp']['model']['training']['status']) &&
+				$jdata['nlp']['model']['training']['status'] == 'complete') {
+				$options['initAI'] = true;
 			}
 		}
 

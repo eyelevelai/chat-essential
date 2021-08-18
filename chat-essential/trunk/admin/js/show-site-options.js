@@ -17,6 +17,8 @@ function showTypeOptions( type ) {
 	} else if (type == 'tags') {
 		jQuery('#tags').show();
 		jQuery('#categories, #pages, #postTypes, #excludePages, #excludePosts, #posts').hide();
+	} else if (type == 'none') {
+		jQuery('#categories, #pages, #postTypes, #excludePages, #excludePosts, #posts, #tags').hide();
 	} else {
 		jQuery('#pages, #categories, #tags, #postTypes, #posts').hide();
 	}

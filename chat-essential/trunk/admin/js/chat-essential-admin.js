@@ -228,6 +228,9 @@
 				if (!data) {
 					this.showStatus('There was an internal issue submitting your request', 'error');
 					return false;
+				} else if (data.error) {
+					this.showStatus(data.error, 'error');
+					return false;
 				}
 				apiInProgress = true;
 
@@ -642,24 +645,21 @@ console.log(task);
 					case 'pages':
 						dt1 = $('#inPages').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one page', 'error');
-							return;
+							return { error: 'Choose at least one page' };
 						}
 						data.in_pages = dt1;
 						return data;
 					case 'posts':
 						dt1 = $('#inPosts').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one post', 'error');
-							return;
+							return { error: 'Choose at least one post' };
 						}
 						data.in_posts = dt1;
 						return data;
 					case 'categories':
 						dt1 = $('#inCategories').val();
 						if(!dt1 || !dt1.length) {
-							this.showStatus('Choose at least one category', 'error');
-							return;
+							return { error: 'Choose at least one category' };
 						}
 						data.in_categories = dt1;
 						return data;
@@ -667,7 +667,7 @@ console.log(task);
 						dt1 = $('#inTags').val();
 						if(!dt1 || !dt1.length) {
 							this.showStatus('Choose at least one tag', 'error');
-							return;
+							return { error: 'Choose at least one tag' };
 						}
 						data.in_tags = dt1;
 						return data;
@@ -675,9 +675,11 @@ console.log(task);
 						dt1 = $('#inPostTypes').val();
 						if(!dt1 || !dt1.length) {
 							this.showStatus('Choose at least one post type', 'error');
-							return;
+							return { error: 'Choose at least one post type' };
 						}
 						data.in_postTypes = dt1;
+						return data;
+					case 'none':
 						return data;
 					default:
 						return;

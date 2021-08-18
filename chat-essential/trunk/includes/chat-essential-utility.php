@@ -295,6 +295,7 @@ class Chat_Essential_Utility {
 	 * @return   boolean                                Whether the color is light or dark.
 	 */
 	public static function is_light($hex) {
+		$hex = str_replace('#', '', $hex);
 		$c_r = hexdec( substr( $hex, 0, 2 ) );
 		$c_g = hexdec( substr( $hex, 2, 2 ) );
 		$c_b = hexdec( substr( $hex, 4, 2 ) );
@@ -369,26 +370,32 @@ class Chat_Essential_Utility {
 				$background = null;
 				if (!empty($curr->colors)) {
 					$c = Chat_Essential_Utility::clean_color($curr->colors[0]);
-					$cc = Chat_Essential_Utility::is_light($c);
-					$cc['color'] = '#'.$c;
-					$primary = $cc;
+					if (!empty($c)) {
+						$cc = Chat_Essential_Utility::is_light($c);
+						$cc['color'] = '#'.$c;
+						$primary = $cc;
+					}
 				}
 				if (!empty($curr->icon_colors)) {
 					$choices = array();
 					if (!empty($curr->icon_colors['base'])) {
 						$c = Chat_Essential_Utility::clean_color($curr->icon_colors['base']);
-						$cc = Chat_Essential_Utility::is_light($c);
-						if ($cc['is_light'] != $primary['is_light']) {
-							$cc['color'] = '#'.$c;
-							$choices[] = $cc;
+						if (!empty($c)) {
+							$cc = Chat_Essential_Utility::is_light($c);
+							if ($cc['is_light'] != $primary['is_light']) {
+								$cc['color'] = '#'.$c;
+								$choices[] = $cc;
+							}
 						}
 					}
 					if (!empty($curr->icon_colors['current'])) {
 						$c = Chat_Essential_Utility::clean_color($curr->icon_colors['current']);
-						$cc = Chat_Essential_Utility::is_light($c);
-						if ($cc['is_light'] != $primary['is_light']) {
-							$cc['color'] = '#'.$c;
-							$choices[] = $cc;
+						if (!empty($c)) {
+							$cc = Chat_Essential_Utility::is_light($c);
+							if ($cc['is_light'] != $primary['is_light']) {
+								$cc['color'] = '#'.$c;
+								$choices[] = $cc;
+							}
 						}
 					}
 					if (count($choices) == 2) {

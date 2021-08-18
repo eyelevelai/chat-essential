@@ -36,7 +36,8 @@ class Site_Options {
 		}
 
 		if ($options['siteType'] !== 'posts' &&
-			$options['siteType'] !== 'postTypes') {
+			$options['siteType'] !== 'postTypes' &&
+			$options['siteType'] !== 'none') {
 			$q = array(
 				'hierarchical' => true,
 				'post_type' => 'page',
@@ -68,7 +69,8 @@ class Site_Options {
 			}
 		}
 
-		if ($options['siteType'] !== 'pages') {
+		if ($options['siteType'] !== 'pages' &&
+			$options['siteType'] !== 'none') {
 			$q = array(
 				'numberposts' => 100,
 			);
@@ -174,8 +176,8 @@ class Site_Options {
 			);
 		}
 
-		$expages = ( 'pages' === $training['siteType'] ) ? 'display:none;' : '';
-		$exposts = ( 'posts' === $training['siteType'] ) ? 'display:none;' : '';
+		$expages = ( 'pages' === $training['siteType'] || 'none' === $training['siteType'] ) ? 'display:none;' : '';
+		$exposts = ( 'posts' === $training['siteType'] || 'none' === $training['siteType'] ) ? 'display:none;' : '';
 		$excategories = 'categories' === $training['siteType'] ? 'display:none;' : '';
 		$extags = 'tags' === $training['siteType'] ? 'display:none;' : '';
 		$expostTypes = 'postTypes' === $training['siteType'] ? 'display:none;' : '';
@@ -192,6 +194,7 @@ class Site_Options {
 			'categories' => localize('Specific Categories'),
 			'tags' => localize('Specific Tags'),
 			'postTypes' => localize('Specific Post Types'),
+			'none' => localize('None'),
 		);
 
 		$l1 = localize('Site Display');
