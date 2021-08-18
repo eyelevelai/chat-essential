@@ -1,3 +1,3 @@
 # Changelog
 
-* (24 June 2021). Initial Release.
+* (18 August 2021). Initial Release.

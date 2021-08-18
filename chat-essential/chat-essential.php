@@ -1,12 +1,12 @@
 <?php
 
 /**
+ * Plugin Name:       Chat Essential
  * @link              https://www.chatessential.com
  * @since             0.0.1
  * @package           Chat_Essential
  *
  * @wordpress-plugin
- * Plugin Name:       Chat Essential
  * Plugin URI:        http://wordpress.org/plugins/chat-essential/
  * Description:       Launch automated chats anywhere you advertise
  * Version:           0.0.1
