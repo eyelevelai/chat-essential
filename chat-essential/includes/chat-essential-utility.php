@@ -10,14 +10,69 @@
  */
 class Chat_Essential_Utility {
 
-	public static function sanitize_text( $key, $sanitize = true ) {
+	public static function sanitize_json_array( $arr ) {
+		$narr = array();
+		foreach ($arr as $k => $v) {
+			$ty = gettype($v);
+			switch ($ty) {
+				case 'boolean':
+				case 'integer':
+				case 'double':
+					$narr[$k] = $v;
+					break;
+				case 'string':
+					$narr[$k] = sanitize_text_field($v);
+					break;
+				case 'array':
+					$narr[$k] = Chat_Essential_Utility::sanitize_json_array($v);
+					break;
+				case 'object':
+					$narr[$k] = Chat_Essential_Utility::sanitize_json_object($v);
+					break;
+				case 'NULL':
+					$narr[$k] = null;
+					break;
+			}
+		}
+
+		return $narr;
+	}
+
+	public static function sanitize_json_object( $obj ) {
+		$nobj = new stdClass();
+		foreach ($obj as $k => $v) {
+			$ty = gettype($v);
+			switch ($ty) {
+				case 'boolean':
+				case 'integer':
+				case 'double':
+					$nobj->$k = $v;
+					break;
+				case 'string':
+					$nobj->$k = sanitize_text_field($v);
+					break;
+				case 'array':
+					$nobj->$k = Chat_Essential_Utility::sanitize_json_array($v);
+					break;
+				case 'object':
+					$nobj->$k = Chat_Essential_Utility::sanitize_json_object($v);
+					break;
+				case 'NULL':
+					$nobj->$k = null;
+					break;
+			}
+		}
+
+		return $nobj;
+	}
+
+	public static function sanitize_text( $key ) {
 		if ( ! empty( $_POST ) &&
 			! empty( $_POST['data'] ) &&
 			! empty( $_POST['data'][ $key ] ) ) {
-			$out = stripslashes_deep( $_POST['data'][ $key ] );
-			if ( $sanitize ) {
-				$out = sanitize_text_field( $out );
-			}
+			$data = $_POST['data'][ $key ];
+			$out = stripslashes_deep( $data );
+			$out = sanitize_text_field( $out );
 			return $out;
 		}
 		return '';
@@ -47,7 +102,7 @@ class Chat_Essential_Utility {
 	public static function sanitize_post() {
 		return array(
 			'flow_name' => Chat_Essential_Utility::sanitize_text( 'flow_name' ),
-			'options' => Chat_Essential_Utility::sanitize_text( 'options', false ),
+			'options' => Chat_Essential_Utility::sanitize_text( 'options' ),
 			'display_on' => Chat_Essential_Utility::sanitize_text( 'display_on' ),
 			'status' => Chat_Essential_Utility::sanitize_text( 'status' ),
 			'in_pages' => Chat_Essential_Utility::sanitize_array( 'in_pages' ),

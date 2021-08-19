@@ -164,7 +164,7 @@
 					if (kits && kits.length) {
 						allKits = pageParams.coreEngines.concat(kits);
 					}
-					if(model.training && model.training.taskId && model.training.status !== 'complete') {
+					if(model.training && model.training.taskId && model.training.status !== 'complete' && model.training.status !== 'error') {
 						this.showTrainingStatus(model.training.status);
 						this.pollTrainingStatus();
 					} else {
@@ -218,7 +218,7 @@
 				if (apiInProgress) {
 					return false;
 				}
-				if (model && model.training && model.training.status && model.training.status !== 'complete') {
+				if (model && model.training && model.training.status && model.training.status !== 'complete' && model.training.status !== 'error') {
 					this.showStatus('You have already submitted a training request that is not yet complete', 'error');
 					return false;
 				}
@@ -476,7 +476,6 @@
 					}).bind(this), 5000);
 				} else if (status === 'error') {
 					this.showStatus('Training failed! Reverted to last successful trained model.', 'error');
-console.log(task);
 					setTimeout((function(){
 						this.printTrainingDate();
 					}).bind(this), 5000);

@@ -1,9 +1,9 @@
 === Chat Essential ===
 Contributors: chatessential
 Tags: ai, artificial intelligence, openai, gpt-3, gpt3, customer, chat
-Requires at least: 5.7.0
-Tested up to: 5.7
-Stable tag: 5.7
+Requires at least: 5.0
+Tested up to: 5.8
+Stable tag: 0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

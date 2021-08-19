@@ -36,20 +36,20 @@ class Chat_Essential_Admin_Phone {
 	public function html() {
     	$settings = $this->getSettings();
 
-		$title = localize('Phone Chat');
+		$title = chat_essential_localize('Phone Chat');
 		$nonce = $settings['nonce'];
 
-		$h1_desc = localize('Turn this feature on to enable your AI to answer the phone');
+		$h1_desc = chat_essential_localize('Turn this feature on to enable your AI to answer the phone');
 		$switch = '<tr><td colspan="4"><label class="switch"><input type="checkbox" ';
 		$switch .= 'checked';
-		$h1_desc = localize('Your AI can be reached at the following phone number');
+		$h1_desc = chat_essential_localize('Your AI can be reached at the following phone number');
 		$switch .= '><span class="slider"></span></label></td></tr>';
 
 		$phone_number = '<tr><td colspan="4"><p>' . $h1_desc . '</p><input disabled type="tel" class="regular-text" value="(720) 806-6190" id="aiPhone" name="tel"></tr></td>';
 
-		$submit = localize('Save Changes');
+		$submit = chat_essential_localize('Save Changes');
 
-    	return <<<END
+    	echo <<<END
 		<div class="wrap">
 			<h1>$title</h1>
 				<div class="metabox-holder columns-2">

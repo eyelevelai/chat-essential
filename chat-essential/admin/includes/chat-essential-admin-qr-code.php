@@ -34,10 +34,10 @@ class Chat_Essential_Admin_QRCode {
 	}
 
 	private function row($settings, $qr) {
-		$edit_url = DASHBOARD_URL . '/view/' . $qr->versionId;
-		$edit = localize('Edit');
-		$analytics = localize('View');
-		$analytics_url = DASHBOARD_URL . '/analytics/' . $qr->id;
+		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . $qr->versionId;
+		$edit = chat_essential_localize('Edit');
+		$analytics = chat_essential_localize('View');
+		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $qr->id;
 		$theme_name = '';
 		if (!empty($qr->theme) && !empty($qr->theme->name)) {
 			$theme_name = $qr->theme->name;
@@ -69,16 +69,16 @@ class Chat_Essential_Admin_QRCode {
 			if (!empty($data['publish'])) {
 				if (!empty($data['publish']['url'])) {
 					$preview_url = $data['publish']['url'] . '&clearcache=true';
-					$preview = localize('Preview');
+					$preview = chat_essential_localize('Preview');
 				}
 				if (!empty($data['publish']['qrLinks']) && !empty($data['publish']['qrLinks']['png@1000'])) {
-					$download = localize('Download');
+					$download = chat_essential_localize('Download');
 					$download_url = $data['publish']['qrLinks']['png@1000'];
 				}
 			}
 		}
 
-		return <<<END
+		echo <<<END
 		<tr>
 		<td class="flow-name column-flow-name">
 			<strong>$qr->name</strong>
@@ -113,7 +113,7 @@ END;
 	public function html() {
     	$settings = $this->getSettings();
 
-		$title = localize('QR Code Chat');
+		$title = chat_essential_localize('QR Code Chat');
 		$nonce = $settings['nonce'];
 
 		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=qr&type=flow&data=full', null, null);
@@ -135,14 +135,14 @@ END;
 			// empty state?
 		}
 
-		$h1 = localize('Chat Flow');
-		$h2 = localize('QR Code');
-		$h3 = localize('Analytics');
-		$h4 = localize('Theme');
-		$h5 = localize('QR Code Style');
-		$h6 = localize('Business Hours Settings');
+		$h1 = chat_essential_localize('Chat Flow');
+		$h2 = chat_essential_localize('QR Code');
+		$h3 = chat_essential_localize('Analytics');
+		$h4 = chat_essential_localize('Theme');
+		$h5 = chat_essential_localize('QR Code Style');
+		$h6 = chat_essential_localize('Business Hours Settings');
 
-		$submit = localize('Add New Settings');
+		$submit = chat_essential_localize('Add New Settings');
 
     	return <<<END
 		<div class="wrap">

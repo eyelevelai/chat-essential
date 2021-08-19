@@ -45,15 +45,15 @@ class Chat_Essential_Admin_AI {
 	public function html() {
     	$settings = $this->getSettings();
 
-		$title = localize('Artificial Intelligence');
+		$title = chat_essential_localize('Artificial Intelligence');
 		$nonce = $settings['nonce'];
 
-		$h1 = localize('Core Knowledge');
-		$loading = localize('Loading...');
-		$h1_desc = localize('Select the topics you want your AI to be knowledgeable about');
+		$h1 = chat_essential_localize('Core Knowledge');
+		$loading = chat_essential_localize('Loading...');
+		$h1_desc = chat_essential_localize('Select the topics you want your AI to be knowledgeable about');
 
-		$h2 = localize('Business Knowledge');
-		$h2_desc = localize('Select the website content you want your AI to consume to learn about your business');
+		$h2 = chat_essential_localize('Business Knowledge');
+		$h2_desc = chat_essential_localize('Select the website content you want your AI to consume to learn about your business');
 
 		$res = $this->api->request($settings['apiKey'], 'GET', 'nlp/model/' . $settings['apiKey'], null, null);
 		if ($res['code'] != 200) {
@@ -74,13 +74,13 @@ class Chat_Essential_Admin_AI {
 				}
 			}
 		}
-		echo $model_script;
 
 		$siteOptions = Site_Options::typeSelector($training);
 
-		$submit = localize('Train Your AI');
+		$submit = chat_essential_localize('Train Your AI');
 
-    	return <<<END
+    	echo <<<END
+		$model_script
 		<div class="wrap">
 			<h1>$title</h1>
 				<div class="med-font status-msg" id="statusMessage1"></div>

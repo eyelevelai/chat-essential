@@ -37,31 +37,31 @@ class Chat_Essential_Admin_FacebookPage {
 	public function html() {
     	$settings = $this->getSettings();
 
-		$title = localize('Facebook Page Chat');
+		$title = chat_essential_localize('Facebook Page Chat');
 		$nonce = $settings['nonce'];
 
-		$h1 = localize('Chat Flow');
+		$h1 = chat_essential_localize('Chat Flow');
 		$v1 = $settings['website_name'] . ' Facebook Page Chat';
 		$preview_url = '?action=preview';
-		$preview_label = localize('Preview');
+		$preview_label = chat_essential_localize('Preview');
 		$edit_url = '?action=edit';
-		$edit_label = localize('Edit');
+		$edit_label = chat_essential_localize('Edit');
 		$delete_url = '?action=delete';
-		$delete_label = localize('Delete');
+		$delete_label = chat_essential_localize('Delete');
 
-		$h2 = localize('Facebook Page');
+		$h2 = chat_essential_localize('Facebook Page');
 		$v2 = 'Test Page';
 
-		$h3 = localize('Analytics');
-		$v3 = localize('View');
+		$h3 = chat_essential_localize('Analytics');
+		$v3 = chat_essential_localize('View');
 		$v3_url = 'https://ssp.eyelevel.ai';
 
-		$h4 = localize('Business Hours Settings');
+		$h4 = chat_essential_localize('Business Hours Settings');
 		$v4 = $settings['website_name'] . ' Business Hours';
 
-		$submit = localize('Add New Settings');
+		$submit = chat_essential_localize('Add New Settings');
 
-    	return <<<END
+    	echo <<<END
 		<div class="wrap">
 			<h1>$title</h1>
 				<div class="metabox-holder columns-2">

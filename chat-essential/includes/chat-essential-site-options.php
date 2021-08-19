@@ -16,7 +16,7 @@ class Site_Options {
 		$c_txt = preg_replace( "/(\r\n|\r|\n)+/", "\n", $raw_txt );
 		$c_txt = preg_replace( "/[ \t]+/", "\n", $c_txt );
 		$c_txt = preg_replace( "/(\r\n|\r|\n)+/", " ", $c_txt );
-		if (strlen($c_txt) > MIN_TRAINING_PAGE_CONTENT) {
+		if (strlen($c_txt) > CHAT_ESSENTIAL_MIN_TRAINING_PAGE_CONTENT) {
 			$pg['c_len'] = strlen($c_txt);
 			$pg['content'] = $raw_txt;
 			$pg['url'] = get_page_link($content);
@@ -188,22 +188,22 @@ class Site_Options {
 		$cposts = 'postTypes' === $training['siteType'] ? '' : 'display:none;';
 
 		$ty = array(
-			'all' => localize('Site Wide'),
-			'pages' => localize('Specific Pages'),
-			'posts' => localize('Specific Posts'),
-			'categories' => localize('Specific Categories'),
-			'tags' => localize('Specific Tags'),
-			'postTypes' => localize('Specific Post Types'),
-			'none' => localize('None'),
+			'all' => chat_essential_localize('Site Wide'),
+			'pages' => chat_essential_localize('Specific Pages'),
+			'posts' => chat_essential_localize('Specific Posts'),
+			'categories' => chat_essential_localize('Specific Categories'),
+			'tags' => chat_essential_localize('Specific Tags'),
+			'postTypes' => chat_essential_localize('Specific Post Types'),
+			'none' => chat_essential_localize('None'),
 		);
 
-		$l1 = localize('Site Display');
-		$l2 = localize('Exclude Pages');
-		$l3 = localize('Pages');
-		$l4 = localize('Posts');
-		$l5 = localize('Categories');
-		$l6 = localize('Tags');
-		$l7 = localize('Post Types');
+		$l1 = chat_essential_localize('Site Display');
+		$l2 = chat_essential_localize('Exclude Pages');
+		$l3 = chat_essential_localize('Pages');
+		$l4 = chat_essential_localize('Posts');
+		$l5 = chat_essential_localize('Categories');
+		$l6 = chat_essential_localize('Tags');
+		$l7 = chat_essential_localize('Post Types');
 
 		$html = '<tr><th><label for="data[current_type]">' . $l1 . '</label></th>';
 		$html .= '<td><select name="data[current_type]" id="siteTypeSelect" onchange="showTypeOptions(this.value);">';

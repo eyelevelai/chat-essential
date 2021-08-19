@@ -45,11 +45,11 @@ class Chat_Essential_Admin_Website {
 		}
 		$isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' .$web->platformId . '" /><label class="ey-switch" for="status' .$web->platformId . '">Toggle</label>';
 
-		$edit_url = DASHBOARD_URL . '/view/' . $web->versionId;
-		$edit = localize('Edit');
-		$lot_val = localize('Site Wide');
-		$analytics = localize('View');
-		$analytics_url = DASHBOARD_URL . '/analytics/' . $web->id;
+		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . $web->versionId;
+		$edit = chat_essential_localize('Edit');
+		$lot_val = chat_essential_localize('Site Wide');
+		$analytics = chat_essential_localize('View');
+		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $web->id;
 		$theme_name = '';
 		if (!empty($web->theme) && !empty($web->theme->name)) {
 			$theme_name = $web->theme->name;
@@ -80,7 +80,7 @@ class Chat_Essential_Admin_Website {
 						$disp = 'style="display:none;"';
 					}
 					$preview_url = $data['publish']['url'] . '&eystate=open&eyreset=true&clearcache=true';
-					$preview = '<span ' . $disp . ' id="status' .$web->platformId . '-preview" class="preview-web"><a href="' . $preview_url . '" target="_blank">' . localize('Preview') . '</a></span>';
+					$preview = '<span ' . $disp . ' id="status' .$web->platformId . '-preview" class="preview-web"><a href="' . $preview_url . '" target="_blank">' . chat_essential_localize('Preview') . '</a></span>';
 				}
 			}
 		}
@@ -118,7 +118,7 @@ END;
 
 		Chat_Essential_Utility::update_web_status(27, 'inactive');
 
-		$title = localize('Website Chat');
+		$title = chat_essential_localize('Website Chat');
 		$nonce = $settings['nonce'];
 	
 		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=web&type=flow&data=full', null, null);
@@ -140,16 +140,16 @@ END;
 			// empty state?
 		}
 
-		$h1 = localize('Status');
-		$h2 = localize('Chat Flow');
-		$h3 = localize('Load On');
-		$h4 = localize('Analytics');
-		$h5 = localize('Theme');
-		$h6 = localize('Business Hours Settings');
+		$h1 = chat_essential_localize('Status');
+		$h2 = chat_essential_localize('Chat Flow');
+		$h3 = chat_essential_localize('Load On');
+		$h4 = chat_essential_localize('Analytics');
+		$h5 = chat_essential_localize('Theme');
+		$h6 = chat_essential_localize('Business Hours Settings');
 
-		$submit = localize('Add New Settings');
+		$submit = chat_essential_localize('Add New Settings');
 
-    	return <<<END
+    	echo <<<END
 		<div class="wrap">
 			<h1>$title</h1>
 				<div class="metabox-holder columns-2">

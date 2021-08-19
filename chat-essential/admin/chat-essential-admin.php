@@ -146,7 +146,7 @@ class Chat_Essential_Admin {
 	 */
 	public function add_footer() {
 		if (!empty($_GET['page'])) {
-			$slug = $_GET['page'];
+			$slug = sanitize_text_field($_GET['page']);
 			$options = get_option(CHAT_ESSENTIAL_OPTION);
 			switch ($slug) {
 				case 'chat-essential':
@@ -183,7 +183,7 @@ class Chat_Essential_Admin {
 		foreach ($content as $post) {
 			$contentLen += strlen($post['content']);
 		}
-		if ($contentLen < MIN_TRAINING_CONTENT) {
+		if ($contentLen < CHAT_ESSENTIAL_MIN_TRAINING_CONTENT) {
 			return;
 		}
 
@@ -195,7 +195,7 @@ class Chat_Essential_Admin {
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		$reqData = array(
-			'fileUrl' => UPLOAD_BASE_URL . '/' . $fname . '.json',
+			'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . $fname . '.json',
 			'metadata' => json_encode($body),
 			'modelId' => $options['modelId'],
 			'engines' => array(
@@ -229,7 +229,9 @@ class Chat_Essential_Admin {
 		$kits = array();
 		$engines = array();
 		if (!empty($_POST['body']['engines'])) {
-			$engines = $_POST['body']['engines'];
+			foreach ($_POST['body']['engines'] as $engine) {
+				$engines[] = sanitize_text_field($engine);
+			}
 			unset($_POST['body']['engines']);
 		}
 		if (!empty($_POST['body']['kits'])) {
@@ -250,7 +252,7 @@ class Chat_Essential_Admin {
 		foreach ($content as $post) {
 			$contentLen += strlen($post['content']);
 		}
-		if ($contentLen < MIN_TRAINING_CONTENT &&
+		if ($contentLen < CHAT_ESSENTIAL_MIN_TRAINING_CONTENT &&
 			!empty($_POST['body']['siteType']) &&
 			$_POST['body']['siteType'] !== 'none') {
 			wp_die('{"message":"You have not included sufficient content to train your AI"}', 400);
@@ -269,7 +271,7 @@ class Chat_Essential_Admin {
 				wp_die($res['data'], $res['code']);
 			}
 
-			$reqData['fileUrl'] = UPLOAD_BASE_URL . '/' . $fname . '.json';
+			$reqData['fileUrl'] = CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . $fname . '.json';
 		}
 
 		if (!empty($kits)) {
@@ -286,7 +288,8 @@ class Chat_Essential_Admin {
 			wp_die($res['data'], $res['code']);
 		}
 
-		echo $res['data'];
+		$jdata = json_decode($res['data'], true);
+		wp_send_json(Chat_Essential_Utility::sanitize_json_array($jdata));
 
 		die();
 	}
@@ -312,15 +315,16 @@ class Chat_Essential_Admin {
 		}
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
-		$path = $_POST['path'];
-		$path = str_replace('{apiKey}', $options['apiKey'], $_POST['path']);
+		$path = sanitize_text_field($_POST['path']);
+		$path = str_replace('{apiKey}', $options['apiKey'], $path);
 
 		$res = $this->api->request($options['apiKey'], $action, $path, $body, null);
 		if ($res['code'] > 299) {
 			wp_die($res['data'], $res['code']);
 		}
 
-		echo $res['data'];
+		$jdata = json_decode($res['data'], true);
+		wp_send_json(Chat_Essential_Utility::sanitize_json_array($jdata));
 
 		die();
 	}
@@ -336,7 +340,7 @@ class Chat_Essential_Admin {
 			empty($_POST['body']['phone'])) {
 			wp_die('{"message":"Missing request parameters"}', 400);
 		}
-		$body = $_POST['body'];
+		$phone = sanitize_text_field($_POST['body']['phone']);
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		if (empty($options) ||
@@ -351,15 +355,15 @@ class Chat_Essential_Admin {
 				'sms' => array(
 					'name' => $web_name . ' Phone',
 					'phones' => array(
-						$body['phone'],
+						$phone,
 					),
 				),
 			),
 		);
-		if ($body['phone'] !== 'skip') {
+		if ($phone !== 'skip') {
 			try {
 				$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-				$pv = $phoneUtil->parse($body['phone'], 'US');
+				$pv = $phoneUtil->parse($phone, 'US');
 			} catch (\libphonenumber\NumberParseException $e) {
 				wp_die('{"message":"Invalid phone number"}', 400);
 			}
@@ -401,7 +405,8 @@ class Chat_Essential_Admin {
 		$options['signup-complete'] = true;
 		update_option(CHAT_ESSENTIAL_OPTION, $options);
 
-		echo $res['data'];
+		$jdata = json_decode($res['data'], true);
+		wp_send_json(Chat_Essential_Utility::sanitize_json_array($jdata));
 
 		die();
 	}
@@ -418,12 +423,12 @@ class Chat_Essential_Admin {
 			(!isset($_POST['body']['phones']) && empty($_POST['body']['email']))) {
 			wp_die('{"message":"Missing request parameters"}', 400);
 		}
-		$body = $_POST['body'];
 
-		if (!empty($body['phones'])) {
+		if (!empty($_POST['body']['phones'])) {
 			try {
+				$phones = sanitize_text_field($_POST['body']['phones']);
 				$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-				$pv = $phoneUtil->parse($body['phones'], 'US');
+				$pv = $phoneUtil->parse($phones, 'US');
 			} catch (\libphonenumber\NumberParseException $e) {
 				wp_die('{"message":"Invalid phone number"}', 400);
 			}
@@ -438,21 +443,22 @@ class Chat_Essential_Admin {
 		$path = 'partner/settings/' . $options['apiKey'];
 
 		$data = array();
-		if (!empty($body['phones'])) {
+		if (!empty($_POST['body']['phones'])) {
 			$web_name = get_option('blogname');
+			$phones = sanitize_text_field($_POST['body']['phones']);
 			$data['integration'] = array(
 				'sms' => array(
 					'name' => $web_name . ' Phone',
 					'phones' => array(
-						$body['phones'],
+						$phones,
 					),
 				),
 			);
 		}
 
 		$email = $options['email'];
-		if (!empty($body['email'])) {
-			$email = $body['email'];
+		if (!empty($_POST['body']['email'])) {
+			$email = sanitize_email($_POST['body']['email']);
 			$options['email'] = $email;
 		}
 		$data['customer'] = array(
@@ -486,7 +492,8 @@ class Chat_Essential_Admin {
 
 		update_option(CHAT_ESSENTIAL_OPTION, $options);
 
-		echo $res['data'];
+		$jdata = json_decode($res['data'], true);
+		wp_send_json(Chat_Essential_Utility::sanitize_json_array($jdata));
 
 		die();
 	}
@@ -507,18 +514,20 @@ class Chat_Essential_Admin {
 			$options = array();
 		}
 
-		$body = $_POST['body'];
 		$path = 'customer';
+		$email = sanitize_email($_POST['body']['email']);
+		$type = sanitize_text_field($_POST['body']['type']);
+		$pass = sanitize_text_field($_POST['body']['password']);
 		$data = null;
-		if ($body['type'] == 'chat-essential-login') {
-			$path = 'customer/' . $body['email'];
+		if ($type == 'chat-essential-login') {
+			$path = 'customer/' . $email;
 		} else {
-			$data = Chat_Essential_Utility::signup_data($body['email']);
+			$data = Chat_Essential_Utility::signup_data($email);
 		}
 
-		$res = $this->api->request($body['email'], 'POST', $path, $data, array(
-			'username' => $body['email'],
-			'password' => $body['password'],
+		$res = $this->api->request($email, 'POST', $path, $data, array(
+			'username' => $email,
+			'password' => $pass,
 		));
 		if ($res['code'] != 200) {
 			wp_die($res['data'], $res['code']);
@@ -533,7 +542,7 @@ class Chat_Essential_Admin {
 			wp_die('{"message":"Missing user account information"}', 500);
 		}
 
-		if ($body['type'] == 'chat-essential-login') {
+		if ($type == 'chat-essential-login') {
 			if (!empty($jdata['flows']) &&
 				count($jdata['flows']) > 0) {
 				$webs = array();
@@ -559,10 +568,11 @@ class Chat_Essential_Admin {
 
 		$options['apiKey'] = $jdata['apiKey'];
 		$options['modelId'] = $jdata['nlp']['model']['modelId'];
-		$options['email'] = $body['email'];
+		$options['email'] = $email;
 		update_option(CHAT_ESSENTIAL_OPTION, $options);
 
-		echo $res['data'];
+		$jdata = json_decode($res['data'], true);
+		wp_send_json(Chat_Essential_Utility::sanitize_json_array($jdata));
 
 		die();
 	}
@@ -629,8 +639,9 @@ class Chat_Essential_Admin {
 			wp_die('{"message":"Body is missing"}', 400);
 		}
 
-		$body = $_POST['body'];
-		Chat_Essential_Utility::update_web_status($body['platformId'], $body['status']);
+		$pid = sanitize_text_field($_POST['body']['platformId']);
+		$status = sanitize_text_field($_POST['body']['status']);
+		Chat_Essential_Utility::update_web_status($pid, $status);
 
 		echo 'OK';
 
@@ -652,12 +663,12 @@ class Chat_Essential_Admin {
 
 		$slug = '';
 		$page_params = array(
-			'coreEngines' => CORE_ENGINES,
+			'coreEngines' => CHAT_ESSENTIAL_CORE_ENGINES,
 			'emailRegex' => Chat_Essential_Admin::EMAIL_REGEX,
 			'passwordRegex' => Chat_Essential_Admin::PASSWORD_REGEX,
 		);
 		if (!empty($_GET['page'])) {
-			$slug = $_GET['page'];
+			$slug = sanitize_text_field($_GET['page']);
 			if (!empty($_GET['logout']) &&
 				$_GET['logout'] === 'true') {
 				$slug = 'chat-essential-logout';
@@ -681,7 +692,7 @@ class Chat_Essential_Admin {
 			switch ($slug) {
 				case 'chat-essential':
 				case 'chat-essential-ai':
-					$page_params['coreEngines'] = CORE_ENGINES;
+					$page_params['coreEngines'] = CHAT_ESSENTIAL_CORE_ENGINES;
 					wp_register_script( 'showTypeOptions', plugin_dir_url( __FILE__ ) . 'js/show-site-options.js', array( 'jquery' ) );
 					wp_enqueue_script( 'showTypeOptions' );
 					wp_register_style( 'selectize-css', plugins_url( 'css/selectize.bootstrap3.css', __FILE__ ) );
@@ -710,11 +721,11 @@ class Chat_Essential_Admin {
 	public function menu_main_page() {
 		if (!current_user_can('manage_options')) {
 			$settings_page = new Chat_Essential_Admin_Error('You do not have sufficient permissions to access these settings.');
-			echo $settings_page->html();
+			$settings_page->html();
 			return;
   		}
 
-		$slug = $_GET['page'];
+		$slug = sanitize_text_field($_GET['page']);
 		if (!empty($_GET['logout']) &&
 			$_GET['logout'] === 'true') {
 			$slug = 'chat-essential-logout';
@@ -801,7 +812,7 @@ class Chat_Essential_Admin {
 				$settings_page = new Chat_Essential_Admin_Login($options, $this->api);
 		}
 
-  		echo $settings_page->html();
+  		$settings_page->html();
 	}
 
 }

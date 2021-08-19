@@ -38,11 +38,11 @@ class Chat_Essential_Admin_Login {
 		$nonce = $settings['nonce'];
 
 		$logo = plugin_dir_url(__FILE__) . '../../images/logo.png';
-		$submit = localize('SUBMIT');
+		$submit = chat_essential_localize('SUBMIT');
 
-		$l1 = localize('EMAIL');
+		$l1 = chat_essential_localize('EMAIL');
 		$l1_val = get_option('admin_email');
-		$l2 = localize('PASSWORD');
+		$l2 = chat_essential_localize('PASSWORD');
 
 		$h1 = '';
 		$h2 = '';
@@ -51,8 +51,8 @@ class Chat_Essential_Admin_Login {
 		$progress_bar = '';
 		switch($settings['slug']) {
 			case 'chat-essential-signup':
-				$ht1a = localize('SIGN UP');
-				$ht1b = localize(' for a Chat Essential account.');
+				$ht1a = chat_essential_localize('SIGN UP');
+				$ht1b = chat_essential_localize(' for a Chat Essential account.');
 				$h1 = <<<END
 				<tr>
 					<td colspan="4" class="login-body med-font">
@@ -61,7 +61,7 @@ class Chat_Essential_Admin_Login {
 					<td class="login-spacer"></td>
 				</tr>
 END;
-				$ht2 = localize('No credit card required.');
+				$ht2 = chat_essential_localize('No credit card required.');
 				$h2 = <<<END
 					<tr>
 						<td colspan="4" class="login-body med-font">
@@ -70,8 +70,8 @@ END;
 						<td class="login-spacer"></td>
 					</tr>
 END;
-				$foottext = localize('Already have an account? Click here to Sign In.');
-				$lc = localize('CONFIRM PASSWORD');
+				$foottext = chat_essential_localize('Already have an account? Click here to Sign In.');
+				$lc = chat_essential_localize('CONFIRM PASSWORD');
 				$progress_bar = '<table class="wp-list-table widefat fixed table-view-excerpt progress-container"><tr><td id="step1" class="progress-step active-step"></td><td id="step2" class="progress-step"></td></tr></table>';
 				$form = <<<END
 					<tr>
@@ -105,8 +105,8 @@ END;
 END;
 				break;
 			case 'chat-essential-login':
-				$ht1a = localize('SIGN IN');
-				$ht1b = localize(' to your Chat Essential account.');
+				$ht1a = chat_essential_localize('SIGN IN');
+				$ht1b = chat_essential_localize(' to your Chat Essential account.');
 				$h1 = <<<END
 				<tr>
 					<td colspan="4" class="login-body med-font">
@@ -115,7 +115,7 @@ END;
 					<td class="login-spacer"></td>
 				</tr>
 END;
-				$foottext = localize('Need an account? Click here to Sign Up.');
+				$foottext = chat_essential_localize('Need an account? Click here to Sign Up.');
 				$form = <<<END
 					<tr>
 						<td colspan="4" class="login-body med-font">
@@ -151,11 +151,11 @@ END;
 						</td>
 					</tr>
 END;
-				$ht1a = localize('ENTER A US MOBILE NUMBER');
-				$ht1b = localize(' to enable SMS live chat. This is how you will chat with your website visitors.');
-				$h3 = localize('(your number <span class="ey-bold">WILL NOT</span> be used for marketing purposes)');
-				$l2 = localize('PHONE NUMBER');
-				$foottext = localize('SKIP');
+				$ht1a = chat_essential_localize('ENTER A US MOBILE NUMBER');
+				$ht1b = chat_essential_localize(' to enable SMS live chat. This is how you will chat with your website visitors.');
+				$h3 = chat_essential_localize('(your number <span class="ey-bold">WILL NOT</span> be used for marketing purposes)');
+				$l2 = chat_essential_localize('PHONE NUMBER');
+				$foottext = chat_essential_localize('SKIP');
 				$progress_bar = '<table class="wp-list-table widefat fixed table-view-excerpt progress-container"><tr><td id="step1" class="progress-step"></td><td id="step2" class="progress-step active-step"></td></tr></table>';
 				$form = <<<END
 					<tr>
@@ -188,7 +188,7 @@ END;
 END;
 				break;
 		}
-		return <<<END
+		echo <<<END
 		<div class="wrap">
 			<div class="metabox-holder columns-2">
 				<div style="position: relative;">

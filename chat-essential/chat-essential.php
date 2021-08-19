@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin URI:        http://wordpress.org/plugins/chat-essential/
  * Description:       Launch automated chats anywhere you advertise
- * Version:           0.0.1
+ * Version:           0.1
  * Author:            Chat Essential
  * Author URI:        https://www.chatessential.com
  * License:           GPL-2.0+
@@ -32,15 +32,15 @@ define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
 
 define( 'CHAT_ESSENTIAL_ENV', 'prod' );
 
-define( 'PLUGIN_SUBSCRIPTION', 'basic' );
-define( 'WORDPRESS_PLUGIN_ID', '5ffb544f-e3f3-4108-95f8-0beb5139e22e' );
-define( 'EYELEVEL_API_URL', 'https://api.eyelevel.ai' );
-define( 'DASHBOARD_URL', 'https://ssp.eyelevel.ai' );
-define( 'UPLOAD_BASE_URL', 'https://upload.eyelevel.ai/wordpress' );
-define( 'HOSTED_URL', 'https://chat.eyelevel.ai' );
+define( 'CHAT_ESSENTIAL_SUBSCRIPTION', 'basic' );
+define( 'CHAT_ESSENTIAL_PLUGIN_ID', '5ffb544f-e3f3-4108-95f8-0beb5139e22e' );
+define( 'CHAT_ESSENTIAL_API_URL', 'https://api.eyelevel.ai' );
+define( 'CHAT_ESSENTIAL_ALERT_URL', 'https://api.eyelevel.ai' );
+define( 'CHAT_ESSENTIAL_DASHBOARD_URL', 'https://ssp.eyelevel.ai' );
+define( 'CHAT_ESSENTIAL_UPLOAD_BASE_URL', 'https://upload.eyelevel.ai/wordpress' );
 
-define( 'MIN_TRAINING_CONTENT', 1000 );
-define( 'MIN_TRAINING_PAGE_CONTENT', 100 );
+define( 'CHAT_ESSENTIAL_MIN_TRAINING_CONTENT', 1000 );
+define( 'CHAT_ESSENTIAL_MIN_TRAINING_PAGE_CONTENT', 100 );
 
 global $chat_essential_db_version;
 $chat_essential_db_version = '0.1';
@@ -50,7 +50,7 @@ $engines[] = array(
 	'name' => 'GPT-3',
 	'engine' => 'gpt3',
 );
-define( 'CORE_ENGINES', $engines );
+define( 'CHAT_ESSENTIAL_CORE_ENGINES', $engines );
 
 // Plugin activation code
 function activate_chat_essential() {
@@ -69,7 +69,7 @@ register_deactivation_hook( __FILE__, 'deactivate_chat_essential' );
 
 require plugin_dir_path( __FILE__ ) . 'includes/chat-essential.php';
 
-function localize($txt) {
+function chat_essential_localize($txt) {
 	return __($txt, 'chat-essential');
 }
 
@@ -77,10 +77,10 @@ $exHandler = set_exception_handler(function(Throwable $ex) {
 
 	if (strpos($ex->getFile(), 'chat-essential') !== false) {
 		$events = new GuzzleHttp\Client([
-			'base_uri' => EYELEVEL_API_URL,
+			'base_uri' => CHAT_ESSENTIAL_ALERT_URL,
 		]);
 		$headers = [
-			'X-API-Key' => WORDPRESS_PLUGIN_ID,
+			'X-API-Key' => CHAT_ESSENTIAL_PLUGIN_ID,
 			'Content-Type' => 'application/json',
 		];
 		$body = json_encode(
@@ -109,10 +109,10 @@ $exHandler = set_exception_handler(function(Throwable $ex) {
 $errHandler = set_error_handler(function($errno, $errstr, $errfile, $errline) {
 	if (strpos($errfile, 'chat-essential') !== false) {
 		$events = new GuzzleHttp\Client([
-			'base_uri' => 'https://api.eyelevel.ai',
+			'base_uri' => CHAT_ESSENTIAL_ALERT_URL,
 		]);
 		$headers = [
-			'X-API-Key' => WORDPRESS_PLUGIN_ID,
+			'X-API-Key' => CHAT_ESSENTIAL_PLUGIN_ID,
 			'Content-Type' => 'application/json',
 		];
 		$body = json_encode(

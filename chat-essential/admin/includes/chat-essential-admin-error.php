@@ -26,11 +26,11 @@ class Chat_Essential_Admin_Error {
 	}
 
 	public function html() {
-		$err = localize($this->msg);
+		$err = chat_essential_localize($this->msg);
 
-		$h1 = localize('Uh oh...We have a problem.');
+		$h1 = chat_essential_localize('Uh oh...We have a problem.');
 
-    	return <<<END
+    	echo <<<END
 		<div class="wrap">
 			<div class="metabox-holder columns-2">
 				<div style="position: relative;">

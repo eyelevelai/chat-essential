@@ -36,7 +36,7 @@ class Chat_Essential_Admin_Settings {
 	public function html() {
     	$settings = $this->getSettings();
 
-		$title = localize('Settings');
+		$title = chat_essential_localize('Settings');
 		$nonce = $settings['nonce'];
 
 		$res = $this->api->request($settings['apiKey'], 'GET', 'customer/account/' . $settings['apiKey'], null, null);
@@ -49,12 +49,12 @@ class Chat_Essential_Admin_Settings {
 		}
 		$data = json_decode($res['data']);
 
-		$h1 = localize('Live Chat');
-		$h1_desc = localize('This is how you will live chat with people in chat');
-		$l1 = localize('Integration Type');
+		$h1 = chat_essential_localize('Live Chat');
+		$h1_desc = chat_essential_localize('This is how you will live chat with people in chat');
+		$l1 = chat_essential_localize('Integration Type');
 
-		$l2 = localize('Phone Number');
-		$l2_desc = localize('Enter the phone number that will be enabled for live chat. Only US phone numbers that are capable of SMS text are currently supported.');
+		$l2 = chat_essential_localize('Phone Number');
+		$l2_desc = chat_essential_localize('Enter the phone number that will be enabled for live chat. Only US phone numbers that are capable of SMS text are currently supported.');
 		$l2_val = '';
 		if (!empty($data->integrations)) {
 			foreach ($data->integrations as $int) {
@@ -76,47 +76,47 @@ class Chat_Essential_Admin_Settings {
 				}
 			}
 		}
-		echo '<script>let og_phones = "' . $l2_val . '";</script>';
+		echo '<script>let og_phones = "' . esc_js($l2_val) . '";</script>';
 
-		$h2 = localize('Lead Data');
-		$h2_desc = localize('This is how you will export lead data from chat to your own systems');
+		$h2 = chat_essential_localize('Lead Data');
+		$h2_desc = chat_essential_localize('This is how you will export lead data from chat to your own systems');
 
-		$l3 = localize('Email Address');
-		$l3_desc = localize('Enter the email address that will receive lead data.');
+		$l3 = chat_essential_localize('Email Address');
+		$l3_desc = chat_essential_localize('Enter the email address that will receive lead data.');
 		$l3_val = $settings['email'];
-		echo '<script>let og_email = "' . $l3_val . '";</script>';
+		echo '<script>let og_email = "' . esc_js($l3_val) . '";</script>';
 
-		$h3 = localize('Chat Interface Themes');
-		$h3_desc = localize('These are the style settings for your chat window and bubble');
+		$h3 = chat_essential_localize('Chat Interface Themes');
+		$h3_desc = chat_essential_localize('These are the style settings for your chat window and bubble');
 		$themes = '';
 		if (!empty($data->themes)) {
 			foreach ($data->themes as $theme) {
-				$editUrl = DASHBOARD_URL . '/account?themeId=' . $theme->themeId;
+				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?themeId=' . $theme->themeId;
 				$themes .= '<tr><td class="large-padding-bottom">' . $theme->name . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
 			}
 		} else {
 // create theme button
 		}
 
-		$h4 = localize('Business Hours Settings');
-		$h4_desc = localize('This defines the behavior of your chat during and after business hours');
+		$h4 = chat_essential_localize('Business Hours Settings');
+		$h4_desc = chat_essential_localize('This defines the behavior of your chat during and after business hours');
 		$hours = '';
 		if (!empty($data->offhoursSettings)) {
 			$hours = '<tr><th colspan="2" class="no-padding-bottom"><h2>'.$h4.'</h2><p>'.$h4_desc.'</p></th></tr>';
 			foreach ($data->offhoursSettings as $off) {
-				$editUrl = DASHBOARD_URL . '/account?hoursId=' . $off->hoursId;
+				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?hoursId=' . $off->hoursId;
 				$hours .= '<tr><td class="large-padding-bottom">' . $off->name . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
 			}
 		} else {
 // here handle when no phone number entered
 		}
 
-		$h5 = localize('QR Code Styles');
-		$h5_desc = localize('These are the style settings for your QR codes');
+		$h5 = chat_essential_localize('QR Code Styles');
+		$h5_desc = chat_essential_localize('These are the style settings for your QR codes');
 		$qrThemes = '';
 		if (!empty($data->qrThemes)) {
 			foreach ($data->qrThemes as $theme) {
-				$editUrl = DASHBOARD_URL . '/account?qrThemeId=' . $theme->qrThemeId;
+				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?qrThemeId=' . $theme->qrThemeId;
 				$qrThemes .= '<tr><td class="large-padding-bottom">' . $theme->name . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
 			}
 		} else {
@@ -124,8 +124,8 @@ class Chat_Essential_Admin_Settings {
 		}
 
 /*
-		$h6 = localize('Connected Facebook Pages');
-		$h6_desc = localize('These are the Facebook Pages you have connected to the plugin');
+		$h6 = chat_essential_localize('Connected Facebook Pages');
+		$h6_desc = chat_essential_localize('These are the Facebook Pages you have connected to the plugin');
 
 		$l7_val = <<<END
 			<td class="large-padding-bottom">
@@ -176,9 +176,9 @@ END;
 <option value="custom" disabled>Custom Webhook (upgrade to premium)</option>
 */
 
-		$submit = localize('Save Changes');
+		$submit = chat_essential_localize('Save Changes');
 
-    	return <<<END
+    	echo <<<END
 		<div class="wrap">
 			<h1>$title</h1>
 				<div class="metabox-holder columns-2">

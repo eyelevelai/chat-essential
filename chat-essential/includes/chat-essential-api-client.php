@@ -25,7 +25,7 @@ class Chat_Essential_API_client {
 
 	public function __construct() {
 		$this->client = new Client([
-			'base_uri' => EYELEVEL_API_URL,
+			'base_uri' => CHAT_ESSENTIAL_API_URL,
 		]);
 	}
 
@@ -72,9 +72,9 @@ class Chat_Essential_API_client {
 	public function request($apiKey, $type, $path, $body, $auth) {
 		try {
 			$headers = [
-				'X-API-Key' => WORDPRESS_PLUGIN_ID,
+				'X-API-Key' => CHAT_ESSENTIAL_PLUGIN_ID,
 				'Content-Type' => 'application/json',
-				'X-WordPress-Subscription' => PLUGIN_SUBSCRIPTION,
+				'X-WordPress-Subscription' => CHAT_ESSENTIAL_SUBSCRIPTION,
 				'X-Customer-Key' => $apiKey,
 			];
 			if ($auth !== null) {
