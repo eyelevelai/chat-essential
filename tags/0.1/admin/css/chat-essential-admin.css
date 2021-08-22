@@ -1,0 +1,307 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+.web-rules-form,
+.widefat {
+    width: 100%;
+}
+.ey-button {
+	background-color: #53a497 !important;
+	border-color: #53a497 !important;
+	font-weight: normal !important;
+	text-align: center;
+}
+.ey-button-secondary {
+	color: #3c434a !important;
+	background-color: #d8d8d8 !important;
+	border-color: #d8d8d8 !important;
+	font-weight: normal !important;
+	text-align: center;
+}
+.ey-button-cancel {
+	width: 80px;
+}
+.no-padding-bottom {
+	padding-bottom: 0px !important;
+}
+.large-padding-bottom {
+	padding-bottom: 8px !important;
+}
+.widefat .column-logo {
+	text-align: center;
+}
+.form-table th.ey-settings {
+	padding: 0 10px 20px 0;
+}
+p.submit.ey-settings {
+	margin-top: 0;
+	padding-top: 0;
+}
+.ey-app {
+	display: none !important;
+}
+.ey-app-open {
+	display: block !important;
+}
+.ey-badge-frame {
+	display: none !important;
+}
+.ey-alert-frame {
+	display: none !important;
+}
+.ey-content {
+	display: none;
+	padding-top: 0 !important;
+}
+.ai-checkbox {
+	width: 10%;
+}
+.ai-model-checkbox {
+	width: 10%;
+}
+.ai-input-label {
+	display: inline-block;
+	vertical-align: middle;
+}
+.ey-form th {
+	padding: 20px 10px 0 0;
+}
+table.progress-container {
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	margin-bottom: 6px;
+}
+td.progress-step {
+	border: 1px solid #c3c4c7;
+    background: #d8d8d8;
+    padding: 3px 10px;
+}
+td.active-step, .widefat td.active-step {
+	background: #fff;
+}
+input.ey-switch-input {
+	height: 0;
+	width: 0;
+	visibility: hidden;
+}
+label.ey-switch {
+	cursor: pointer;
+	text-indent: -9999px;
+	width: 40px;
+	height: 20px;
+	background: #d8d8d8;
+	display: block;
+	border-radius: 100px;
+	position: relative;
+}
+label.ey-switch:after {
+	content: '';
+	position: absolute;
+	top: 1px;
+	left: 1px;
+	width: 18px;
+	height: 18px;
+	background: #fff;
+	border-radius: 90px;
+	transition: 0.3s;
+}
+input.ey-switch-input:checked + label.ey-switch {
+	background: #53a497;
+}
+input.ey-switch-input:checked + label.ey-switch:after {
+	left: calc(100% - 1px);
+	transform: translateX(-100%);
+}
+label.ey-switch:active:after {
+	width: 26px;
+}
+.status-th {
+	padding-top: 8px !important;
+}
+.status-p {
+	margin-top: 8px !important;
+}
+.ey-form select,.selectize-control {
+	width: 400px;
+}
+td.ai-model-container {
+	margin: 0;
+	padding: 0;
+}
+td.loading-message {
+	font-style: italic;
+}
+.top-margin {
+	margin-top: 1em !important;
+}
+.no-top {
+	padding-top: 0px !important;
+}
+.left-space {
+	padding-left: 1em;
+}
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 60px;
+	height: 26px;
+}
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #d8d8d8;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+.slider:before {
+	position: absolute;
+	content: "";
+	height: 20px;
+	width: 20px;
+	left: 3px;
+	bottom: 3px;
+	background-color: #ffffff;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+input:checked + .slider {
+	background-color: #53a497;
+}
+input:focus + .slider {
+	box-shadow: 0 0 1px #53a497;
+}
+input:checked + .slider:before {
+	-webkit-transform: translateX(32px);
+	-ms-transform: translateX(32px);
+	transform: translateX(32px);
+}
+.login-logo {
+	width: 50%;
+}
+.login-form .login-body {
+	padding: 0 0 16px 32px;
+}
+.login-form .phone-body {
+	padding: 0 32px 10px 32px;
+	text-align: center;
+}
+.phone-video {
+	width: 80%;
+	border: 1px solid #c3c4c7;
+    box-shadow: 0 1px 1px rgb(0 0 0 / 4%);
+}
+.demo-feature {
+	color: cadetblue;
+}
+.status-msg {
+	padding-top: 4px;
+	height: 20px;
+	font-size: 14px;
+}
+td.status-msg {
+	padding: 8px 0 0;
+}
+td.status-msg.ey-settings {
+	padding: 0 0 16px;
+}
+.error-msg, td.error-msg {
+	color: #ff4444;
+}
+input.error-value {
+	border-color: #ff4444;
+}
+.success-msg, td.success-msg {
+	color: green;
+}
+.warn-msg, td.warn-msg {
+	color: #ff9007;
+}
+.ey-link {
+	color: #53a497;
+	cursor: pointer;
+}
+.ey-bold {
+	color: #53a497;
+	font-weight: bold;
+}
+td.login-left {
+	padding: 0 0 0 32px;
+}
+.login-form .submit-button {
+	padding: 16px 0 16px 32px;
+}
+.login-form .submit-button input, button {
+	padding: 4px 36px;
+	font-size: 16px;
+	background: #53a497;
+	border-color: #53a497;
+	font-weight: 500;
+	text-decoration: none;
+    text-shadow: none;
+	color: white;
+	display: inline-block;
+    line-height: 2.15384615;
+    min-height: 30px;
+    margin: 0;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+.error-form .widefat th {
+	text-align: center;
+}
+.error-form td {
+	font-size: 16px;
+	padding: 16px 32px;
+}
+.error-form th {
+	font-size: 20px;
+	padding: 16px 32px;
+}
+input.login-input {
+	margin: 4px 0;
+	padding: 6px 12px;
+	width: 100%;
+}
+.widefat .med-font {
+	font-size: 16px;
+}
+.widefat .small-font {
+	font-size: 10px;
+}
+@media (max-width: 782px) {
+	table.web-rules-form td {
+		padding: 10px 21px 0 17px;
+	}
+	table.web-rules-form tr:last-child td {
+		padding-bottom: 20px;
+	}
+	.ey-form select {
+		min-width: auto;
+	}
+	.ey-form select[multiple] {
+		height: auto;
+	}
+}
+@media (min-width: 783px) {
+	.login-form,
+	.error-form {
+		max-width: 500px;
+		margin: 50px auto 0;
+	}
+}
