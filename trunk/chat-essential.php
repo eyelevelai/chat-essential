@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin URI:        http://wordpress.org/plugins/chat-essential/
  * Description:       Launch automated chats anywhere you advertise
- * Version:           0.1
+ * Version:           0.11
  * Author:            Chat Essential
  * Author URI:        https://www.chatessential.com
  * License:           GPL-2.0+
@@ -25,7 +25,7 @@ if ( ! defined( 'WPINC' ) ) {
 require_once 'vendor/autoload.php';
 
 // Plugin version - https://semver.org
-define( 'CHAT_ESSENTIAL_VERSION', '0.0.1' );
+define( 'CHAT_ESSENTIAL_VERSION', '0.11' );
 
 define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
 define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );

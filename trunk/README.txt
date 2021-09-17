@@ -3,21 +3,21 @@ Contributors: chatessential
 Tags: ai, artificial intelligence, openai, gpt-3, gpt3, customer, chat
 Requires at least: 5.0
 Tested up to: 5.8
-Stable tag: 0.1
+Stable tag: 0.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Instantly respond to customers with the World's first GPT-3 powered chat solution
+Turn your WordPress content into a virtual assistant in seconds (powered by OpenAI's GPT-3)
 
 == Description ==
 
-Create a GPT-3 powered virtual assistant that can talk about your business by installing our free WordPress plugin.
+Create a GPT-3 powered virtual assistant that can talk about your business in seconds. Simply install our free WordPress plugin and choose the WordPress content you want your virtual assistant to be trained with. That's it!
 
 When you install the plugin, we automatically ingest your WordPress website content and create a custom GPT-3-powered virtual assistant capable of talking about your business.
 
-Deploy the virtual assistant to your website or QR codes where it will respond to your customers.
+You can use the plugin to deploy the virtual assistant to your website or create QR codes that start chats with your virtual assistant when scanned.
 
-For customers that want to chat directly with you, respond to their chats from SMS text.
+For customers that want to chat directly with you, you can live chat from SMS text.
 
 No apps to install or websites to monitor.
 

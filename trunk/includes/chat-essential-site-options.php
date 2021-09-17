@@ -19,7 +19,7 @@ class Site_Options {
 		if (strlen($c_txt) > CHAT_ESSENTIAL_MIN_TRAINING_PAGE_CONTENT) {
 			$pg['c_len'] = strlen($c_txt);
 			$pg['content'] = $raw_txt;
-			$pg['url'] = get_page_link($content);
+			$pg['url'] = get_permalink($content);
 			return $pg;
 		}
 		return;
@@ -72,7 +72,7 @@ class Site_Options {
 		if ($options['siteType'] !== 'pages' &&
 			$options['siteType'] !== 'none') {
 			$q = array(
-				'numberposts' => 100,
+				'numberposts' => -1,
 			);
 			if (!empty($options['ex_posts'])) {
 				$ex = array();
@@ -154,7 +154,7 @@ class Site_Options {
 			'sort_column' => 'post_modified',
 		));
 		$posts = get_posts(array(
-			'numberposts' => 100,
+			'numberposts' => -1,
 		));
 
 		$args = array( 'hide_empty' => 0 );
