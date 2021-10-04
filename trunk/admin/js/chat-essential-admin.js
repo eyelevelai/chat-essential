@@ -86,6 +86,7 @@
 				this.showStatus('');
 				if (e.target.checked) {
 					var len = Object.keys(this.aiTopics).length;
+/*
 					if (len > 0) {
 						for (var key in this.aiTopics) {
 							$('#' + key).prop('checked', false);
@@ -93,6 +94,7 @@
 						}
 						this.showStatus('Upgrade to premium to select more than 1 topic', 'error');
 					}
+*/
 					this.aiTopics[e.target.id] = e.target.value;
 				} else if (this.aiTopics[e.target.id]) {
 					delete this.aiTopics[e.target.id];
@@ -106,40 +108,46 @@
 					for (const ii in model.kits) {
 						const k = model.kits[ii];
 						modelKits[k.kitId] = k;
+						kits.push(k);
 					}
 				}
-				let modelSelected = false;
-				for (const val of kits) {
-					const id = val.name.replace(' ', '-');
-					let col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
-					let classes = 'ai-input-label';
-					if (val.engine) {
-						col += ' class="ai-model-checkbox" value="' + val.engine + '"';
-						if (!modelSelected) {
-							modelSelected = true;
-							this.aiEngines.push('topic-' + id);
-						}
-						col += ' checked disabled';
-					} else {
-						col += ' value="' + val.kitId + '" class="ai-checkbox"';
-						if (modelKits[val.kitId]) {
-							col += ' checked';
-							this.aiTopics['topic-' + id] = val.kitId;
-						}
-					}
-					col += ' /><div class="' + classes + '">' + val.name + '</div></td>';
 
-					if (idx % 4) {
-						models += col;
-					} else {
-						if (idx > 0) {
+				let modelSelected = false;
+				const existingKits = {};
+				for (const val of kits) {
+					if (!existingKits[val.kitId]) {
+						existingKits[val.kitId] = true;
+						const id = val.name.replace(' ', '-');
+						let col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
+						let classes = 'ai-input-label';
+						if (val.engine) {
+							col += ' class="ai-model-checkbox" value="' + val.engine + '"';
+							if (!modelSelected) {
+								modelSelected = true;
+								this.aiEngines.push('topic-' + id);
+							}
+							col += ' checked disabled';
+						} else {
+							col += ' value="' + val.kitId + '" class="ai-checkbox"';
+							if (modelKits[val.kitId]) {
+								col += ' checked';
+								this.aiTopics['topic-' + id] = val.kitId;
+							}
+						}
+						col += ' /><div class="' + classes + '">' + val.name + '</div></td>';
+
+						if (idx % 4) {
+							models += col;
+						} else {
+							if (idx > 0) {
+								models += '</tr>';
+							}
+							models += '<tr>' + col;
+						}
+						idx++;
+						if (idx == models.length) {
 							models += '</tr>';
 						}
-						models += '<tr>' + col;
-					}
-					idx++;
-					if (idx == models.length) {
-						models += '</tr>';
 					}
 				}
 				return models;
