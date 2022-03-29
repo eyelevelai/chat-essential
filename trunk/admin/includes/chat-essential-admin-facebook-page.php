@@ -54,7 +54,7 @@ class Chat_Essential_Admin_FacebookPage {
 
 		$h3 = chat_essential_localize('Analytics');
 		$v3 = chat_essential_localize('View');
-		$v3_url = 'https://ssp.eyelevel.ai';
+		$v3_url = CHAT_ESSENTIAL_DASHBOARD_URL;
 
 		$h4 = chat_essential_localize('Business Hours Settings');
 		$v4 = $settings['website_name'] . ' Business Hours';
