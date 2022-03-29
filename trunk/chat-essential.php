@@ -36,7 +36,7 @@ define( 'CHAT_ESSENTIAL_SUBSCRIPTION', 'basic' );
 define( 'CHAT_ESSENTIAL_PLUGIN_ID', '5ffb544f-e3f3-4108-95f8-0beb5139e22e' );
 define( 'CHAT_ESSENTIAL_API_URL', 'https://api.eyelevel.ai' );
 define( 'CHAT_ESSENTIAL_ALERT_URL', 'https://api.eyelevel.ai' );
-define( 'CHAT_ESSENTIAL_DASHBOARD_URL', 'https://ssp.eyelevel.ai' );
+define( 'CHAT_ESSENTIAL_DASHBOARD_URL', CHAT_ESSENTIAL_ENV == 'dev' ? 'https://devssp.eyelevel.ai' : 'https://chatessential.eyelevel.ai');
 define( 'CHAT_ESSENTIAL_UPLOAD_BASE_URL', 'https://upload.eyelevel.ai/wordpress' );
 
 define( 'CHAT_ESSENTIAL_MIN_TRAINING_CONTENT', 1000 );
