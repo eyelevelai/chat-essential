@@ -147,6 +147,7 @@ END;
 
 		$fb_pages = array();
 		$num_pages = count($fb_pages);
+        $chat_essential_edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/account';
 		if ($num_pages > 0) {
 			$l7_val = "";
 			foreach ($fb_pages as $idx => $val) {
@@ -157,7 +158,7 @@ END;
 							$val
 						</td>
 						<td class="large-padding-bottom">
-							<a href="https://ssp.eyelevel.ai/account">Edit</a>
+							<a href="$chat_essential_edit_url">Edit</a>
 						</td>
 					</tr>
 END;
