@@ -66,6 +66,14 @@ class Chat_Essential_Admin {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'network_admin_menu', 'add_menu');
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
+        add_action( 'admin_notices', function() {
+            $current_screen = get_current_screen();
+            if ($current_screen->id === 'chat-essential_page_chat-essential-settings') {
+                echo '<div id="message" class="notice notice-info is-dismissible">
+                    <p>Enjoying Chat Essentials? <a href="#">Leave us a review</a>!</p>
+                </div>';
+            }
+        });
 	}
 
 	/**
