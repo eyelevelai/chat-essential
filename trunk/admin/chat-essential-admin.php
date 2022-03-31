@@ -72,7 +72,7 @@ class Chat_Essential_Admin {
             add_action('admin_notices', function () {
                 $current_screen = get_current_screen();
                 $user_id = get_current_user_id();
-                if ($_GET['chat-essential-notice-dismissed']) {
+                if (!empty($_GET['chat-essential-notice-dismissed'])) {
                     add_user_meta( $user_id, 'chat_essential_notice_dismissed', 'true', true );
                 }
                 if (!get_user_meta( $user_id, 'chat_essential_notice_dismissed' ) && $current_screen->id === 'chat-essential_page_chat-essential-settings') {
