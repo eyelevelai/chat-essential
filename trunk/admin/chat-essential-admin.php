@@ -83,7 +83,7 @@ class Chat_Essential_Admin {
                         }
                         </script>
                         <div id="message" class="notice notice-info is-dismissible">
-                            <p>Enjoying Chat Essentials? <a href="#">Leave us a review</a>!</p>
+                            <p>Hey there! You\'ve been using the <strong>Chat Essential</strong> plugin for a while now. If you like the plugin, please support our team by leaving a <a target="_blank" href="https://wordpress.org/support/plugin/chat-essential/reviews/">review</a>!</p>
                             <button type="button" class="notice-dismiss" onclick="dismiss_notice();"></button>
                         </div>';
                 }
