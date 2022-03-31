@@ -66,6 +66,29 @@ class Chat_Essential_Admin {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'network_admin_menu', 'add_menu');
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
+        $install_date = get_option( 'chat_essential_activation_date' );
+        $past_date = strtotime( '-3 days' );
+        if ( $past_date >= $install_date ) {
+            add_action('admin_notices', function () {
+                $current_screen = get_current_screen();
+                $user_id = get_current_user_id();
+                if (!empty($_GET['chat-essential-notice-dismissed'])) {
+                    add_user_meta( $user_id, 'chat_essential_notice_dismissed', 'true', true );
+                }
+                if (!get_user_meta( $user_id, 'chat_essential_notice_dismissed' ) && $current_screen->id === 'chat-essential_page_chat-essential-settings') {
+                    echo '
+                        <script>
+                        function dismiss_notice() {
+                            window.location = "?page=chat-essential-settings&chat-essential-notice-dismissed=1";
+                        }
+                        </script>
+                        <div id="message" class="notice notice-info is-dismissible">
+                            <p>Hey there! You\'ve been using the <strong>Chat Essential</strong> plugin for a while now. If you like the plugin, please support our team by leaving a <a target="_blank" href="https://wordpress.org/support/plugin/chat-essential/reviews/">review</a>!</p>
+                            <button type="button" class="notice-dismiss" onclick="dismiss_notice();"></button>
+                        </div>';
+                }
+            });
+        }
 	}
 
 	/**
