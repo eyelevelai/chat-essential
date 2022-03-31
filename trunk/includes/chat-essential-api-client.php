@@ -85,7 +85,7 @@ class Chat_Essential_API_client {
 				$body = json_encode($body);
 			}
 			$request = new Request($type, '/wordpress/' . $path, $headers, $body);
-			$response = $this->client->send($request);
+			$response = $this->client->send($request, ['timeout' => 120]);
 			if ($response) {
 				$code = $response->getStatusCode();
 				if ($code < 300 && $code > 199) {
