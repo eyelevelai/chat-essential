@@ -69,7 +69,7 @@ class Chat_Essential_API_client {
 		);
 	}
 
-	public function request($apiKey, $type, $path, $body, $auth) {
+	public function request($apiKey, $type, $path, $body, $auth, $options = []) {
 		try {
 			$headers = [
 				'X-API-Key' => CHAT_ESSENTIAL_PLUGIN_ID,
@@ -85,7 +85,7 @@ class Chat_Essential_API_client {
 				$body = json_encode($body);
 			}
 			$request = new Request($type, '/wordpress/' . $path, $headers, $body);
-			$response = $this->client->send($request, ['timeout' => 120]);
+			$response = $this->client->send($request, $options);
 			if ($response) {
 				$code = $response->getStatusCode();
 				if ($code < 300 && $code > 199) {

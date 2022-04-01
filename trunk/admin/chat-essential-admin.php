@@ -528,7 +528,7 @@ class Chat_Essential_Admin {
 		$res = $this->api->request($email, 'POST', $path, $data, array(
 			'username' => $email,
 			'password' => $pass,
-		));
+		), ['timeout' => 120]);
 		if ($res['code'] != 200) {
 			wp_die($res['data'], $res['code']);
 		}
