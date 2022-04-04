@@ -79,7 +79,7 @@ class Chat_Essential_Admin_AI {
 		$siteOptions = Site_Options::typeSelector($training);
 
 		$submit = chat_essential_localize('Train Your AI');
-        $plugin_pro_link = !CHAT_ESSENTIAL_PLUGIN_PRO
+        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
             ? '<a href="https://www.chatessential.com/wp-premium" target="_blank">Upgrade to premium</a>'
             : '';
 

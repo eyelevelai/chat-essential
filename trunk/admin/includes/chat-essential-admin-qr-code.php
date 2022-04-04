@@ -145,7 +145,7 @@ END;
 		$h6 = chat_essential_localize('Business Hours Settings');
 
 		$submit = chat_essential_localize('Add New Settings');
-        $plugin_pro_link = !CHAT_ESSENTIAL_PLUGIN_PRO
+        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
             ? '<a href="https://www.chatessential.com/wp-premium" target="_blank">Upgrade to premium</a>'
             : '';
 

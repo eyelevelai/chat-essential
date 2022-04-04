@@ -47,7 +47,6 @@ define( 'CHAT_ESSENTIAL_UPLOAD_BASE_URL', 'https://upload.eyelevel.ai/wordpress'
 
 define( 'CHAT_ESSENTIAL_MIN_TRAINING_CONTENT', 1000 );
 define( 'CHAT_ESSENTIAL_MIN_TRAINING_PAGE_CONTENT', 100 );
-define( 'CHAT_ESSENTIAL_PLUGIN_PRO', false);
 
 global $chat_essential_db_version;
 $chat_essential_db_version = '0.1';
