@@ -178,6 +178,9 @@ END;
 */
 
 		$submit = chat_essential_localize('Save Changes');
+        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
+            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
+            : '';
 
     	echo <<<END
 		<div class="wrap">
@@ -258,6 +261,7 @@ END;
 										<th colspan="2" class="ey-settings">
 											<p class="submit ey-settings">
 												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
+												$plugin_pro_link
 											</p>
 										</th>
 									</tr>
