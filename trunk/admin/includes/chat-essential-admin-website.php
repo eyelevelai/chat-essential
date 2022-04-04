@@ -153,12 +153,12 @@ END;
 
 		$submit = chat_essential_localize('Add New Settings');
         $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
-            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank">Upgrade to premium</a>'
+            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
             : '';
 
     	echo <<<END
 		<div class="wrap">
-			<h1>$title</h1>$plugin_pro_link
+			<h1>$title</h1>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
 						<form action="" method="post" name="web_form" class="web-rules-form">
@@ -190,6 +190,7 @@ END;
 									$webflows
 								</tbody>
 							</table>
+							$plugin_pro_link
 						</form>
 					</div>
 				</div>

@@ -284,6 +284,18 @@ input.login-input {
 .widefat .small-font {
 	font-size: 10px;
 }
+.chat-essential-upgrade-link {
+	text-decoration: none;
+	color: #1d2327;
+	font-style: italic;
+}
+.submit .chat-essential-upgrade-link {
+	margin-left: 10px;
+}
+.web-rules-form .chat-essential-upgrade-link {
+	display: inline-block;
+	padding-top: 10px;
+}
 @media (max-width: 782px) {
 	table.web-rules-form td {
 		padding: 10px 21px 0 17px;

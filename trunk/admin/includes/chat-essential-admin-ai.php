@@ -80,13 +80,13 @@ class Chat_Essential_Admin_AI {
 
 		$submit = chat_essential_localize('Train Your AI');
         $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
-            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank">Upgrade to premium</a>'
+            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
             : '';
 
     	echo <<<END
 		$model_script
 		<div class="wrap">
-			<h1>$title</h1>$plugin_pro_link
+			<h1>$title</h1>
 				<div class="med-font status-msg" id="statusMessage1"></div>
 				<div id="pageContent" class="metabox-holder columns-2 ey-content">
 					<div style="position: relative;">
@@ -120,6 +120,7 @@ class Chat_Essential_Admin_AI {
 										<th colspan="2" class="status-th">
 											<p class="submit status-p">
 												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
+												$plugin_pro_link
 											</p>
 										</th>
 									</tr>
