@@ -158,7 +158,10 @@ END;
 
     	echo <<<END
 		<div class="wrap">
-			<h1>$title</h1>
+			<div class="upgrade-title-container">
+				<h1 class="upgrade-title">$title</h1>
+				$plugin_pro_link
+			</div>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
 						<form action="" method="post" name="web_form" class="web-rules-form">
@@ -190,7 +193,6 @@ END;
 									$webflows
 								</tbody>
 							</table>
-							$plugin_pro_link
 						</form>
 					</div>
 				</div>

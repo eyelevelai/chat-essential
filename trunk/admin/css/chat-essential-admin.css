@@ -284,10 +284,17 @@ input.login-input {
 .widefat .small-font {
 	font-size: 10px;
 }
+.upgrade-title {
+	display: inline-block;
+}
 .chat-essential-upgrade-link {
+	font-weight: 400;
 	text-decoration: none;
 }
 .submit .chat-essential-upgrade-link {
+	margin-left: 10px;
+}
+.upgrade-title-container .chat-essential-upgrade-link {
 	margin-left: 10px;
 }
 .web-rules-form .chat-essential-upgrade-link {
