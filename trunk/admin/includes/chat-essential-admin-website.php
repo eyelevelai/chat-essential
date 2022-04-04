@@ -120,8 +120,6 @@ END;
 	public function html() {
     	$settings = $this->getSettings();
 
-		Chat_Essential_Utility::update_web_status(27, 'inactive');
-
 		$title = chat_essential_localize('Website Chat');
 		$nonce = $settings['nonce'];
 	
