@@ -145,10 +145,13 @@ END;
 		$h6 = chat_essential_localize('Business Hours Settings');
 
 		$submit = chat_essential_localize('Add New Settings');
+        $plugin_pro_link = !CHAT_ESSENTIAL_PLUGIN_PRO
+            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank">Upgrade to premium</a>'
+            : '';
 
     	echo <<<END
 		<div class="wrap">
-			<h1>$title</h1>
+			<h1>$title</h1>$plugin_pro_link
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
 						<form action="" method="post" name="web_form" class="web-rules-form">

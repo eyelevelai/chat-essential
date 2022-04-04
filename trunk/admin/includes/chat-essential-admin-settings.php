@@ -178,10 +178,13 @@ END;
 */
 
 		$submit = chat_essential_localize('Save Changes');
+        $plugin_pro_link = !CHAT_ESSENTIAL_PLUGIN_PRO
+            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank">Upgrade to premium</a>'
+            : '';
 
     	echo <<<END
 		<div class="wrap">
-			<h1>$title</h1>
+			<h1>$title</h1>$plugin_pro_link
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
 						<a class="button button-primary ey-button top-margin" id="logoutBtn">Log Out</a>

@@ -79,11 +79,14 @@ class Chat_Essential_Admin_AI {
 		$siteOptions = Site_Options::typeSelector($training);
 
 		$submit = chat_essential_localize('Train Your AI');
+        $plugin_pro_link = !CHAT_ESSENTIAL_PLUGIN_PRO
+            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank">Upgrade to premium</a>'
+            : '';
 
     	echo <<<END
 		$model_script
 		<div class="wrap">
-			<h1>$title</h1>
+			<h1>$title</h1>$plugin_pro_link
 				<div class="med-font status-msg" id="statusMessage1"></div>
 				<div id="pageContent" class="metabox-holder columns-2 ey-content">
 					<div style="position: relative;">
