@@ -199,11 +199,12 @@ class Site_Options {
 
 		$l1 = chat_essential_localize('Site Display');
 		$l2 = chat_essential_localize('Exclude Pages');
-		$l3 = chat_essential_localize('Pages');
-		$l4 = chat_essential_localize('Posts');
-		$l5 = chat_essential_localize('Categories');
-		$l6 = chat_essential_localize('Tags');
-		$l7 = chat_essential_localize('Post Types');
+		$l3 = chat_essential_localize('Exclude Posts');
+		$l4 = chat_essential_localize('Pages');
+		$l5 = chat_essential_localize('Posts');
+		$l6 = chat_essential_localize('Categories');
+		$l7 = chat_essential_localize('Tags');
+		$l8 = chat_essential_localize('Post Types');
 
 		$html = '<tr><th><label for="data[current_type]">' . $l1 . '</label></th>';
 		$html .= '<td><select name="data[current_type]" id="siteTypeSelect" onchange="showTypeOptions(this.value);">';
@@ -229,7 +230,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="excludePosts" style="' . $expages . $exposts . $extags . $expostTypes . $excategories . '">';
-		$html .= '<th><label for="data[ex_posts][]">' . $l2 . '</label></th>';
+		$html .= '<th><label for="data[ex_posts][]">' . $l3 . '</label></th>';
 		$html .= '<td><select id="exPosts" name="data[ex_posts][]" multiple>';
 		foreach ( $posts as $pdata ) {
 			if ( !empty($training['ex_posts']) && in_array( $pdata->ID, $training['ex_posts'] ) ) {
@@ -241,7 +242,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="pages" style="' . $spages . '">';
-		$html .= '<th><label for="data[in_pages][]">' . $l3 . '</label></th>';
+		$html .= '<th><label for="data[in_pages][]">' . $l4 . '</label></th>';
 		$html .= '<td><select id="inPages" name="data[in_pages][]" multiple>';
 		foreach ( $pages as $pdata ) {
 			if ( !empty($training['in_pages']) && in_array( $pdata->ID, $training['in_pages'] ) ) {
@@ -253,7 +254,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="posts" style="' . $sposts . '">';
-		$html .= '<th><label for="data[in_posts][]">' . $l4 . '</label></th>';
+		$html .= '<th><label for="data[in_posts][]">' . $l5 . '</label></th>';
 		$html .= '<td><select id="inPosts" name="data[in_posts][]" multiple>';
 		foreach ( $posts as $pdata ) {
 			if ( !empty($training['in_posts']) && in_array( $pdata->ID, $training['in_posts'] ) ) {
@@ -265,7 +266,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="categories" style="' . $scategories . '">';
-		$html .= '<th><label for="data[in_categories][]">' . $l5 . '</label></th>';
+		$html .= '<th><label for="data[in_categories][]">' . $l6 . '</label></th>';
 		$html .= '<td><select id="inCategories" name="data[in_categories][]" multiple>';
 		foreach ( $categories as $cdata ) {
 			if ( !empty($training['in_categories']) && in_array( $cdata->term_id, $training['in_categories'] ) ) {
@@ -277,7 +278,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="tags" style="' . $stags . '">';
-		$html .= '<th><label for="data[in_tags][]">' . $l6 . '</label></th>';
+		$html .= '<th><label for="data[in_tags][]">' . $l7 . '</label></th>';
 		$html .= '<td><select id="inTags" name="data[in_tags][]" multiple>';
 		foreach ( $tags as $tdata ) {
 			if ( !empty($training['in_tags']) && in_array( $tdata->term_id, $training['in_tags'] ) ) {
@@ -289,7 +290,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="postTypes" style="' . $cposts . '">';
-		$html .= '<th><label for="data[in_postTypes][]">' . $l7 . '</label></th>';
+		$html .= '<th><label for="data[in_postTypes][]">' . $l8 . '</label></th>';
 		$html .= '<td><select id="inPostTypes" name="data[in_postTypes][]" multiple>';
 		foreach ( $cpostTypes as $cpkey => $cpdata ) {
 			if ( !empty($training['in_postTypes']) && in_array( $cpkey, $training['in_postTypes'] ) ) {
