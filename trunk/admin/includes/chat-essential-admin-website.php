@@ -192,6 +192,7 @@ END;
 								</tbody>
 							</table>
 						</form>
+						<a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add New Load On Rule</a>
 					</div>
 				</div>
 		</div>

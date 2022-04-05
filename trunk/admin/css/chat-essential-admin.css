@@ -301,6 +301,15 @@ input.login-input {
 	display: inline-block;
 	padding-top: 10px;
 }
+
+.ce-add-new-rule-table tr th {
+	width: 200px;
+}
+.ce-add-new-rule-table input,
+.ce-add-new-rule-table select {
+	width: 400px;
+}
+
 @media (max-width: 782px) {
 	table.web-rules-form td {
 		padding: 10px 21px 0 17px;
@@ -313,6 +322,14 @@ input.login-input {
 	}
 	.ey-form select[multiple] {
 		height: auto;
+	}
+	.ce-add-new-rule-table tr > * {
+		display: block;
+		width: 100%;
+	}
+	.ce-add-new-rule-table input,
+	.ce-add-new-rule-table select {
+		width: 100%;
 	}
 }
 @media (min-width: 783px) {

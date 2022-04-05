@@ -151,6 +151,18 @@ class Chat_Essential_Admin {
 			array( $this, 'menu_main_page' ),
 			20
 		);
+
+        if (CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro') {
+            add_submenu_page(
+                'chat-essential',
+                __('Chat Essential - Add New Load On Rule', 'chat-essential'),
+                __('New Load On Rule', 'chat-essential'),
+                'manage_options',
+                'chat-essential-add-new-rule',
+                array( $this, 'menu_main_page' ),
+                20
+            );
+        }
 /*
 		add_submenu_page(
 			'chat-essential',
@@ -715,6 +727,7 @@ class Chat_Essential_Admin {
 			switch ($slug) {
 				case 'chat-essential':
 				case 'chat-essential-ai':
+                case 'chat-essential-add-new-rule':
 					$page_params['coreEngines'] = CHAT_ESSENTIAL_CORE_ENGINES;
 					wp_register_script( 'showTypeOptions', plugin_dir_url( __FILE__ ) . 'js/show-site-options.js', array( 'jquery' ) );
 					wp_enqueue_script( 'showTypeOptions' );
@@ -822,6 +835,9 @@ class Chat_Essential_Admin {
 			case 'chat-essential-phone':
 				$settings_page = new Chat_Essential_Admin_Phone($options, $this->api);
 				break;
+            case 'chat-essential-add-new-rule':
+                $settings_page = new Chat_Essential_Admin_Add_New_Rule($options, $this->api);
+                break;
 			case 'chat-essential-logout':
 				if (!empty($options) && !empty($options['apiKey'])) {
 					Chat_Essential_Utility::logout($options['apiKey']);
