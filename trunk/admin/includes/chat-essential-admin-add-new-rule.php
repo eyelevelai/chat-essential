@@ -26,16 +26,48 @@ class Chat_Essential_Admin_Add_New_Rule {
 
     /**
      * @since    0.0.1
+     * @access   private
+     * @var      array     $flows    The list of Flows.
+     */
+    private $flows;
+
+    /**
+     * @since    0.0.1
      * @param      array    $settings       The settings to load on the website management page.
      */
     public function __construct( $settings, $api ) {
         $this->settings = $settings;
         $this->api = $api;
+        $this->fetchFlows();
 
         if (!empty($_POST)) {
+            global $current_user, $wpdb;
+            $data = $_POST['data'];
+            $flow = $this->getFlowById($data['flow']);
+
+            $initial_rule_data = [
+                "platform_id" => $flow->platformId,
+                "api_key" => $flow->apiKey,
+                "flow_name" => $flow->name,
+                "options" => "",
+                "display_on" => $data['current_type'],
+                "in_pages" => !empty($data['in_pages']) ? implode(',', $data['in_pages']) : null,
+                "ex_pages" => !empty($data['ex_pages']) ? implode(',', $data['ex_pages']) : null,
+                "in_posts" => !empty($data['in_posts']) ? implode(',', $data['in_posts']) : null,
+                "ex_posts" => !empty($data['ex_posts']) ? implode(',', $data['ex_posts']) : null,
+                "in_postTypes" => !empty($data['in_postTypes']) ? implode(',', $data['in_postTypes']) : null,
+                "in_categories" => !empty($data['in_categories']) ? implode(',', $data['in_categories']) : null,
+                "in_tags" => !empty($data['in_tags']) ? implode(',', $data['in_tags']) : null,
+                "status" => $data['status'],
+                "created_by" => $current_user->data->user_login,
+            ];
+
+            $res = Chat_Essential_Utility::create_web_rules($initial_rule_data);
             echo '<pre>';
-            print_r($_POST);
+            print_r($initial_rule_data);
+            echo 'Number of inserted records: ' . $res;
             echo '</pre>';
+            var_dump( $wpdb->last_query );
         }
     }
 
@@ -44,7 +76,7 @@ class Chat_Essential_Admin_Add_New_Rule {
         $title = chat_essential_localize('Add New Load On Rule');
         $nonce = $settings['nonce'];
         $siteOptions = Site_Options::typeSelector([]);
-        $flowOptions = $this->getFlowOptions($settings);
+        $flowOptions = $this->getFlowOptions();
 
         echo <<<END
 		<div class="wrap">
@@ -95,7 +127,8 @@ class Chat_Essential_Admin_Add_New_Rule {
 END;
     }
 
-    private function getFlowOptions($settings) {
+    private function fetchFlows() {
+        $settings = $this->getSettings();
         $res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=web&type=flow&data=full', null, null);
 
         if ($res['code'] != 200) {
@@ -105,14 +138,25 @@ END;
             wp_die('There was an issue loading your settings.', 500);
         }
         $data = json_decode($res['data']);
+        $this->flows = $data->flows ?: [];
+    }
 
-        $webflows = '';
-        if (!empty($data->flows)) {
-            foreach ($data->flows as $flow) {
-                $webflows .= "<option>$flow->name</option>";
+    private function getFlowById($flowId) {
+        foreach ($this->flows as $flow) {
+            if ($flow->id == $flowId) {
+                return $flow;
             }
         }
+        return false;
+    }
 
+    private function getFlowOptions() {
+        $webflows = '';
+        if (!empty($this->flows)) {
+            foreach ($this->flows as $flow) {
+                $webflows .= "<option value='$flow->id'>$flow->name</option>";
+            }
+        }
         return $webflows;
     }
 

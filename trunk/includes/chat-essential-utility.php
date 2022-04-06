@@ -289,6 +289,12 @@ class Chat_Essential_Utility {
 			);
 	}
 
+    public static function create_web_rules($data) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+        return $wpdb->insert( $table_name, $data );
+    }
+
 	public static function get_rules($platformId) {
 		global $wpdb;
 
