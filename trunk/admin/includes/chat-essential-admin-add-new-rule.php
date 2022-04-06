@@ -44,6 +44,7 @@ class Chat_Essential_Admin_Add_New_Rule {
         $title = chat_essential_localize('Add New Load On Rule');
         $nonce = $settings['nonce'];
         $siteOptions = Site_Options::typeSelector([]);
+        $flowOptions = $this->getFlowOptions($settings);
 
         echo <<<END
 		<div class="wrap">
@@ -59,7 +60,9 @@ class Chat_Essential_Admin_Add_New_Rule {
                                     <tr>
                                       <th><label for="flow">Flow Name</label></th>
                                       <td>
-                                        <input type="text" name="data[flow]" id="flow" />
+                                        <select name="data[flow]" id="flow">
+                                          $flowOptions
+                                        </select>
                                       </td>
                                     </tr>
                                     $siteOptions
@@ -90,6 +93,27 @@ class Chat_Essential_Admin_Add_New_Rule {
 				</div>
 		</div>
 END;
+    }
+
+    private function getFlowOptions($settings) {
+        $res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=web&type=flow&data=full', null, null);
+
+        if ($res['code'] != 200) {
+            wp_die('There was an issue loading your settings.', $res['code']);
+        }
+        if (empty($res['data'])) {
+            wp_die('There was an issue loading your settings.', 500);
+        }
+        $data = json_decode($res['data']);
+
+        $webflows = '';
+        if (!empty($data->flows)) {
+            foreach ($data->flows as $flow) {
+                $webflows .= "<option>$flow->name</option>";
+            }
+        }
+
+        return $webflows;
     }
 
     /**
