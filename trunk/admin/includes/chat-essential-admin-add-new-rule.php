@@ -48,7 +48,7 @@ class Chat_Essential_Admin_Add_New_Rule {
             $initial_rule_data = [
                 "platform_id" => $flow->platformId,
                 "api_key" => $flow->apiKey,
-                "flow_name" => $flow->name,
+                "flow_name" => $flow->id,
                 "options" => "",
                 "display_on" => $data['current_type'],
                 "in_pages" => !empty($data['in_pages']) ? implode(',', $data['in_pages']) : null,
