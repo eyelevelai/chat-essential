@@ -33,6 +33,13 @@ class Chat_Essential_Admin_Add_New_Rule {
 
     /**
      * @since    0.0.1
+     * @access   private
+     * @var      array     $flows    The state of added rule
+     */
+    private $rule_added_state = 0;
+
+    /**
+     * @since    0.0.1
      * @param      array    $settings       The settings to load on the website management page.
      */
     public function __construct( $settings, $api ) {
@@ -62,12 +69,7 @@ class Chat_Essential_Admin_Add_New_Rule {
                 "created_by" => $current_user->data->user_login,
             ];
 
-            $res = Chat_Essential_Utility::create_web_rules($initial_rule_data);
-            echo '<pre>';
-            print_r($initial_rule_data);
-            echo 'Number of inserted records: ' . $res;
-            echo '</pre>';
-            var_dump( $wpdb->last_query );
+            $this->rule_added_state = Chat_Essential_Utility::create_web_rules($initial_rule_data) ? 1 : 2;
         }
     }
 
@@ -77,11 +79,13 @@ class Chat_Essential_Admin_Add_New_Rule {
         $nonce = $settings['nonce'];
         $siteOptions = Site_Options::typeSelector([]);
         $flowOptions = $this->getFlowOptions();
+        $rule_added_notice = $this->getRuleAddedNotice();
 
         echo <<<END
 		<div class="wrap">
-			<div class="upgrade-title-container">
+			<div class="add-rule-title-container">
 				<h1 class="upgrade-title">$title</h1>
+				$rule_added_notice
 			</div>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
@@ -125,6 +129,17 @@ class Chat_Essential_Admin_Add_New_Rule {
 				</div>
 		</div>
 END;
+    }
+
+    private function getRuleAddedNotice() {
+        switch ($this->rule_added_state) {
+            case 1:
+                return '<div class="notice notice-success is-dismissible">The new rule has been added</div>';
+            case 2:
+                return '<div class="notice notice-error is-dismissible">Something went wrong</div>';
+            default:
+                return '';
+        }
     }
 
     private function fetchFlows() {

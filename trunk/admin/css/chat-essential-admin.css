@@ -309,6 +309,10 @@ input.login-input {
 .ce-add-new-rule-table select {
 	width: 400px;
 }
+.add-rule-title-container .notice {
+	height: 34px;
+	line-height: 34px;
+}
 
 @media (max-width: 782px) {
 	table.web-rules-form td {
