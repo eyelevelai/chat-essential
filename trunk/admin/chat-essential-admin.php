@@ -152,7 +152,7 @@ class Chat_Essential_Admin {
 			20
 		);
 
-        if (CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro') {
+        if (CHAT_ESSENTIAL_SUBSCRIPTION == 'pro') {
             add_submenu_page(
                 'chat-essential',
                 __('Chat Essential - Add New Load On Rule', 'chat-essential'),
