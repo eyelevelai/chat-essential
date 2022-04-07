@@ -134,7 +134,7 @@ END;
     private function getRuleAddedNotice() {
         switch ($this->rule_added_state) {
             case 1:
-                return '<div class="notice notice-success is-dismissible">The new rule has been added</div>';
+                return '<div class="notice notice-success is-dismissible">The rule has been added</div>';
             case 2:
                 return '<div class="notice notice-error is-dismissible">Something went wrong</div>';
             default:
