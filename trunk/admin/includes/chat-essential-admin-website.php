@@ -33,21 +33,16 @@ class Chat_Essential_Admin_Website {
 		$this->api = $api;
 	}
 
-	private function row($settings, $web) {
-		$pid = sanitize_text_field($web->platformId);
-		$wid = sanitize_text_field($web->id);
-		$flow_name = sanitize_text_field($web->name);
+    private function row($settings, $rule, $web) {
+        $rid = sanitize_text_field($rule->rules_id);
+        $wid = sanitize_text_field($web->id);
+        $flow_name = sanitize_text_field($web->name);
 
-		$rule = Chat_Essential_Utility::get_rules($pid);
-		if (empty($rule)) {
-			return;
-		}
-
-		$checked = '';
-		if ($rule->status === 'active') {
-			$checked = 'checked';
-		}
-		$isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' . $pid . '" /><label class="ey-switch" for="status' . $pid . '">Toggle</label>';
+        $checked = '';
+        if ($rule->status === 'active') {
+            $checked = 'checked';
+        }
+        $isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' . $rid . '" /><label class="ey-switch" for="status' . $rid . '">Toggle</label>';
 
 		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($web->versionId);
 		$edit = chat_essential_localize('Edit');
@@ -76,18 +71,18 @@ class Chat_Essential_Admin_Website {
 		}
 		$data = json_decode($res['data'], true);
 
-		if (!empty($data)) {
-			if (!empty($data['publish'])) {
-				if (!empty($data['publish']['url'])) {
-					$disp = '';
-					if ($rule->status === 'inactive') {
-						$disp = 'style="display:none;"';
-					}
-					$preview_url = esc_url($data['publish']['url']) . '&eystate=open&eyreset=true&clearcache=true';
-					$preview = '<span ' . $disp . ' id="status' .$pid . '-preview" class="preview-web"><a href="' . $preview_url . '" target="_blank">' . chat_essential_localize('Preview') . '</a></span>';
-				}
-			}
-		}
+        if (!empty($data)) {
+            if (!empty($data['publish'])) {
+                if (!empty($data['publish']['url'])) {
+                    $disp = '';
+                    if ($rule->status === 'inactive') {
+                        $disp = 'style="display:none;"';
+                    }
+                    $preview_url = esc_url($data['publish']['url']) . '&eystate=open&eyreset=true&clearcache=true';
+                    $preview = '<span ' . $disp . ' id="status' .$rid . '-preview" class="preview-web"><a href="' . $preview_url . '" target="_blank">' . chat_essential_localize('Preview') . '</a></span>';
+                }
+            }
+        }
 
 		return <<<END
 	<tr>
@@ -133,14 +128,19 @@ END;
 		}
 		$data = json_decode($res['data']);
 
-		$webflows = '';
-		if (!empty($data->flows)) {
-			foreach ($data->flows as $flow) {
-				$webflows .= $this->row($settings, $flow);
-			}
-		} else {
-			// empty state?
-		}
+        $rules = Chat_Essential_Utility::get_all_rules();
+
+        echo '<pre>';
+        $webflows = '';
+        if (!empty($rules)) {
+            foreach ($rules as $rule) {
+                $flow = $this->getFlowById($data->flows, $rule->flow_name);
+                if (!empty($flow)) {
+                    $webflows .= $this->row($settings, $rule, $flow);
+                }
+            }
+        }
+        echo '</pre>';
 
 		$h1 = chat_essential_localize('Status');
 		$h2 = chat_essential_localize('Chat Flow');
@@ -202,12 +202,16 @@ END;
 END;
   	}
 
-/*
-<p class="submit">
-<input disabled type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_web_rules">
-<i>Upgrade to premium</i>
-</p>
-*/
+
+    private function getFlowById($flows, $flowId) {
+        foreach ($flows as $flow) {
+            if ($flow->id == $flowId) {
+                return $flow;
+            }
+        }
+        return false;
+    }
+
 
 	/**
 	 * @since    0.0.1

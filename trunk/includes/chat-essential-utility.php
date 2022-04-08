@@ -273,21 +273,21 @@ class Chat_Essential_Utility {
 		);
 	}
 
-	public static function update_web_status($platform_id, $status) {
-		global $wpdb;
+    public static function update_web_status($rules_id, $status) {
+        global $wpdb;
 
-		$table_name = $wpdb->prefix . 'chat_essential';
+        $table_name = $wpdb->prefix . 'chat_essential';
 
-		$wpdb->update( $table_name,
-				array(
-					'status' => $status,
-				), array(
-					'platform_id' => $platform_id,
-				), array(
-					'%s',
-				)
-			);
-	}
+        $wpdb->update( $table_name,
+            array(
+                'status' => $status,
+            ), array(
+                'rules_id' => $rules_id,
+            ), array(
+                '%s',
+            )
+        );
+    }
 
     public static function create_web_rules($data) {
         global $wpdb;
@@ -308,6 +308,14 @@ class Chat_Essential_Utility {
 
 		return array();
 	}
+
+    public static function get_all_rules() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+        $rule = $wpdb->get_results( "SELECT * FROM $table_name" );
+
+        return $rule ?: [];
+    }
 
 	public static function init_user($apiKey, $webs) {
 		global $wpdb;

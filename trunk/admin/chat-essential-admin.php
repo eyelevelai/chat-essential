@@ -674,9 +674,9 @@ class Chat_Essential_Admin {
 			wp_die('{"message":"Body is missing"}', 400);
 		}
 
-		$pid = sanitize_text_field($_POST['body']['platformId']);
-		$status = sanitize_text_field($_POST['body']['status']);
-		Chat_Essential_Utility::update_web_status($pid, $status);
+        $rid = sanitize_text_field($_POST['body']['rulesId']);
+        $status = sanitize_text_field($_POST['body']['status']);
+        Chat_Essential_Utility::update_web_status($rid, $status);
 
 		echo 'OK';
 

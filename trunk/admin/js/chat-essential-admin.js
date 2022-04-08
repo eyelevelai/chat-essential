@@ -742,7 +742,7 @@
 				const swtch = $('#' + swt.attr('for') + '-preview');
 				swtch.toggle();
 				api(this.n, 'chat_essential_switch_platform_status', null, {
-					platformId: swt.attr('for').replace('status', ''),
+					rulesId: swt.attr('for').replace('status', ''),
 					status: !inp.is(':checked') ? 'active' : 'inactive',
 				})
 				.then((function(v) {
