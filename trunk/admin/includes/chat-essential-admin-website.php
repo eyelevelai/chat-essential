@@ -153,8 +153,11 @@ END;
         $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
             ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
             : '';
-        $add_new_rule_link = CHAT_ESSENTIAL_SUBSCRIPTION == 'pro'
-            ? '<a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add New Load On Rule</a>'
+        $add_new_links = CHAT_ESSENTIAL_SUBSCRIPTION == 'pro'
+            ? '<div class="ce-add-new-links">
+                <a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add Rule</a>
+                <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Add Flow</a>
+               </div>'
             : '';
 
     	echo <<<END
@@ -195,7 +198,7 @@ END;
 								</tbody>
 							</table>
 						</form>
-						$add_new_rule_link
+						$add_new_links
 					</div>
 				</div>
 		</div>
