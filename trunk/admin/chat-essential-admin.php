@@ -736,6 +736,14 @@ class Chat_Essential_Admin {
 					wp_register_script( 'selectize-js', plugins_url( 'js/selectize.min.js', __FILE__ ), array( 'jquery' ) );
 					wp_enqueue_script( 'selectize-js' );
 					break;
+                case 'chat-essential-website':
+                    wp_register_script( 'jQuery-EC', 'https://code.jquery.com/jquery-3.6.0.min.js', null, null );
+                    wp_enqueue_script('jQuery-EC');
+                    wp_register_script( 'jQuery-UI-EC', 'https://code.jquery.com/ui/1.13.1/jquery-ui.min.js', null, null );
+                    wp_enqueue_script('jQuery-UI-EC');
+                    wp_register_style( 'jQuery-UI-CSS-EC', 'https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.min.css', null, null );
+                    wp_enqueue_style('jQuery-UI-CSS-EC');
+                    break;
 				case 'chat-essential-settings':
 					add_thickbox();
 				case 'chat-essential-signup-phone':

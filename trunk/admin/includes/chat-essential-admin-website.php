@@ -86,6 +86,11 @@ class Chat_Essential_Admin_Website {
 
 		return <<<END
 	<tr>
+	    <td class="column-sortable">
+	        <div class="sortable-block">
+	          <span class="ui-icon ui-icon-caret-2-n-s"></span>
+            </div>
+        </td>
 		<td class="status column-status">$isOn</td>
 		<td class="flow-name column-flow-name">
 			<strong>$flow_name</strong>
@@ -173,6 +178,7 @@ END;
 							<table class="wp-list-table widefat fixed striped table-view-excerpt">
 								<thead class="manage-head">
 									<tr>
+									    <th scope="col" id="sortable" class="manage-column column-sortable"></th>
 										<th scope="col" id="status" class="manage-column column-status">
 											$h1
 										</th>
@@ -193,11 +199,14 @@ END;
 										</th>
 									</tr>
 								</thead>
-								<tbody>
+								<tbody class="ui-sortable">
 									$webflows
 								</tbody>
 							</table>
 						</form>
+						<script>$(function() {
+                          $( ".ui-sortable" ).sortable();
+                        });</script>
 						$add_new_links
 					</div>
 				</div>

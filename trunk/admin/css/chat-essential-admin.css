@@ -313,6 +313,12 @@ input.login-input {
 	height: 34px;
 	line-height: 34px;
 }
+.sortable-block {
+	margin: 15px 0;
+}
+.column-sortable {
+	width: 20px;
+}
 
 @media (max-width: 782px) {
 	table.web-rules-form td {
