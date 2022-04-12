@@ -31,6 +31,10 @@ class Chat_Essential_Admin_Website {
 	public function __construct( $settings, $api ) {
 		$this->settings = $settings;
 		$this->api = $api;
+
+        if (!empty($_POST)) {
+            Chat_Essential_Utility::reorder_rules($_POST['order']);
+        }
 	}
 
     private function row($settings, $rule, $web) {
@@ -89,6 +93,7 @@ class Chat_Essential_Admin_Website {
 	    <td class="column-sortable">
 	        <div class="sortable-block">
 	          <span class="ui-icon ui-icon-caret-2-n-s"></span>
+	          <input type="hidden" name="order[]" value="$rule->rules_id">
             </div>
         </td>
 		<td class="status column-status">$isOn</td>
@@ -135,7 +140,6 @@ END;
 
         $rules = Chat_Essential_Utility::get_all_rules();
 
-        echo '<pre>';
         $webflows = '';
         if (!empty($rules)) {
             foreach ($rules as $rule) {
@@ -145,7 +149,6 @@ END;
                 }
             }
         }
-        echo '</pre>';
 
 		$h1 = chat_essential_localize('Status');
 		$h2 = chat_essential_localize('Chat Flow');
@@ -154,12 +157,12 @@ END;
 		$h5 = chat_essential_localize('Theme');
 		$h6 = chat_essential_localize('Business Hours Settings');
 
-		$submit = chat_essential_localize('Add New Settings');
         $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
             ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
             : '';
         $add_new_links = CHAT_ESSENTIAL_SUBSCRIPTION == 'pro'
             ? '<div class="ce-add-new-links">
+                <button class="button button-primary ey-button top-margin">Save Order</button>
                 <a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add Rule</a>
                 <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create New Flow</a>
                </div>'
@@ -203,11 +206,11 @@ END;
 									$webflows
 								</tbody>
 							</table>
+                            <script>$(function() {
+                              $( ".ui-sortable" ).sortable();
+                            });</script>
+                            $add_new_links
 						</form>
-						<script>$(function() {
-                          $( ".ui-sortable" ).sortable();
-                        });</script>
-						$add_new_links
 					</div>
 				</div>
 		</div>

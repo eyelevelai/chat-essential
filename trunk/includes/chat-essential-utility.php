@@ -222,6 +222,7 @@ class Chat_Essential_Utility {
 				`api_key` varchar(255) NOT NULL,
 				`flow_name` varchar(255) DEFAULT NULL,
 				`options` text,
+                `order` int DEFAULT NULL,
 				`display_on` enum('all','pages', 'posts','categories','postTypes','tags') NOT NULL DEFAULT 'all',
 				`in_pages` varchar(300) DEFAULT NULL,
 				`ex_pages` varchar(300) DEFAULT NULL,
@@ -292,6 +293,9 @@ class Chat_Essential_Utility {
     public static function create_web_rules($data) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'chat_essential';
+        $max_order = $wpdb->get_results( "SELECT `order` FROM $table_name ORDER BY `order` DESC LIMIT 1;" );
+        $data['order'] = $max_order[0]->order + 1;
+
         return $wpdb->insert( $table_name, $data );
     }
 
@@ -312,9 +316,26 @@ class Chat_Essential_Utility {
     public static function get_all_rules() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'chat_essential';
-        $rule = $wpdb->get_results( "SELECT * FROM $table_name" );
+        $rule = $wpdb->get_results( "SELECT * FROM $table_name ORDER BY `order` ASC" );
 
         return $rule ?: [];
+    }
+
+    public static function reorder_rules($data) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        foreach ($data as $order => $rules_id) {
+            $wpdb->update( $table_name,
+                array(
+                    'order' => $order + 1,
+                ), array(
+                    'rules_id' => $rules_id,
+                ), array(
+                    '%s',
+                )
+            );
+        }
     }
 
 	public static function init_user($apiKey, $webs) {
@@ -330,6 +351,7 @@ class Chat_Essential_Utility {
 			)
 		);
 
+        $order = 1;
 		foreach ($webs as $web) {
 			$wpdb->insert( $table_name,
 				array(
@@ -337,13 +359,16 @@ class Chat_Essential_Utility {
 					'platform_id' => $web['platformId'],
 					'api_key' => $apiKey,
 					'display_on' => 'all',
+                    'order' => $order,
 				), array(
 					'%s',
 					'%s',
 					'%s',
 					'%s',
+                    '%d',
 				)
 			);
+            $order++;
 		}
 	}
 
