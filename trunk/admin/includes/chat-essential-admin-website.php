@@ -161,7 +161,7 @@ END;
         $add_new_links = CHAT_ESSENTIAL_SUBSCRIPTION == 'pro'
             ? '<div class="ce-add-new-links">
                 <a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add Rule</a>
-                <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Add Flow</a>
+                <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create New Flow</a>
                </div>'
             : '';
 
