@@ -68,7 +68,7 @@ class Chat_Essential_Admin {
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
         $install_date = get_option( 'chat_essential_activation_date' );
         $past_date = strtotime( '-3 days' );
-        if ( $past_date >= $install_date ) {
+        if ( !Chat_Essential_Utility::is_premium() && $past_date >= $install_date ) {
             add_action('admin_notices', function () {
                 $current_screen = get_current_screen();
                 $user_id = get_current_user_id();
@@ -152,7 +152,7 @@ class Chat_Essential_Admin {
 			20
 		);
 
-        if (CHAT_ESSENTIAL_SUBSCRIPTION == 'pro') {
+        if (Chat_Essential_Utility::is_premium()) {
             add_submenu_page(
                 'chat-essential',
                 __('Chat Essential - Add New Load On Rule', 'chat-essential'),
