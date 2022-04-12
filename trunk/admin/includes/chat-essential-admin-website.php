@@ -88,14 +88,18 @@ class Chat_Essential_Admin_Website {
             }
         }
 
+        $sortable_column = Chat_Essential_Utility::is_premium()
+            ? '<td class="column-sortable">
+                    <div class="sortable-block">
+                      <span class="ui-icon ui-icon-caret-2-n-s"></span>
+                      <input type="hidden" name="order[]" value="'. $rule->rules_id .'">
+                    </div>
+                </td>'
+            : '';
+
 		return <<<END
 	<tr>
-	    <td class="column-sortable">
-	        <div class="sortable-block">
-	          <span class="ui-icon ui-icon-caret-2-n-s"></span>
-	          <input type="hidden" name="order[]" value="$rule->rules_id">
-            </div>
-        </td>
+	    $sortable_column
 		<td class="status column-status">$isOn</td>
 		<td class="flow-name column-flow-name">
 			<strong>$flow_name</strong>
@@ -157,10 +161,18 @@ END;
 		$h5 = chat_essential_localize('Theme');
 		$h6 = chat_essential_localize('Business Hours Settings');
 
-        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
+        $plugin_pro_link = !Chat_Essential_Utility::is_premium()
             ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
             : '';
-        $add_new_links = CHAT_ESSENTIAL_SUBSCRIPTION == 'pro'
+        $sortable_column = Chat_Essential_Utility::is_premium()
+            ? '<th scope="col" id="sortable" class="manage-column column-sortable"></th>'
+            : '';
+        $sortable_script = Chat_Essential_Utility::is_premium()
+            ? '<script>$(function() {
+                  $( ".ui-sortable" ).sortable();
+                });</script>'
+            : '';
+        $add_new_links = Chat_Essential_Utility::is_premium()
             ? '<div class="ce-add-new-links">
                 <button class="button button-primary ey-button top-margin">Save Order</button>
                 <a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add Rule</a>
@@ -181,7 +193,7 @@ END;
 							<table class="wp-list-table widefat fixed striped table-view-excerpt">
 								<thead class="manage-head">
 									<tr>
-									    <th scope="col" id="sortable" class="manage-column column-sortable"></th>
+									    $sortable_column
 										<th scope="col" id="status" class="manage-column column-status">
 											$h1
 										</th>
@@ -206,9 +218,7 @@ END;
 									$webflows
 								</tbody>
 							</table>
-                            <script>$(function() {
-                              $( ".ui-sortable" ).sortable();
-                            });</script>
+                            $sortable_script
                             $add_new_links
 						</form>
 					</div>

@@ -553,4 +553,8 @@ class Chat_Essential_Utility {
 		return $options;
 	}
 
+    public static function is_premium() {
+        return CHAT_ESSENTIAL_SUBSCRIPTION == 'pro';
+    }
+
 }
