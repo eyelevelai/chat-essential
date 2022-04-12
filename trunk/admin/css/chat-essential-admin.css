@@ -309,7 +309,8 @@ input.login-input {
 .ce-add-new-rule-table select {
 	width: 400px;
 }
-.add-rule-title-container .notice {
+.add-rule-title-container .notice,
+.reorder-container .notice {
 	height: 34px;
 	line-height: 34px;
 }

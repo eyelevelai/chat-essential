@@ -24,16 +24,20 @@ class Chat_Essential_Admin_Website {
 	 */
 	private $settings;
 
-	/**
-	 * @since    0.0.1
-	 * @param      array    $settings       The settings to load on the website management page.
-	 */
+    /**
+     * @since    0.0.1
+     * @access   private
+     * @var      array     $flows    The state of reordered rules.
+     */
+    private $reordered_rules = false;
+
 	public function __construct( $settings, $api ) {
 		$this->settings = $settings;
 		$this->api = $api;
 
         if (!empty($_POST)) {
             Chat_Essential_Utility::reorder_rules($_POST['order']);
+            $this->reordered_rules = true;
         }
 	}
 
@@ -179,12 +183,16 @@ END;
                 <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create New Flow</a>
                </div>'
             : '';
+        $reordered_notice = $this->reordered_rules
+            ? '<div class="notice notice-success is-dismissible">The rules have been reordered</div>'
+            : '';
 
     	echo <<<END
 		<div class="wrap">
-			<div class="upgrade-title-container">
+			<div class="upgrade-title-container reorder-container">
 				<h1 class="upgrade-title">$title</h1>
 				$plugin_pro_link
+				$reordered_notice
 			</div>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
