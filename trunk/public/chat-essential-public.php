@@ -116,7 +116,7 @@ class Chat_Essential_Public {
 		global $wpdb;
 
         $table_name = $wpdb->prefix . 'chat_essential';
-        $rules = $wpdb->get_results( "SELECT * FROM $table_name WHERE status='active' AND api_key='$apiKey' ORDER BY rules_id DESC" );
+        $rules = $wpdb->get_results( "SELECT * FROM $table_name WHERE status='active' AND api_key='$apiKey' ORDER BY `order` ASC" );
         $rule = $this->filter_rules($rules);
         $out = '';
         if ( ! empty( $rule ) ) {
