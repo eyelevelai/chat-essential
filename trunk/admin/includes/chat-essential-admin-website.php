@@ -173,12 +173,16 @@ END;
             : '';
         $sortable_script = Chat_Essential_Utility::is_premium()
             ? '<script>$(function() {
-                  $( ".ui-sortable" ).sortable();
+                  $( ".ui-sortable" ).sortable({
+                    update: function() {
+                      $("#save-order-button").removeAttr("disabled");
+                    }
+                  });
                 });</script>'
             : '';
         $add_new_links = Chat_Essential_Utility::is_premium()
             ? '<div class="ce-add-new-links">
-                <button class="button button-primary ey-button top-margin">Save Order</button>
+                <button class="button button-primary ey-button top-margin" id="save-order-button" disabled>Save Order</button>
                 <a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add Rule</a>
                 <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create New Flow</a>
                </div>'
