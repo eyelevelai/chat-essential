@@ -246,18 +246,31 @@ class Chat_Essential_Utility {
 		add_option( 'chat_essential_db_version', $chat_essential_db_version );
 	}
 
+    /**
+     * @since    0.2
+     */
+    public static function db_migrate($version_from, $version_to) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        switch ("$version_from-$version_to") {
+            case '0.1-0.2':
+                update_option( 'chat_essential_db_version', $version_to );
+                $query = "ALTER TABLE `{$table_name}` ADD `order` int DEFAULT NULL AFTER `options`;";
+                $wpdb->query( $query );
+                break;
+        }
+    }
+
 	/**
 	 * @since    0.0.1
 	 */
 	public static function db_check() {
 		global $chat_essential_db_version;
-		global $wpdb;
-		if ( get_site_option( 'chat_essential_db_version' ) != $chat_essential_db_version ) {
-			$wpdb->show_errors();
-			echo '<script>console.log("missing db");</script>';
-
-			Chat_Essential_Utility::db_install();
-		}
+        $current_version = get_site_option( 'chat_essential_db_version' );
+        if ( $current_version != $chat_essential_db_version ) {
+            Chat_Essential_Utility::db_migrate($current_version, $chat_essential_db_version);
+        }
 	}
 
 	public static function logout($apiKey) {
