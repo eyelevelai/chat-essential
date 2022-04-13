@@ -144,16 +144,12 @@ END;
 		$h5 = chat_essential_localize('QR Code Style');
 		$h6 = chat_essential_localize('Business Hours Settings');
 
-		$submit = chat_essential_localize('Add New Settings');
-        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
-            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
-            : '';
+        $premium_banner = Chat_Essential_Utility::premium_banner();
 
     	echo <<<END
 		<div class="wrap">
 		<div class="upgrade-title-container">
 			<h1 class="upgrade-title">$title</h1>
-			$plugin_pro_link
 		</div>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
@@ -187,6 +183,7 @@ END;
 								</tbody>
 							</table>
 						</form>
+						$premium_banner
 					</div>
 				</div>
 		</div>

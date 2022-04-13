@@ -165,9 +165,7 @@ END;
 		$h5 = chat_essential_localize('Theme');
 		$h6 = chat_essential_localize('Business Hours Settings');
 
-        $plugin_pro_link = !Chat_Essential_Utility::is_premium()
-            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
-            : '';
+        $premium_banner = Chat_Essential_Utility::premium_banner();
         $sortable_column = Chat_Essential_Utility::is_premium()
             ? '<th scope="col" id="sortable" class="manage-column column-sortable"></th>'
             : '';
@@ -195,7 +193,6 @@ END;
 		<div class="wrap">
 			<div class="upgrade-title-container reorder-container">
 				<h1 class="upgrade-title">$title</h1>
-				$plugin_pro_link
 				$reordered_notice
 			</div>
 				<div class="metabox-holder columns-2">
@@ -233,6 +230,7 @@ END;
                             $sortable_script
                             $add_new_links
 						</form>
+						$premium_banner
 					</div>
 				</div>
 		</div>

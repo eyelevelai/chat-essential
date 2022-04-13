@@ -178,9 +178,7 @@ END;
 */
 
 		$submit = chat_essential_localize('Save Changes');
-        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
-            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
-            : '';
+        $premium_banner = Chat_Essential_Utility::premium_banner();
 
     	echo <<<END
 		<div class="wrap">
@@ -241,6 +239,9 @@ END;
 											</select>
 										</td>
 									</tr>
+									<tr>
+                                        <td colspan="2">$premium_banner</td>
+                                    </tr>
 									<tr>
 										<th scope="row">
 											<label for="email">

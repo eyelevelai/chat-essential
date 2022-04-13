@@ -570,4 +570,19 @@ class Chat_Essential_Utility {
         return CHAT_ESSENTIAL_SUBSCRIPTION == 'pro';
     }
 
+    public static function premium_banner() {
+        return !Chat_Essential_Utility::is_premium()
+            ? '
+                <div class="chat-essential-upgrade-banner">
+                    <h2>Upgrade to Premium</h2>
+                    <ul>
+                      <li><strong>+ Automatic re-training:</strong> Your AI assistant will automatically update and re-train when you make content updates</li>
+                      <li><strong>+ Unlimited website roles:</strong> Control where your chat appears on your website and which chat flows load</li>
+                      <li><strong>+ Unlimited chat themes and flows:</strong> Create customized chat flows for each of section of your website</li>
+                    </ul>
+                    <a class="button button-primary ey-button top-margin" href="https://www.chatessential.com/wp-premium" target="_blank">Get Chat Essential Premium</a>
+                </div>
+            '
+            : '';
+    }
 }
