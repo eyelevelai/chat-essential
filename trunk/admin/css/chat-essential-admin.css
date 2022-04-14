@@ -320,6 +320,24 @@ input.login-input {
 .column-sortable {
 	width: 20px;
 }
+.chat-essential-upgrade-banner {
+	background-color: #ffffff;
+	padding: 20px 10px;
+	margin-top: 30px;
+	border: 1px solid #c3c4c7;
+}
+.chat-essential-upgrade-banner h2 {
+	font-size: 23px;
+	font-weight: 400;
+	margin: 0 0 20px;
+}
+.chat-essential-upgrade-banner ul {
+	margin: 0;
+	list-style: none;
+}
+.chat-essential-upgrade-banner ul li {
+	margin-left: 15px;
+}
 
 @media (max-width: 782px) {
 	table.web-rules-form td {
