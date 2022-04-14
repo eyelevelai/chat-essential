@@ -89,6 +89,14 @@ class Chat_Essential_Admin {
                 }
             });
         }
+
+        // Hooks for training AI during post/page publishing/updating
+        add_action('post_updated', function() {
+            Chat_Essential_Utility::train_ai_hook($this->api);
+        });
+        add_action('publish_post', function() {
+            Chat_Essential_Utility::train_ai_hook($this->api);
+        });
 	}
 
 	/**
