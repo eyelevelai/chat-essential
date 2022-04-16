@@ -262,10 +262,12 @@ END;
 										<th colspan="2" class="ey-settings">
 											<p class="submit ey-settings">
 												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
-												$plugin_pro_link
 											</p>
 										</th>
 									</tr>
+									<tr>
+                                        <td colspan="2">$premium_banner</td>
+                                    </tr>
 									<tr>
 										<th colspan="2" class="no-padding-bottom">
 											<h2>$h3</h2>
