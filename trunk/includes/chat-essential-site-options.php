@@ -10,6 +10,18 @@
  */
 class Site_Options {
 
+	public static function optionNames() {
+		return array(
+			'all' => chat_essential_localize('Site Wide'),
+			'pages' => chat_essential_localize('Specific Pages'),
+			'posts' => chat_essential_localize('Specific Posts'),
+			'categories' => chat_essential_localize('Specific Categories'),
+			'tags' => chat_essential_localize('Specific Tags'),
+			'postTypes' => chat_essential_localize('Specific Post Types'),
+			'none' => chat_essential_localize('None'),
+		);
+	}
+
 	public static function cleanContent($content) {
 		$pg = $content->to_array();
 		$raw_txt = html_entity_decode(strip_shortcodes(wp_strip_all_tags(apply_filters('the_content', $content->post_content))));
@@ -143,6 +155,36 @@ class Site_Options {
 		return false;
 	}
 
+	public static function mapDBRecord($dbr) {
+		if (!empty($dbr->display_on)) {
+			$dbr->siteType = $dbr->display_on;
+			if (!empty($dbr->in_pages)) {
+				$dbr->in_pages = explode(",", $dbr->in_pages);
+			}
+			if (!empty($dbr->ex_pages)) {
+				$dbr->ex_pages = explode(",", $dbr->ex_pages);
+			}
+			if (!empty($dbr->in_posts)) {
+				$dbr->in_posts = explode(",", $dbr->in_posts);
+			}
+			if (!empty($dbr->ex_posts)) {
+				$dbr->ex_posts = explode(",", $dbr->ex_posts);
+			}
+			if (!empty($dbr->in_postTypes)) {
+				$dbr->in_postTypes = explode(",", $dbr->in_postTypes);
+			}
+			if (!empty($dbr->in_categories)) {
+				$dbr->in_categories = explode(",", $dbr->in_categories);
+			}
+			if (!empty($dbr->in_tags)) {
+				$dbr->in_tags = explode(",", $dbr->in_tags);
+			}
+			return (array) $dbr;
+		}
+
+		return [];
+	}
+
 	/**
 	 * @since    0.0.1
 	 */
@@ -187,16 +229,6 @@ class Site_Options {
 		$stags = 'tags' === $training['siteType'] ? '' : 'display:none;';
 		$cposts = 'postTypes' === $training['siteType'] ? '' : 'display:none;';
 
-		$ty = array(
-			'all' => chat_essential_localize('Site Wide'),
-			'pages' => chat_essential_localize('Specific Pages'),
-			'posts' => chat_essential_localize('Specific Posts'),
-			'categories' => chat_essential_localize('Specific Categories'),
-			'tags' => chat_essential_localize('Specific Tags'),
-			'postTypes' => chat_essential_localize('Specific Post Types'),
-			'none' => chat_essential_localize('None'),
-		);
-
 		$l1 = chat_essential_localize('Site Display');
 		$l2 = chat_essential_localize('Exclude Pages');
 		$l3 = chat_essential_localize('Exclude Posts');
@@ -208,7 +240,7 @@ class Site_Options {
 
 		$html = '<tr><th><label for="data[current_type]">' . $l1 . '</label></th>';
 		$html .= '<td><select name="data[current_type]" id="siteTypeSelect" onchange="showTypeOptions(this.value);">';
-		foreach ($ty as $key => $val) {
+		foreach (Site_Options::optionNames() as $key => $val) {
 			if ($training['siteType'] === $key) {
 				$html .= '<option selected="selected" value="' . $key . '">' . $val . '</option>';
 			} else {

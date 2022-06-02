@@ -51,6 +51,11 @@
 							this.switchBtn = $('#footerBtn');
 							this.switchBtn.click(this.switchAuth.bind(this));
 							return;
+						case 'chat-essential-edit-load-on-rule':
+						case 'chat-essential-create-load-on-rule':
+							this.form = $('#ruleForm');
+							this.form.submit(this.onRuleSubmit.bind(this));
+							return;
 						case 'chat-essential-signup-phone':
 							this.form = $('#loginForm');
 							this.form.submit(this.onPhoneSubmit.bind(this));
@@ -311,6 +316,72 @@
 				api(this.n, 'chat_essential_phone_signup', null, data)
 				.then((function(v1) {
 					location.reload();
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+				return false;
+			},
+			onRuleSubmit: function () {
+				if (apiInProgress) {
+					return false;
+				}
+
+				const data = this.siteOptionValues();
+				const rid = $('#ruleId').val();
+				if (rid) {
+					data['rid'] = rid;
+				}
+
+				const flow = $('#flow').val();
+				if (flow) {
+					data['flow'] = flow;
+				} else {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				}
+
+				const device = $('#device_display').val();
+				if (device) {
+					data['device_display'] = device;
+				} else {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				}
+
+				const status = $('#status').val();
+				if (device) {
+					data['status'] = status;
+				} else {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				}
+
+				if (!data) {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				} else if (data.error) {
+					this.showStatus(data.error, 'error');
+					return false;
+				}
+				apiInProgress = true;
+
+				api(this.n, 'chat_essential_rule_update', null, data)
+				.then((function(v1) {
+					apiInProgress = false;
+					console.log(v1);
+					if (v1.url) {
+						location.href = location.origin + location.pathname + v1.url;
+					} else {
+						this.showStatus(v1.message ? v1.message : 'The rule has been added', 'success');
+					}
 				}).bind(this))
 				.catch((function(e1) {
 					apiInProgress = false;
@@ -622,14 +693,17 @@
 					siteType: $('#siteTypeSelect').val(),
 				};
 
-				var topics = Object.keys(this.aiTopics).length;
-				if (topics > 0) {
-					data['kits'] = [];
-					for (var k in this.aiTopics) {
-						data['kits'].push(parseInt(this.aiTopics[k]));
+				var topics = 0;
+				if (this.aiTopics) {
+					topics = Object.keys(this.aiTopics).length;
+					if (topics > 0) {
+						data['kits'] = [];
+						for (var k in this.aiTopics) {
+							data['kits'].push(parseInt(this.aiTopics[k]));
+						}
 					}
 				}
-				if (this.aiEngines.length > 0) {
+				if (this.aiEngines && this.aiEngines.length > 0) {
 					data['engines'] = [];
 					for (var k in this.aiEngines) {
 						const md = $('#' + this.aiEngines[k]);

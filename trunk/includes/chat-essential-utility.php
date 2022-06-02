@@ -303,13 +303,24 @@ class Chat_Essential_Utility {
         );
     }
 
-    public static function create_web_rules($data) {
+    public static function create_web_rule($data) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'chat_essential';
         $max_order = $wpdb->get_results( "SELECT `order` FROM $table_name ORDER BY `order` DESC LIMIT 1;" );
         $data['order'] = $max_order[0]->order + 1;
 
-        return $wpdb->insert( $table_name, $data );
+        $n = $wpdb->insert( $table_name, $data );
+		return array(
+			'n' => $n,
+			'rid' => $wpdb->insert_id,
+		);
+    }
+
+	public static function update_web_rule($rid, $data) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        return $wpdb->update( $table_name, $data, array( 'rules_id' => $rid ) );
     }
 
 	public static function get_rules($platformId) {
@@ -325,6 +336,17 @@ class Chat_Essential_Utility {
 
 		return array();
 	}
+
+	public static function get_rule($rid) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+        $rule = $wpdb->get_results( "SELECT * FROM $table_name WHERE rules_id='$rid' ORDER BY `order` ASC" );
+		if (count($rule) > 0) {
+			return $rule[0];
+		}
+
+        return [];
+    }
 
     public static function get_all_rules() {
         global $wpdb;
@@ -566,12 +588,8 @@ class Chat_Essential_Utility {
 		return $options;
 	}
 
-    public static function is_premium() {
-        return CHAT_ESSENTIAL_SUBSCRIPTION == 'pro';
-    }
-
     public static function premium_banner() {
-        return !Chat_Essential_Utility::is_premium()
+        return !CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
             ? '
                 <div class="chat-essential-upgrade-banner">
                     <h2>Upgrade to Premium</h2>
@@ -615,7 +633,7 @@ class Chat_Essential_Utility {
             return;
         }
         $reqData = array(
-            'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . $fname . '.json',
+            'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
             'metadata' => json_encode($training),
             'modelId' => $options['modelId'],
             'engines' => array(

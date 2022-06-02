@@ -19,6 +19,9 @@
 	font-weight: normal !important;
 	text-align: center;
 }
+.ey-button-save {
+	width: 80px;
+}
 .ey-button-cancel {
 	width: 80px;
 }

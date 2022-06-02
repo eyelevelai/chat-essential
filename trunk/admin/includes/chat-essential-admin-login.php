@@ -192,7 +192,7 @@ END;
 		<div class="wrap">
 			<div class="metabox-holder columns-2">
 				<div style="position: relative;">
-					<form id="loginForm"  action="" method="post" name="login" class="web-rules-form login-form">
+					<form id="loginForm" action="" method="post" name="login" class="web-rules-form login-form">
 						$nonce
 						<input type="hidden" name="request_type" value="login" />
 						$progress_bar

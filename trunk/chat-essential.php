@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin URI:        http://wordpress.org/plugins/chat-essential/
  * Description:       Launch automated chats anywhere you advertise
- * Version:           0.12
+ * Version:           0.20
  * Author:            Chat Essential
  * Author URI:        https://www.chatessential.com
  * License:           GPL-2.0+
@@ -24,40 +24,8 @@ if ( ! defined( 'WPINC' ) ) {
 
 require_once 'vendor/autoload.php';
 
-// Plugin version - https://semver.org
-define( 'CHAT_ESSENTIAL_VERSION', '0.12' );
-
-define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
-define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
-
-define( 'CHAT_ESSENTIAL_ENV', 'prod' );
-
-define( 'CHAT_ESSENTIAL_SUBSCRIPTION', 'basic' );
-define( 'CHAT_ESSENTIAL_PLUGIN_ID', '5ffb544f-e3f3-4108-95f8-0beb5139e22e' );
-if (CHAT_ESSENTIAL_ENV == 'dev') {
-    define( 'CHAT_ESSENTIAL_API_URL', 'https://devapi.eyelevel.ai' );
-    define( 'CHAT_ESSENTIAL_ALERT_URL', 'https://devapi.eyelevel.ai' );
-    define( 'CHAT_ESSENTIAL_DASHBOARD_URL', 'https://devssp.eyelevel.ai');
-} else {
-    define( 'CHAT_ESSENTIAL_API_URL', 'https://api.eyelevel.ai' );
-    define( 'CHAT_ESSENTIAL_ALERT_URL', 'https://api.eyelevel.ai' );
-    define( 'CHAT_ESSENTIAL_DASHBOARD_URL', 'https://chatessential.eyelevel.ai');
-}
-define( 'CHAT_ESSENTIAL_UPLOAD_BASE_URL', 'https://upload.eyelevel.ai/wordpress' );
-
-define( 'CHAT_ESSENTIAL_MIN_TRAINING_CONTENT', 1000 );
-define( 'CHAT_ESSENTIAL_MIN_TRAINING_PAGE_CONTENT', 100 );
-
-global $chat_essential_db_version;
-$chat_essential_db_version = '0.2';
-
-$engines = array();
-$engines[] = array(
-	'name' => 'GPT-3',
-	'engine' => 'gpt3',
-	'kitId' => 1,
-);
-define( 'CHAT_ESSENTIAL_CORE_ENGINES', $engines );
+require_once 'global.php';
+require_once 'config.php';
 
 // Plugin activation code
 function activate_chat_essential() {

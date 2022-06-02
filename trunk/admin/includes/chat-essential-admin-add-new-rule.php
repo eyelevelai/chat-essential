@@ -36,7 +36,7 @@ class Chat_Essential_Admin_Add_New_Rule {
      * @access   private
      * @var      array     $flows    The state of added rule
      */
-    private $rule_added_state = 0;
+    private $rule_added_state = array();
 
     /**
      * @since    0.0.1
@@ -46,51 +46,39 @@ class Chat_Essential_Admin_Add_New_Rule {
         $this->settings = $settings;
         $this->api = $api;
         $this->fetchFlows();
-
-        if (!empty($_POST)) {
-            global $current_user, $wpdb;
-            $data = $_POST['data'];
-            $flow = $this->getFlowById($data['flow']);
-
-            $initial_rule_data = [
-                "platform_id" => $flow->platformId,
-                "api_key" => $flow->apiKey,
-                "flow_name" => $flow->id,
-                "options" => "",
-                "display_on" => $data['current_type'],
-                "in_pages" => !empty($data['in_pages']) ? implode(',', $data['in_pages']) : null,
-                "ex_pages" => !empty($data['ex_pages']) ? implode(',', $data['ex_pages']) : null,
-                "in_posts" => !empty($data['in_posts']) ? implode(',', $data['in_posts']) : null,
-                "ex_posts" => !empty($data['ex_posts']) ? implode(',', $data['ex_posts']) : null,
-                "in_postTypes" => !empty($data['in_postTypes']) ? implode(',', $data['in_postTypes']) : null,
-                "in_categories" => !empty($data['in_categories']) ? implode(',', $data['in_categories']) : null,
-                "in_tags" => !empty($data['in_tags']) ? implode(',', $data['in_tags']) : null,
-                "status" => $data['status'],
-                "created_by" => $current_user->data->user_login,
-            ];
-
-            $this->rule_added_state = Chat_Essential_Utility::create_web_rules($initial_rule_data) ? 1 : 2;
-        }
     }
 
     public function html() {
         $settings = $this->getSettings();
-        $title = chat_essential_localize('Add New Load On Rule');
+        $title = chat_essential_localize('Create Load On Rule');
         $nonce = $settings['nonce'];
-        $siteOptions = Site_Options::typeSelector([]);
         $flowOptions = $this->getFlowOptions();
-        $rule_added_notice = $this->getRuleAddedNotice();
+
+        $rule = [];
+        $rule_id = '';
+        if (!empty($_GET['rid'])) {
+            $rule = Chat_Essential_Utility::get_rule($_GET['rid']);
+            $rule = Site_Options::mapDBRecord($rule);
+            $rule_id = '<input id="ruleId" type="hidden" name="rule_id" value="' . $_GET['rid'] . '" />';
+        }
+
+        $siteOptions = Site_Options::typeSelector($rule);
+
+        if (!empty($rule)) {
+            $title = chat_essential_localize('Edit Load On Rule');
+        }
 
         echo <<<END
 		<div class="wrap">
 			<div class="add-rule-title-container">
 				<h1 class="upgrade-title">$title</h1>
-				$rule_added_notice
+				<div class="med-font status-msg" id="statusMessage1"></div>
 			</div>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
-						<form action="" method="post" name="web_form" class="web-rules-form ce-add-new-rule-table">
+						<form id="ruleForm" action="" method="post" name="rule_form" class="web-rules-form ce-add-new-rule-table">
 							$nonce
+                            $rule_id
 							<table class="wp-list-table widefat fixed striped table-view-excerpt">
 								<tbody>
                                     <tr>
@@ -123,7 +111,8 @@ class Chat_Essential_Admin_Add_New_Rule {
                                     </tr>
 								</tbody>
 							</table>
-							<button class="button button-primary ey-button top-margin">Save</button>
+							<button class="button button-primary ey-button ey-button-save top-margin">Save</button>
+                            <a class="button button-primary ey-button-secondary ey-button-cancel top-margin" href="?page=chat-essential-website">Done</a>
 						</form>
 					</div>
 				</div>
@@ -132,7 +121,11 @@ END;
     }
 
     private function getRuleAddedNotice() {
-        switch ($this->rule_added_state) {
+        $n = 0;
+        if (!empty($this->rule_added_state) && !empty($this->rule_added_state['n'])) {
+            $n = $this->rule_added_state['n'];
+        }
+        switch ($n) {
             case 1:
                 return '<div class="notice notice-success is-dismissible">The rule has been added</div>';
             case 2:
@@ -169,7 +162,8 @@ END;
         $webflows = '';
         if (!empty($this->flows)) {
             foreach ($this->flows as $flow) {
-                $webflows .= "<option value='$flow->id'>$flow->name</option>";
+                $fv = '{"id":"'.$flow->id.'","platformId":"'.$flow->platformId.'","apiKey":"'.$flow->apiKey.'"}';
+                $webflows .= "<option value='".$fv."'>$flow->name</option>";
             }
         }
         return $webflows;

@@ -98,7 +98,9 @@ class Chat_Essential_Public {
             }
         }
 
-        return $output[0];
+        if (count($output) > 0) {
+            return $output[0];
+        }
     }
 
 	public function manage_footer() {

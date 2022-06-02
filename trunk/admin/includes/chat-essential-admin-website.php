@@ -54,7 +54,6 @@ class Chat_Essential_Admin_Website {
 
 		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($web->versionId);
 		$edit = chat_essential_localize('Edit');
-		$lot_val = chat_essential_localize('Site Wide');
 		$analytics = chat_essential_localize('View');
 		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $wid;
 		$theme_name = '';
@@ -64,6 +63,18 @@ class Chat_Essential_Admin_Website {
 		$offhours_name = '';
 		if (!empty($web->offhoursSetting) && !empty($web->offhoursSetting->name)) {
 			$offhours_name = sanitize_text_field($web->offhoursSetting->name);
+		}
+
+		$names = Site_Options::optionNames();
+		$lot_val = chat_essential_localize('Site Wide');
+		switch ($rule->display_on) {
+			case 'posts':
+			case 'pages':
+			case 'categories':
+			case 'tags':
+			case 'postTypes':
+				$lot_val = $names[$rule->display_on];
+				break;
 		}
 
 		$preview = '';
@@ -92,7 +103,7 @@ class Chat_Essential_Admin_Website {
             }
         }
 
-        $sortable_column = Chat_Essential_Utility::is_premium()
+        $sortable_column = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
             ? '<td class="column-sortable">
                     <div class="sortable-block">
                       <span class="ui-icon ui-icon-caret-2-n-s"></span>
@@ -116,6 +127,11 @@ class Chat_Essential_Admin_Website {
 		</td>
 		<td class="load-on column-load-on">
 			$lot_val
+			<div class="row-actions visible">
+				<span class="edit">
+					<a href="?page=chat-essential-edit-load-on-rule&rid=$rid">$edit</a>
+				</span>
+			</div>
 		</td>
 		<td class="theme column-analytics">
 			<a href="$analytics_url" target="_blank">$analytics</a>
@@ -166,10 +182,10 @@ END;
 		$h6 = chat_essential_localize('Business Hours Settings');
 
         $premium_banner = Chat_Essential_Utility::premium_banner();
-        $sortable_column = Chat_Essential_Utility::is_premium()
+        $sortable_column = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
             ? '<th scope="col" id="sortable" class="manage-column column-sortable"></th>'
             : '';
-        $sortable_script = Chat_Essential_Utility::is_premium()
+        $sortable_script = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
             ? '<script>$(function() {
                   $( ".ui-sortable" ).sortable({
                     update: function() {
@@ -178,11 +194,11 @@ END;
                   });
                 });</script>'
             : '';
-        $add_new_links = Chat_Essential_Utility::is_premium()
+        $add_new_links = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
             ? '<div class="ce-add-new-links">
-                <button class="button button-primary ey-button top-margin" id="save-order-button" disabled>Save Order</button>
-                <a class="button button-primary ey-button top-margin" href="?page=chat-essential-add-new-rule">Add Rule</a>
-                <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create New Flow</a>
+                <a class="button button-primary ey-button top-margin" href="?page=chat-essential-create-load-on-rule">Create Load On Rule</a>
+                <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create Chat Flow</a>
+				<button class="button button-primary ey-button top-margin" id="save-order-button" disabled>Save Rule Priority</button>
                </div>'
             : '';
         $reordered_notice = $this->reordered_rules

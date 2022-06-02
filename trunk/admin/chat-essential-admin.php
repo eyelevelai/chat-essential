@@ -58,6 +58,7 @@ class Chat_Essential_Admin {
 		add_action( 'wp_ajax_chat_essential_switch_platform_status', array( $this, 'switch_platform_status' ) );
 		add_action( 'wp_ajax_chat_essential_auth', array( $this, 'auth' ) );
 		add_action( 'wp_ajax_chat_essential_phone_signup', array( $this, 'phone_signup' ) );
+		add_action( 'wp_ajax_chat_essential_rule_update', array( $this, 'rule_update' ) );
 		add_action( 'wp_ajax_chat_essential_settings_change', array( $this, 'settings_change' ) );
 		add_action( 'wp_ajax_chat_essential_logout', array( $this, 'logout_call' ) );
 		add_action( 'wp_ajax_chat_essential_get', array( $this, 'ajax_call' ) );
@@ -68,7 +69,7 @@ class Chat_Essential_Admin {
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
         $install_date = get_option( 'chat_essential_activation_date' );
         $past_date = strtotime( '-3 days' );
-        if ( !Chat_Essential_Utility::is_premium() && $past_date >= $install_date ) {
+        if ( !CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM && $past_date >= $install_date ) {
             add_action('admin_notices', function () {
                 $current_screen = get_current_screen();
                 $user_id = get_current_user_id();
@@ -90,7 +91,7 @@ class Chat_Essential_Admin {
             });
         }
 
-        if (Chat_Essential_Utility::is_premium()) {
+        if (CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM) {
             // Hooks for training AI during post/page publishing/updating
             add_action('post_updated', function() {
                 Chat_Essential_Utility::train_ai_hook($this->api);
@@ -162,13 +163,22 @@ class Chat_Essential_Admin {
 			20
 		);
 
-        if (Chat_Essential_Utility::is_premium()) {
+        if (CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM) {
             add_submenu_page(
-                'chat-essential',
-                __('Chat Essential - Add New Load On Rule', 'chat-essential'),
-                __('New Load On Rule', 'chat-essential'),
+                null,
+                __('Chat Essential - Create Load On Rule', 'chat-essential'),
+                __('Create Load On Rule', 'chat-essential'),
                 'manage_options',
-                'chat-essential-add-new-rule',
+                'chat-essential-create-load-on-rule',
+                array( $this, 'menu_main_page' ),
+                20
+            );
+			add_submenu_page(
+                null,
+                __('Chat Essential - Edit Load On Rule', 'chat-essential'),
+                __('Edit Load On Rule', 'chat-essential'),
+                'manage_options',
+                'chat-essential-edit-load-on-rule',
                 array( $this, 'menu_main_page' ),
                 20
             );
@@ -240,7 +250,7 @@ class Chat_Essential_Admin {
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
 		$reqData = array(
-			'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . $fname . '.json',
+			'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
 			'metadata' => json_encode($body),
 			'modelId' => $options['modelId'],
 			'engines' => array(
@@ -316,7 +326,7 @@ class Chat_Essential_Admin {
 				wp_die($res['data'], $res['code']);
 			}
 
-			$reqData['fileUrl'] = CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . $fname . '.json';
+			$reqData['fileUrl'] = CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json';
 		}
 
 		if (!empty($kits)) {
@@ -372,6 +382,66 @@ class Chat_Essential_Admin {
 		wp_send_json(Chat_Essential_Utility::sanitize_json_array($jdata));
 
 		die();
+	}
+
+	/**
+	 * @since    0.0.1
+	 */
+	public function rule_update() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+
+		if (empty($_POST['body'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$data = $_POST['body'];
+		if (empty($data['flow'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$fv = json_decode(stripcslashes($data['flow']), true);
+		if (empty($fv['id']) || empty($fv['platformId']) || empty($fv['apiKey'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$rule_data = [
+			"display_on" => $data['siteType'],
+			"platform_id" => $fv['platformId'],
+            "api_key" => $fv['apiKey'],
+            "flow_name" => $fv['id'],
+			"in_pages" => !empty($data['in_pages']) ? implode(',', $data['in_pages']) : null,
+			"ex_pages" => !empty($data['ex_pages']) ? implode(',', $data['ex_pages']) : null,
+			"in_posts" => !empty($data['in_posts']) ? implode(',', $data['in_posts']) : null,
+			"ex_posts" => !empty($data['ex_posts']) ? implode(',', $data['ex_posts']) : null,
+			"in_postTypes" => !empty($data['in_postTypes']) ? implode(',', $data['in_postTypes']) : null,
+			"in_categories" => !empty($data['in_categories']) ? implode(',', $data['in_categories']) : null,
+			"in_tags" => !empty($data['in_tags']) ? implode(',', $data['in_tags']) : null,
+			"status" => $data['status'],
+		];
+
+		if (!empty($data['rid'])) {
+			$n = Chat_Essential_Utility::update_web_rule($data['rid'], $rule_data) ? 1 : 2;
+			wp_send_json(array(
+				'n' => $n,
+				'rid' => $data['rid'],
+				'message' => 'The rule has been updated',
+			));
+		} else {
+			global $current_user;
+
+			$rule_data['options'] = '';
+			$rule_data['created_by'] = $current_user->data->user_login;
+
+			$rn = Chat_Essential_Utility::create_web_rule($rule_data);
+			if (!empty($rn['rid']) && $rn['rid'] > 0) {
+				$rn['url'] = '?page=chat-essential-edit-load-on-rule&rid=' . $rn['rid'];
+				$rn['message'] = 'The rule has been created';
+			}
+
+			wp_send_json($rn);
+		}
 	}
 
 	/**
@@ -737,7 +807,8 @@ class Chat_Essential_Admin {
 			switch ($slug) {
 				case 'chat-essential':
 				case 'chat-essential-ai':
-                case 'chat-essential-add-new-rule':
+				case 'chat-essential-edit-load-on-rule':
+                case 'chat-essential-create-load-on-rule':
 					$page_params['coreEngines'] = CHAT_ESSENTIAL_CORE_ENGINES;
 					wp_register_script( 'showTypeOptions', plugin_dir_url( __FILE__ ) . 'js/show-site-options.js', array( 'jquery' ) );
 					wp_enqueue_script( 'showTypeOptions' );
@@ -853,7 +924,8 @@ class Chat_Essential_Admin {
 			case 'chat-essential-phone':
 				$settings_page = new Chat_Essential_Admin_Phone($options, $this->api);
 				break;
-            case 'chat-essential-add-new-rule':
+			case 'chat-essential-edit-load-on-rule':
+            case 'chat-essential-create-load-on-rule':
                 $settings_page = new Chat_Essential_Admin_Add_New_Rule($options, $this->api);
                 break;
 			case 'chat-essential-logout':

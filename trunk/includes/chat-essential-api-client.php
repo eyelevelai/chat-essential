@@ -31,7 +31,7 @@ class Chat_Essential_API_client {
 
 	public function upload($name, $data) {
 		try {
-			$request = new Request('GET', '/upload/wordpress?name=' . $name . '&type=json');
+			$request = new Request('GET', '/upload/' . CHAT_ESSENTIAL_API_BASE . '?name=' . $name . '&type=json');
 			$response = $this->client->send($request);
 			if ($response) {
 				$code = $response->getStatusCode();
@@ -84,7 +84,7 @@ class Chat_Essential_API_client {
 			if ($body !== null) {
 				$body = json_encode($body);
 			}
-			$request = new Request($type, '/wordpress/' . $path, $headers, $body);
+			$request = new Request($type, '/' . CHAT_ESSENTIAL_API_BASE . '/' . $path, $headers, $body);
 			$response = $this->client->send($request, $options);
 			if ($response) {
 				$code = $response->getStatusCode();
