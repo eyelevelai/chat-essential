@@ -54,9 +54,11 @@ class Chat_Essential_Admin_Add_New_Rule {
         $nonce = $settings['nonce'];
         $flowOptions = $this->getFlowOptions();
 
+        $delete = '';
         $rule = [];
         $rule_id = '';
         if (!empty($_GET['rid'])) {
+            $delete = '<button id="deleteRule" value="' . $_GET['rid'] . '" class="button button-primary ey-button-secondary ey-button-delete top-margin">Delete</button>';
             $rule = Chat_Essential_Utility::get_rule($_GET['rid']);
             $rule = Site_Options::mapDBRecord($rule);
             $rule_id = '<input id="ruleId" type="hidden" name="rule_id" value="' . $_GET['rid'] . '" />';
@@ -112,8 +114,16 @@ class Chat_Essential_Admin_Add_New_Rule {
 								</tbody>
 							</table>
 							<button class="button button-primary ey-button ey-button-save top-margin">Save</button>
+                            $delete
                             <a class="button button-primary ey-button-secondary ey-button-cancel top-margin" href="?page=chat-essential-website">Done</a>
 						</form>
+                        <div id="deleteRuleModal" style="display:none;">
+    						<p id="deleteRuleContent"></p>
+							<div class="ey-modal-buttons buttons-centered">
+								<input class="button button-primary ey-button" id="confirmDeleteRule" value="DELETE">
+								<input class="button button-primary ey-button-secondary ey-button-cancel" id="cancelDeleteRule" value="CANCEL">
+							</div>
+						</div>
 					</div>
 				</div>
 		</div>

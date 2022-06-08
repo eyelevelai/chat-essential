@@ -59,6 +59,7 @@ class Chat_Essential_Admin {
 		add_action( 'wp_ajax_chat_essential_auth', array( $this, 'auth' ) );
 		add_action( 'wp_ajax_chat_essential_phone_signup', array( $this, 'phone_signup' ) );
 		add_action( 'wp_ajax_chat_essential_rule_update', array( $this, 'rule_update' ) );
+		add_action( 'wp_ajax_chat_essential_rule_delete', array( $this, 'rule_delete' ) );
 		add_action( 'wp_ajax_chat_essential_settings_change', array( $this, 'settings_change' ) );
 		add_action( 'wp_ajax_chat_essential_logout', array( $this, 'logout_call' ) );
 		add_action( 'wp_ajax_chat_essential_get', array( $this, 'ajax_call' ) );
@@ -444,6 +445,31 @@ class Chat_Essential_Admin {
 		}
 	}
 
+		/**
+	 * @since    0.0.1
+	 */
+	public function rule_delete() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+
+		if (empty($_POST['body'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$data = $_POST['body'];
+		if (empty($data['rid'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$n = Chat_Essential_Utility::delete_web_rule($data['rid']) ? 1 : 2;
+		wp_send_json(array(
+			'n' => $n,
+			'rid' => $data['rid'],
+			'message' => 'The rule has been deleted',
+		));
+	}
+
 	/**
 	 * @since    0.0.1
 	 */
@@ -808,6 +834,7 @@ class Chat_Essential_Admin {
 				case 'chat-essential':
 				case 'chat-essential-ai':
 				case 'chat-essential-edit-load-on-rule':
+					add_thickbox();
                 case 'chat-essential-create-load-on-rule':
 					$page_params['coreEngines'] = CHAT_ESSENTIAL_CORE_ENGINES;
 					wp_register_script( 'showTypeOptions', plugin_dir_url( __FILE__ ) . 'js/show-site-options.js', array( 'jquery' ) );
@@ -818,6 +845,7 @@ class Chat_Essential_Admin {
 					wp_enqueue_script( 'selectize-js' );
 					break;
                 case 'chat-essential-website':
+					add_thickbox();
                     wp_register_script( 'jQuery-EC', 'https://code.jquery.com/jquery-3.6.0.min.js', null, null );
                     wp_enqueue_script('jQuery-EC');
                     wp_register_script( 'jQuery-UI-EC', 'https://code.jquery.com/ui/1.13.1/jquery-ui.min.js', null, null );

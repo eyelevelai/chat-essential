@@ -54,6 +54,7 @@ class Chat_Essential_Admin_Website {
 
 		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($web->versionId);
 		$edit = chat_essential_localize('Edit');
+		$delete = chat_essential_localize('Delete');
 		$analytics = chat_essential_localize('View');
 		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $wid;
 		$theme_name = '';
@@ -130,6 +131,9 @@ class Chat_Essential_Admin_Website {
 			<div class="row-actions visible">
 				<span class="edit">
 					<a href="?page=chat-essential-edit-load-on-rule&rid=$rid">$edit</a>
+				</span>
+				<span class="edit">
+					<a class="text-button delete-rule" value="$rid" id="deleteRule" name="delete_rule">$delete</a>
 				</span>
 			</div>
 		</td>
@@ -247,6 +251,13 @@ END;
                             $add_new_links
 						</form>
 						$premium_banner
+						<div id="deleteRuleModal" style="display:none;">
+    						<p id="deleteRuleContent"></p>
+							<div class="ey-modal-buttons buttons-centered">
+								<input class="button button-primary ey-button" id="confirmDeleteRule" value="DELETE">
+								<input class="button button-primary ey-button-secondary ey-button-cancel" id="cancelDeleteRule" value="CANCEL">
+							</div>
+						</div>
 					</div>
 				</div>
 		</div>

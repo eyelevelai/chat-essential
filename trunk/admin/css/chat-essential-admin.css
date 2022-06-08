@@ -178,6 +178,9 @@ td.loading-message {
 	-webkit-transition: .4s;
 	transition: .4s;
 }
+.text-button {
+	cursor: pointer;
+}
 input:checked + .slider {
 	background-color: #53a497;
 }

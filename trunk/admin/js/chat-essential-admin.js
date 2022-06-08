@@ -52,6 +52,13 @@
 							this.switchBtn.click(this.switchAuth.bind(this));
 							return;
 						case 'chat-essential-edit-load-on-rule':
+							this.deleteRule = $('#deleteRule');
+							this.deleteRule.click(this.confirmDeleteRule.bind(this));
+							this.deleteRuleContent = $('#deleteRuleContent');
+							this.confirmDeleteRule = $('#confirmDeleteRule');
+							this.confirmDeleteRule.click(this.deleteRuleConfirmed.bind(this));
+							this.cancelDeleteRule = $('#cancelDeleteRule');
+							this.cancelDeleteRule.click(this.deleteRuleCancelled.bind(this));
 						case 'chat-essential-create-load-on-rule':
 							this.form = $('#ruleForm');
 							this.form.submit(this.onRuleSubmit.bind(this));
@@ -63,6 +70,15 @@
 							this.skipBtn.click(this.skipPhone.bind(this));
 							return;
 						case 'chat-essential-website':
+							const parent = this;
+							$('.delete-rule').each(function(i, e) {
+								$(e).click(parent.confirmDeleteRule.bind(parent));
+							});
+							this.deleteRuleContent = $('#deleteRuleContent');
+							this.confirmDeleteRule = $('#confirmDeleteRule');
+							this.confirmDeleteRule.click(this.deleteRuleConfirmed.bind(this));
+							this.cancelDeleteRule = $('#cancelDeleteRule');
+							this.cancelDeleteRule.click(this.deleteRuleCancelled.bind(this));
 							this.switches = $('.ey-switch');
 							this.switches.click(this.websiteSwitch.bind(this));
 							return;
@@ -395,6 +411,49 @@
 				}).bind(this));
 				return false;
 			},
+			confirmDeleteRule: function(e) {
+				this.deleteValue = $(e.target).attr('value');
+				this.deleteRuleContent.html('<p>Are you sure you want to delete this Load On Rule? You cannot undo this change.</p>');
+				const url = '#TB_inline?inlineId=deleteRuleModal';
+				tb_show('CONFIRM DELETE LOAD ON RULE', url);
+				return false;
+			},
+			deleteRuleCancelled: function() {
+				this.deleteValue = null;
+				tb_remove();
+			},
+			deleteRuleConfirmed: function() {
+				if (this.deleteValue) {
+					this.processDeleteRuleSubmit({ rid: this.deleteValue });
+				}
+				tb_remove();
+				return false;
+			},
+			processDeleteRuleSubmit: function(data) {
+				console.log('delete');
+				if (apiInProgress) {
+					return false;
+				}
+				apiInProgress = true;
+				this.showStatus('Deleting...');
+
+				api(this.n, 'chat_essential_rule_delete', null, data)
+				.then((function(v1) {
+					apiInProgress = false;
+					location.href = '?page=chat-essential-website';
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+				return false;
+			},
 			confirmSettingsSubmit: function(addingNumber) {
 				if (addingNumber) {
 					this.confirmContent.html('<p>We will automatically update your chat to enable live chatting.</p><p>Any changes you may have made to your chat flows will be overwritten by these updates.</p><p>Do you wish to proceed?</p>');
@@ -466,8 +525,6 @@
 						console.error(e1);
 					}
 				}).bind(this));
-				
-
 				return false;
 			},
 			onSettingsChange: function(evt) {

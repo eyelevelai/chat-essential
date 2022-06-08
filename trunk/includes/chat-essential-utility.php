@@ -323,6 +323,13 @@ class Chat_Essential_Utility {
         return $wpdb->update( $table_name, $data, array( 'rules_id' => $rid ) );
     }
 
+	public static function delete_web_rule($rid) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        return $wpdb->delete( $table_name, array( 'rules_id' => $rid ) );
+    }
+
 	public static function get_rules($platformId) {
 		global $wpdb;
 
