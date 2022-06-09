@@ -34,6 +34,12 @@
 .widefat .column-logo {
 	text-align: center;
 }
+.column-logout {
+	text-align: center;
+}
+.logout-btn {
+	width: 100px;
+}
 .form-table th.ey-settings {
 	padding: 0 10px 20px 0;
 }

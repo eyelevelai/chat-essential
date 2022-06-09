@@ -873,7 +873,13 @@ class Chat_Essential_Admin {
 	 */
 	public function menu_main_page() {
 		if (!current_user_can('manage_options')) {
-			$settings_page = new Chat_Essential_Admin_Error('You do not have sufficient permissions to access these settings.');
+			$settings_page = new Chat_Essential_Admin_Error(
+				array(
+					'title' => 'Uh oh...We have a problem.',
+					'message' => 'You do not have sufficient permissions to access these settings.',
+					'logout' => false,
+				)
+			);
 			$settings_page->html();
 			return;
   		}
@@ -920,7 +926,13 @@ class Chat_Essential_Admin {
 				if (empty($options['previewChat'])) {
 					$res = $this->api->request($options['apiKey'], 'GET', 'flow/' . $options['apiKey'] . '?type=nlp', null, null);
 					if ($res['code'] != 200) {
-						$settings_page = new Chat_Essential_Admin_Error('There was an issue loading your AI settings.');
+						$settings_page = new Chat_Essential_Admin_Error(
+							array(
+								'title' => 'Uh oh...We have a problem.',
+								'message' => 'There was an issue loading your AI settings.',
+								'logout' => false,
+							)
+						);
 						break;
 					}
 					$data = json_decode($res['data']);
@@ -928,7 +940,13 @@ class Chat_Essential_Admin {
 						empty($data->flows) ||
 						empty($data->flows[0]) ||
 						empty($data->flows[0]->id)) {
-						$settings_page = new Chat_Essential_Admin_Error('There was an issue loading your AI settings.');
+						$settings_page = new Chat_Essential_Admin_Error(
+							array(
+								'title' => 'Uh oh...We have a problem.',
+								'message' => 'There was an issue loading your AI settings.',
+								'logout' => false,
+							)
+						);
 						break;
 					}
 					$newOptions = get_option(CHAT_ESSENTIAL_OPTION);

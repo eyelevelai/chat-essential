@@ -57,7 +57,11 @@ class Chat_Essential_Admin_AI {
 
 		$res = $this->api->request($settings['apiKey'], 'GET', 'nlp/model/' . $settings['apiKey'], null, null);
 		if ($res['code'] != 200) {
-			wp_die('There was an issue loading your settings.', $res['code']);
+			$errMsg = new Chat_Essential_Admin_Error(
+				Chat_Essential_API_client::error_content($res),
+			);
+			$errMsg->html();
+			return;
 		}
 
 		$training = array();

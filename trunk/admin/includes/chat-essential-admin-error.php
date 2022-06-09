@@ -9,26 +9,60 @@
  * @author     Chat Essential <support@eyelevel.ai>
  */
 class Chat_Essential_Admin_Error {
+	/**
+	 * @since    0.2.0
+	 * @access   private
+	 * @var      string     $title      The error title to display to the user.
+	 */
+	private $title;
 
 	/**
 	 * @since    0.0.1
 	 * @access   private
-	 * @var      string     $msg    The error message to display to the user.
+	 * @var      string     $message    The error message to display to the user.
 	 */
-	private $msg;
+	private $message;
+
+	/**
+	 * @since    0.2.0
+	 * @access   private
+	 * @var      boolean    $logout     Whether to add a logout button.
+	 */
+	private $logout;
 
 	/**
 	 * @since    0.0.1
-	 * @param    string    $msg     The raw, untranslated error message to display to the user.
+	 * @param    string     $content    The content settings for this error message.
 	 */
-	public function __construct( $msg ) {
-		$this->msg = $msg;
+	public function __construct( $content ) {
+		$title = 'Uh oh...We have a problem.';
+		$message = 'There was an issue loading this page.';
+		$logout = false;
+		if (!empty($content)) {
+			if (!empty($content['title'])) {
+				$title = $content['title'];
+			}
+			if (!empty($content['message'])) {
+				$message = $content['message'];
+			}
+			if (!empty($content['logout'])) {
+				$logout = $content['logout'];
+			}
+		}
+		$this->title = $title;
+		$this->message = $message;
+		$this->logout = $logout;
 	}
 
 	public function html() {
-		$err = chat_essential_localize($this->msg);
+		$err = chat_essential_localize($this->message);
 
-		$h1 = chat_essential_localize('Uh oh...We have a problem.');
+		$h1 = chat_essential_localize($this->title);
+
+		$logout = '';
+		if ($this->logout) {
+			$logout = '<tr><td scope="col" class="manage-column column-logout"><a class="button button-primary ey-button logout-btn" id="logoutBtn">Log Out</a></td></tr>';
+		}
 
     	echo <<<END
 		<div class="wrap">
@@ -49,6 +83,7 @@ class Chat_Essential_Admin_Error {
 										$err
 									</td>
 								</tr>
+								$logout
 							</tbody>
 						</table>
 					</form>

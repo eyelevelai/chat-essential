@@ -29,6 +29,26 @@ class Chat_Essential_API_client {
 		]);
 	}
 
+	public static function error_content( $res ) {
+		$title = '';
+		$msg = 'There was an issue loading your settings.';
+		$logout = false;
+		if (!empty($res['code'])) {
+			switch ($res['code']) {
+				case 401:
+					$msg = 'Your account is not authorized to use this plugin. Please log out and log in with an authorized account.';
+					$logout = true;
+					$title = 'Not Authorized';
+			}
+		}
+
+		return array(
+			'logout' => $logout,
+			'message' => $msg,
+			'title' => $title,
+		);
+	}
+
 	public function upload($name, $data) {
 		try {
 			$request = new Request('GET', '/upload/' . CHAT_ESSENTIAL_API_BASE . '?name=' . $name . '&type=json');

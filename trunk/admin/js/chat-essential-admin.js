@@ -13,6 +13,8 @@
         	},
 			loadPage: function() {
 				this.pageContent.hide();
+				this.logoutBtn = $('#logoutBtn');
+				this.logoutBtn.click(this.logout.bind(this));
 				if (pageParams && pageParams.slug) {
 					switch(pageParams.slug) {
 						case 'chat-essential':
@@ -30,8 +32,6 @@
 						case 'chat-essential-settings':
 							this.form = $('#settingsForm');
 							this.form.submit(this.onSettingsSubmit.bind(this));
-							this.logoutBtn = $('#logoutBtn');
-							this.logoutBtn.click(this.logout.bind(this));
 							this.emailInput = $('#email');
 							this.emailInput.change(this.onSettingsChange.bind(this));
 							this.phoneInput = $('#phone');
