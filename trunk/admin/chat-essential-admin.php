@@ -671,6 +671,11 @@ class Chat_Essential_Admin {
 			'password' => $pass,
 		), ['timeout' => 120]);
 		if ($res['code'] != 200) {
+			if ($res['code'] == 401) {
+				if ($type == 'chat-essential-login') {
+					$res['data'] = '{"message":"Your account is not authorized to use this plugin."}';
+				}
+			}
 			wp_die($res['data'], $res['code']);
 		}
 
@@ -890,6 +895,10 @@ class Chat_Essential_Admin {
 			$slug = 'chat-essential-logout';
 		} 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (!empty($_GET['message'])) {
+			$options['message'] = $_GET['message'];
+		}
+
 		$web_name = get_option('blogname');
 		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
 
@@ -984,10 +993,24 @@ class Chat_Essential_Admin {
 				));
 				return;
 			default:
-				$settings_page = new Chat_Essential_Admin_Login($options, $this->api);
+				$auth = 'default';
+
+				if (defined('CHAT_ESSENTIAL_AUTH_TYPE')) {
+					$auth = CHAT_ESSENTIAL_AUTH_TYPE;
+				}
+
+				switch ($auth) {
+					case 'vendasta':
+						$settings_page = new Vendasta_Admin_Login($options, $this->api);
+						break;
+					default:
+						$settings_page = new Chat_Essential_Admin_Login($options, $this->api);
+				}
 		}
 
-  		$settings_page->html();
+		if (!empty($settings_page)) {
+  			$settings_page->html();
+		}
 	}
 
 }

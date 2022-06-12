@@ -34,6 +34,18 @@
 .widefat .column-logo {
 	text-align: center;
 }
+.widefat td.vendasta-logo {
+	padding: 20px 10px;
+}
+.widefat td.vendasta-login {
+	padding: 0 10px 30px;
+}
+.vendasta-login-button {
+	width: 100px;
+}
+.column-center {
+	text-align: center;
+}
 .column-logout {
 	text-align: center;
 }
@@ -221,8 +233,16 @@ input:checked + .slider:before {
 	height: 20px;
 	font-size: 14px;
 }
+.status-msg-vendasta {
+	text-align: center;
+	height: 20px;
+	font-size: 14px;
+}
 td.status-msg {
 	padding: 8px 0 0;
+}
+td.status-msg-vendasta {
+	padding: 0 10px 14px;
 }
 td.status-msg.ey-settings {
 	padding: 0 0 16px;
