@@ -37,33 +37,67 @@ class Vendasta_Admin_Login {
     	$settings = $this->getSettings();
 		$slug = $settings['slug'];
 
-		if (defined('WSP_ACCOUNT_ID')) {
-			$slug = 'chat-essential-signup-phone';
-		}
+		$logo = plugin_dir_url(__FILE__) . '../../../images/vendasta.png';
+		$msg = '';
 
 		$loginWindow = '';
 
+		if (!empty($settings['status'])) {
+var_dump($settings['status']);
+			switch($settings['status']) {
+				case 'train':
+					break;
+				case 'login':
+					break;
+			}
+		}
+
 		switch($slug) {
+			case 'vendasta-error':
+				$msg = $settings['error'];
+
+				/*
+				$btntxt = chat_essential_localize('Download New Plugin');
+				$url = VENDASTA_STORE_BASE_URL.'/'.VENDASTA_APP_ID;
+							<tr>
+								<td colspan="5" class="med-font column-center vendasta-login">
+									<a class="button button-primary ey-button vendasta-login-button" href="$url">$btntxt</a>
+								</td>
+							</tr>
+				*/
+
+				$loginWindow = <<<END
+					<div class="web-rules-form login-form">
+						<table class="wp-list-table widefat fixed table-view-excerpt">
+							<tr>
+								<td colspan="5" scope="col" id="logo" class="manage-column column-logo vendasta-logo">
+									<img class="login-logo" src="$logo" />
+								</td>
+							</tr>
+							<tr>
+								<td colspan="5" class="status-msg-vendasta status-msg-vendasta-spaced error-msg" id="statusMessage1">
+									$msg
+								</td>
+							</tr>
+						</table>
+					</div>
+END;
+				break;
 			case 'chat-essential-signup':
 			case 'chat-essential-login':
-				$msg = '';
-				if (!empty($settings['message'])) {
-					$msg = $settings['message'];
+				if (!empty($settings['error'])) {
+					$msg = '<td colspan="5" class="status-msg-vendasta error-msg" id="statusMessage1">'.$settings['error'].'</td>';
+				} else if (!empty($settings['warning'])) {
+					$msg = '<td colspan="5" class="status-msg-vendasta warn-msg" id="statusMessage1">'.$settings['warning'].'</td>';
 				}
-				$statusMsg = '<td colspan="5" class="status-msg-vendasta error-msg" id="statusMessage1">'.$msg.'</td>';
 
-				$account_id = 'AG-GPZP6KLBT8';
-				$client_id = '32ce56e1-f50c-4478-8355-18790d4e9c0d';
-				$base = 'https://sso-api-prod.apigateway.co/_gateway/oauth2/auth';
-				$redirect = 'https://devapi.eyelevel.ai/oauth2/vendasta';
-				$state = urlencode('{"username":"'.$account_id.'","origin":"'.Chat_Essential_Utility::current_url().'"}');
+				$state = urlencode('{"username":"'.VENDASTA_ACCOUNT_ID.'","origin":"'.Chat_Essential_Utility::current_url().'","domain":"'.$settings['domain'].'"}');
 
-				$url = $base.'?client_id='.$client_id.'&prompt=login&scope=openid+profile&response_type=code&redirect_uri='.$redirect.'&account_id='.$account_id.'&state='.$state;
+				$url = VENDASTA_OAUTH_BASE.'?client_id='.VENDASTA_CLIENT_ID.'&prompt=login&scope=openid+profile&response_type=code&redirect_uri='.VENDASTA_OAUTH_REDIRECT.'&account_id='.VENDASTA_ACCOUNT_ID.'&state='.$state;
 
 				$ht1a = chat_essential_localize('LOG IN');
 				$ht1b = chat_essential_localize(' to your Vendasta account.');
 
-				$logo = plugin_dir_url(__FILE__) . '../../../images/vendasta.png';
 				$login = chat_essential_localize('Log In');
 
 				$loginWindow = <<<END
@@ -80,7 +114,7 @@ class Vendasta_Admin_Login {
 								</td>
 							</tr>
 							<tr>
-								$statusMsg
+								$msg
 							</tr>
 							<tr>
 								<td colspan="5" class="med-font column-center vendasta-login">
@@ -98,7 +132,6 @@ END;
 				$h3 = chat_essential_localize('(your number <span class="ey-bold">WILL NOT</span> be used for marketing purposes)');
 				$l2 = chat_essential_localize('PHONE NUMBER');
 				$foottext = chat_essential_localize('SKIP');
-				$logo = plugin_dir_url(__FILE__) . '../../../images/logo.png';
 				$submit = chat_essential_localize('SUBMIT');
 
 				$loginWindow = <<<END

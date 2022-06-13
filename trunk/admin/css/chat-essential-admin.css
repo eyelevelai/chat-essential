@@ -242,7 +242,10 @@ td.status-msg {
 	padding: 8px 0 0;
 }
 td.status-msg-vendasta {
-	padding: 0 10px 14px;
+	padding: 0 20px 14px;
+}
+td.status-msg-vendasta-spaced {
+	padding: 0 20px 20px;
 }
 td.status-msg.ey-settings {
 	padding: 0 0 16px;

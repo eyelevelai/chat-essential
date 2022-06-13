@@ -895,9 +895,6 @@ class Chat_Essential_Admin {
 			$slug = 'chat-essential-logout';
 		} 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
-		if (!empty($_GET['message'])) {
-			$options['message'] = $_GET['message'];
-		}
 
 		$web_name = get_option('blogname');
 		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
@@ -914,6 +911,44 @@ class Chat_Essential_Admin {
 					}
 				} else if (empty($options['signup-complete'])) {
 					$slug = 'chat-essential-signup-phone';
+				}
+			}
+		}
+
+		if (defined('CHAT_ESSENTIAL_AUTH_TYPE') && CHAT_ESSENTIAL_AUTH_TYPE === 'vendasta') {
+			if (!empty($_GET['message'])) {
+				switch($_GET['message']) {
+					case 'login':
+						$options['status'] = $_GET['message'];
+						break;
+					case 'train':
+						$options['status'] = $_GET['message'];
+						break;
+					default:
+						$options['error'] = $_GET['message'];
+				}
+			}
+			if (!function_exists('validate_vendasta')) {
+				$slug = 'vendasta-error';
+				$options['error'] = 'This plugin has been corrupted. Please install a valid version of the plugin.';
+			} else {
+				$vres = validate_vendasta();
+				if (empty($vres)) {
+					$slug = 'vendasta-error';
+					$options['error'] = 'This plugin has been corrupted. Please install a valid version of the plugin.';
+				} else {
+					if (!empty($vres['error'])) {
+						$slug = 'vendasta-error';
+						$options['error'] = $vres['error'];
+					} else if (!empty($vres['warning'])) {
+						$options['warning'] = $vres['warning'];
+					}
+					if (empty($vres['domain'])) {
+						$slug = 'vendasta-error';
+						$options['error'] = 'This plugin has been corrupted. Please install a valid version of the plugin.';
+					} else {
+						$options['domain'] = $vres['domain'];
+					}
 				}
 			}
 		}
