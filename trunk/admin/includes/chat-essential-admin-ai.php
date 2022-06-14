@@ -50,7 +50,8 @@ class Chat_Essential_Admin_AI {
 
 		$h1 = chat_essential_localize('Core Knowledge');
 		$loading = chat_essential_localize('Loading...');
-		$h1_desc = chat_essential_localize('Select the topics you want your AI to be knowledgeable about');
+		//$h1_desc = chat_essential_localize('Select the topics you want your AI to be knowledgeable about');
+		$h1_desc = chat_essential_localize('Topics your AI is knowledgeable about');
 
 		$h2 = chat_essential_localize('Business Knowledge');
 		$h2_desc = chat_essential_localize('Select the website content you want your AI to consume to learn about your business');
@@ -76,6 +77,8 @@ class Chat_Essential_Admin_AI {
 					!empty($data->nlp->model->training->metadata)
 				) {
 					$training = json_decode($data->nlp->model->training->metadata, true);
+					$settings['training'] = $training;
+					update_option(CHAT_ESSENTIAL_OPTION, $settings);
 				}
 			}
 		}
@@ -98,17 +101,6 @@ class Chat_Essential_Admin_AI {
 							<table class="form-table">
 								<tbody>
 									<tr>
-										<th colspan="2" class="no-top">
-											<h2>$h1</h2>
-											<p>$h1_desc</p>
-										</th>
-									</tr>
-									<tr>
-										<td colspan="2" class="ai-model-container">
-											<table id="aiModels" class="form-table ai-model-table"></table>
-										</td>
-									</tr>
-									<tr>
 										<th colspan="2">
 											<h2>$h2</h2>
 											<p>$h2_desc</p>
@@ -124,6 +116,17 @@ class Chat_Essential_Admin_AI {
 												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
 											</p>
 										</th>
+									</tr>
+									<tr>
+										<th colspan="2" class="no-top">
+											<h2>$h1</h2>
+											<p>$h1_desc</p>
+										</th>
+									</tr>
+									<tr>
+										<td colspan="2" class="ai-model-container">
+											<table id="aiModels" class="form-table ai-model-table"></table>
+										</td>
 									</tr>
 								</tbody>
 							</table>

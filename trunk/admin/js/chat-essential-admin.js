@@ -2,6 +2,7 @@
 	'use strict';
 
 	let apiInProgress = false;
+	const selectKitsDisabled = true;
 
 	$(document).ready(function(){
 		var ChatEssential = {
@@ -139,23 +140,38 @@
 					if (!existingKits[val.kitId]) {
 						existingKits[val.kitId] = true;
 						const id = val.name.replace(' ', '-');
-						let col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
-						let classes = 'ai-input-label';
-						if (val.engine) {
-							col += ' class="ai-model-checkbox" value="' + val.engine + '"';
-							if (!modelSelected) {
-								modelSelected = true;
-								this.aiEngines.push('topic-' + id);
+						let col = '';
+						if (selectKitsDisabled) {
+							if (val.engine) {
+								if (!modelSelected) {
+									modelSelected = true;
+									this.aiEngines.push('topic-' + id);
+									col += '<input id="topic-' + id + '" type="hidden" value="' + val.engine + '" />';
+								}
+							} else {
+								col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
+								col += ' value="' + val.kitId + '" class="ai-model-checkbox" checked disabled';
+								col += ' /><div class="ai-input-label">' + val.name + '</div></td>';
 							}
-							col += ' checked disabled';
 						} else {
-							col += ' value="' + val.kitId + '" class="ai-checkbox"';
-							if (modelKits[val.kitId]) {
-								col += ' checked';
-								this.aiTopics['topic-' + id] = val.kitId;
+							col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
+							let classes = 'ai-input-label';
+							if (val.engine) {
+								col += ' class="ai-model-checkbox" value="' + val.engine + '"';
+								if (!modelSelected) {
+									modelSelected = true;
+									this.aiEngines.push('topic-' + id);
+								}
+								col += ' checked disabled';
+							} else {
+								col += ' value="' + val.kitId + '" class="ai-checkbox"';
+								if (modelKits[val.kitId]) {
+									col += ' checked';
+									this.aiTopics['topic-' + id] = val.kitId;
+								}
 							}
+							col += ' /><div class="' + classes + '">' + val.name + '</div></td>';
 						}
-						col += ' /><div class="' + classes + '">' + val.name + '</div></td>';
 
 						if (idx % 4) {
 							models += col;

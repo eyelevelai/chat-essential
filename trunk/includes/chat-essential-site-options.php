@@ -121,12 +121,44 @@ class Site_Options {
 	 * @since    0.0.1
 	 */
 	public static function shouldInclude($options, $page) {
+		if (!empty($options['ex_pages'])) {
+			foreach ($options['ex_pages'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return false;
+				}
+			}
+		}
+		if (!empty($options['in_pages'])) {
+			foreach ($options['in_pages'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return true;
+				}
+			}
+		}
+		if (!empty($options['ex_posts'])) {
+			foreach ($options['ex_posts'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return false;
+				}
+			}
+		}
+		if (!empty($options['in_posts'])) {
+			foreach ($options['in_posts'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return true;
+				}
+			}
+		}
+		if (!empty($options['in_postTypes'])) {
+			foreach ($options['in_postTypes'] as $exp) {
+				if ($page->post_type == $exp) {
+					return true;
+				}
+			}
+		}
+
 		switch ($options['siteType']) {
 			case 'all':
-				return true;
-			case 'posts':
-				return true;
-			case 'pages':
 				return true;
 			case 'categories':
 				if (empty($options['in_categories'])) {
@@ -148,8 +180,6 @@ class Site_Options {
 					}
 				}
 				return false;
-			case 'postTypes':
-				return true;
 		}
 
 		return false;

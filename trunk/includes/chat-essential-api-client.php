@@ -39,6 +39,10 @@ class Chat_Essential_API_client {
 					$msg = 'Your account is not authorized to use this plugin. Please log out and log in with an authorized account.';
 					$logout = true;
 					$title = 'Not Authorized';
+				default:
+					if ( !empty($res['message']) ) {
+						$msg = $res['message'];
+					}
 			}
 		}
 

@@ -487,13 +487,16 @@ class Chat_Essential_Utility {
 		$home_url = get_option('home');
 
 		$options = array(
-			'customer' => array(
-				'email' => $email,
-			),
 			'integration' => array(
 				'installations' => array()
 			),
 		);
+		if (!empty($email)) {
+			$options['customer'] = array(
+				'email' => $email,
+			);
+		}
+
 		$tz = wp_timezone();
 /*
 		'offhoursSetting' => array(
@@ -624,49 +627,52 @@ class Chat_Essential_Utility {
             : '';
     }
 
-    public static function train_ai_hook($api) {
+    public static function train_ai_hook($api, $post) {
         $options = get_option(CHAT_ESSENTIAL_OPTION);
 
-        $res = $api->request($options['apiKey'], 'GET', 'nlp/model/' . $options['apiKey'], null, null);
-        if ($res['code'] != 200) {
-            wp_die('There was an issue loading your settings.', $res['code']);
-        }
+		$training = [];
+		if (empty($options) || empty($options['training'])) {
+			$res = $api->request($options['apiKey'], 'GET', 'nlp/model/' . $options['apiKey'], null, null);
+			if ($res['code'] != 200) {
+				wp_die('There was an issue loading your settings.', $res['code']);
+			}
 
-        $training = [];
-        if (!empty($res['data'])) {
-            $data = json_decode($res['data']);
-            if (!empty($data->nlp) &&
-                !empty($data->nlp->model)) {
-                if (!empty($data->nlp->model->training) &&
-                    !empty($data->nlp->model->training->metadata)
-                ) {
-                    $training = json_decode($data->nlp->model->training->metadata, true);
-                }
-            }
-        }
+			if (!empty($res['data'])) {
+				$data = json_decode($res['data']);
+				if (!empty($data->nlp) &&
+					!empty($data->nlp->model)) {
+					if (!empty($data->nlp->model->training) &&
+						!empty($data->nlp->model->training->metadata)
+					) {
+						$training = json_decode($data->nlp->model->training->metadata, true);
+						$options['training'] = $training;
+						update_option(CHAT_ESSENTIAL_OPTION, $options);
+					}
+				}
+			}
+		} else {
+			$training = $options['training'];
+		}
 
-        $content = Site_Options::processOptions($training);
+		if (Site_Options::shouldInclude($training, $post)) {
+			$content = Site_Options::processOptions($training);
+			$fname = uniqid(random_int(0, 10), true);
+			$res = $api->upload($fname, $content);
+			if ($res['code'] != 200) {
+				return;
+			}
+			$reqData = array(
+				'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
+				'metadata' => json_encode($training),
+				'modelId' => $options['modelId'],
+				'engines' => array(
+					'gpt3',
+				),
+			);
 
-        $fname = uniqid(random_int(0, 10), true);
-        $res = $api->upload($fname, $content);
-        if ($res['code'] != 200) {
-            return;
-        }
-        $reqData = array(
-            'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
-            'metadata' => json_encode($training),
-            'modelId' => $options['modelId'],
-            'engines' => array(
-                'gpt3',
-            ),
-        );
-
-        $res = $api->request($options['apiKey'], 'POST', 'nlp/train/' . $options['apiKey'], array(
-            'nlp' => $reqData,
-        ), null);
-
-//        echo '<pre>';
-//        print_r($res['data']);
-//        echo '</pre>';
+			$res = $api->request($options['apiKey'], 'POST', 'nlp/train/' . $options['apiKey'], array(
+				'nlp' => $reqData,
+			), null);
+		}
     }
 }

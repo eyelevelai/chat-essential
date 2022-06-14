@@ -42,16 +42,6 @@ class Vendasta_Admin_Login {
 
 		$loginWindow = '';
 
-		if (!empty($settings['status'])) {
-var_dump($settings['status']);
-			switch($settings['status']) {
-				case 'train':
-					break;
-				case 'login':
-					break;
-			}
-		}
-
 		switch($slug) {
 			case 'vendasta-error':
 				$msg = $settings['error'];

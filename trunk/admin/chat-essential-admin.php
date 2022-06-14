@@ -94,12 +94,12 @@ class Chat_Essential_Admin {
 
         if (CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM) {
             // Hooks for training AI during post/page publishing/updating
-            add_action('post_updated', function() {
-                Chat_Essential_Utility::train_ai_hook($this->api);
-            });
-            add_action('publish_post', function() {
-                Chat_Essential_Utility::train_ai_hook($this->api);
-            });
+            add_action('post_updated', function($pid, $post) {
+                Chat_Essential_Utility::train_ai_hook($this->api, $post);
+            }, 10, 2);
+            add_action('publish_post', function($pid, $post) {
+                Chat_Essential_Utility::train_ai_hook($this->api, $post);
+            }, 10, 2);
         }
 	}
 
@@ -250,6 +250,8 @@ class Chat_Essential_Admin {
 		}
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		$options['training'] = $body;
+
 		$reqData = array(
 			'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
 			'metadata' => json_encode($body),
@@ -315,6 +317,9 @@ class Chat_Essential_Admin {
 		}
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		$options['training'] = $_POST['body'];
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+
 		$reqData = array(
 			'metadata' => json_encode($_POST['body']),
 			'modelId' => $options['modelId'],
@@ -873,6 +878,70 @@ class Chat_Essential_Admin {
 		wp_localize_script( $this->plugin_name, 'pageParams', $page_params );
 	}
 
+	private function auth_vendasta($isLogin) {
+		$body = Chat_Essential_Utility::signup_data('');
+
+		$res = $this->api->request(VENDASTA_ACCOUNT_ID, 'POST', 'customer/vendasta/' . VENDASTA_ACCOUNT_ID, $body, null);
+		if ($res['code'] != 200) {
+			return $res;
+		}
+		if (empty($res['data'])) {
+			$res['code'] = 500;
+			return $res;
+		}
+
+		$data = json_decode($res['data'], true);
+		if (empty($data) ||
+			empty($data['customer']) ||
+			empty($data['customer']['apiKey']) ||
+			empty($data['customer']['email'])) {
+			$res['code'] = 500;
+			$res['message'] = 'Missing user account information';
+			return $res;
+		}
+
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (empty($options)) {
+			$options = array();
+		}
+		$options['signup-complete'] = false;
+		$options['initAI'] = false;
+
+		if (!empty($data['flows']) &&
+			count($data['flows']) > 0) {
+			$webs = array();
+			foreach ($data['flows'] as $flow) {
+				if ($flow['platform'] === 'web') {
+					$webs[] = $flow;
+				}
+			}
+
+			if (empty($webs)) {
+				$options['signup-complete'] = false;
+			} else {	
+				Chat_Essential_Utility::init_user($data['customer']['apiKey'], $webs);
+				$options['signup-complete'] = true;
+			}
+		}
+
+		if (!empty($data['nlp']) &&
+			!empty($data['nlp']['model']) &&
+			!empty($data['nlp']['model']['modelId'])) {
+			$options['modelId'] = $data['nlp']['model']['modelId'];
+			if(!empty($data['nlp']['model']['training']) &&
+				!empty($data['nlp']['model']['training']['status']) &&
+				$data['nlp']['model']['training']['status'] == 'complete') {
+				$options['initAI'] = true;
+			}
+		}
+
+		$options['apiKey'] = $data['customer']['apiKey'];
+		$options['email'] = $data['customer']['email'];
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+
+		return $res;
+	}
+
 	/**
 	 * @since    0.0.1
 	 */
@@ -899,35 +968,7 @@ class Chat_Essential_Admin {
 		$web_name = get_option('blogname');
 		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
 
-		if ($slug !== 'chat-essential-logout') {
-			if (!isset($options) || empty($options)) {
-				$options = array();
-				$slug = 'chat-essential-signup';
-			} else {
-				if (empty($options['apiKey'])) {
-					$slug = 'chat-essential-signup';
-					if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
-						$slug = 'chat-essential-login';
-					}
-				} else if (empty($options['signup-complete'])) {
-					$slug = 'chat-essential-signup-phone';
-				}
-			}
-		}
-
 		if (defined('CHAT_ESSENTIAL_AUTH_TYPE') && CHAT_ESSENTIAL_AUTH_TYPE === 'vendasta') {
-			if (!empty($_GET['message'])) {
-				switch($_GET['message']) {
-					case 'login':
-						$options['status'] = $_GET['message'];
-						break;
-					case 'train':
-						$options['status'] = $_GET['message'];
-						break;
-					default:
-						$options['error'] = $_GET['message'];
-				}
-			}
 			if (!function_exists('validate_vendasta')) {
 				$slug = 'vendasta-error';
 				$options['error'] = 'This plugin has been corrupted. Please install a valid version of the plugin.';
@@ -951,6 +992,52 @@ class Chat_Essential_Admin {
 					}
 				}
 			}
+			if (!empty($_GET['message'])) {
+				switch($_GET['message']) {
+					case 'login':
+						$res = $this->auth_vendasta(true);
+						if ($res['code'] != 200) {
+							$errMsg = new Chat_Essential_Admin_Error(
+								Chat_Essential_API_client::error_content($res),
+							);
+							$errMsg->html();
+							return $res;
+						}
+
+						$options = get_option(CHAT_ESSENTIAL_OPTION);
+						break;
+					case 'train':
+						$res = $this->auth_vendasta(false);
+						if ($res['code'] != 200) {
+							$errMsg = new Chat_Essential_Admin_Error(
+								Chat_Essential_API_client::error_content($res),
+							);
+							$errMsg->html();
+							return $res;
+						}
+
+						$options = get_option(CHAT_ESSENTIAL_OPTION);
+						break;
+					default:
+						$options['error'] = $_GET['message'];
+				}
+			}
+		}
+
+		if ($slug !== 'chat-essential-logout' && $slug !== 'vendasta-error') {
+			if (!isset($options) || empty($options)) {
+				$options = array();
+				$slug = 'chat-essential-signup';
+			} else {
+				if (empty($options['apiKey'])) {
+					$slug = 'chat-essential-signup';
+					if (!empty($options[Chat_Essential_Admin::LOGGED_OUT_OPTION])) {
+						$slug = 'chat-essential-login';
+					}
+				} else if (empty($options['signup-complete'])) {
+					$slug = 'chat-essential-signup-phone';
+				}
+			}
 		}
 
 		$options['nonce'] = $nonce;
@@ -959,7 +1046,7 @@ class Chat_Essential_Admin {
 
 		if (!empty($options['apiKey']) &&
 			!empty($options['modelId']) &&
-			empty($options['initAI'])) {
+			(empty($options['initAI']) || $options['initAI'] === false)) {
 			$this->init_ai();
 		}
 
@@ -970,13 +1057,17 @@ class Chat_Essential_Admin {
 				if (empty($options['previewChat'])) {
 					$res = $this->api->request($options['apiKey'], 'GET', 'flow/' . $options['apiKey'] . '?type=nlp', null, null);
 					if ($res['code'] != 200) {
-						$settings_page = new Chat_Essential_Admin_Error(
-							array(
-								'title' => 'Uh oh...We have a problem.',
-								'message' => 'There was an issue loading your AI settings.',
-								'logout' => false,
-							)
-						);
+						if ($res['code'] == 301) {
+
+						} else {
+							$settings_page = new Chat_Essential_Admin_Error(
+								array(
+									'title' => 'Uh oh...We have a problem.',
+									'message' => 'There was an issue loading your AI settings.',
+									'logout' => false,
+								)
+							);
+						}
 						break;
 					}
 					$data = json_decode($res['data']);
