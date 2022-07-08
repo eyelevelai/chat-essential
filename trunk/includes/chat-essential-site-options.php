@@ -10,6 +10,18 @@
  */
 class Site_Options {
 
+	public static function optionNames() {
+		return array(
+			'all' => chat_essential_localize('Site Wide'),
+			'pages' => chat_essential_localize('Specific Pages'),
+			'posts' => chat_essential_localize('Specific Posts'),
+			'categories' => chat_essential_localize('Specific Categories'),
+			'tags' => chat_essential_localize('Specific Tags'),
+			'postTypes' => chat_essential_localize('Specific Post Types'),
+			'none' => chat_essential_localize('None'),
+		);
+	}
+
 	public static function cleanContent($content) {
 		$pg = $content->to_array();
 		$raw_txt = html_entity_decode(strip_shortcodes(wp_strip_all_tags(apply_filters('the_content', $content->post_content))));
@@ -109,12 +121,44 @@ class Site_Options {
 	 * @since    0.0.1
 	 */
 	public static function shouldInclude($options, $page) {
+		if (!empty($options['ex_pages'])) {
+			foreach ($options['ex_pages'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return false;
+				}
+			}
+		}
+		if (!empty($options['in_pages'])) {
+			foreach ($options['in_pages'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return true;
+				}
+			}
+		}
+		if (!empty($options['ex_posts'])) {
+			foreach ($options['ex_posts'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return false;
+				}
+			}
+		}
+		if (!empty($options['in_posts'])) {
+			foreach ($options['in_posts'] as $exp) {
+				if ($page->ID == intval($exp)) {
+					return true;
+				}
+			}
+		}
+		if (!empty($options['in_postTypes'])) {
+			foreach ($options['in_postTypes'] as $exp) {
+				if ($page->post_type == $exp) {
+					return true;
+				}
+			}
+		}
+
 		switch ($options['siteType']) {
 			case 'all':
-				return true;
-			case 'posts':
-				return true;
-			case 'pages':
 				return true;
 			case 'categories':
 				if (empty($options['in_categories'])) {
@@ -136,11 +180,39 @@ class Site_Options {
 					}
 				}
 				return false;
-			case 'postTypes':
-				return true;
 		}
 
 		return false;
+	}
+
+	public static function mapDBRecord($dbr) {
+		if (!empty($dbr->display_on)) {
+			$dbr->siteType = $dbr->display_on;
+			if (!empty($dbr->in_pages)) {
+				$dbr->in_pages = explode(",", $dbr->in_pages);
+			}
+			if (!empty($dbr->ex_pages)) {
+				$dbr->ex_pages = explode(",", $dbr->ex_pages);
+			}
+			if (!empty($dbr->in_posts)) {
+				$dbr->in_posts = explode(",", $dbr->in_posts);
+			}
+			if (!empty($dbr->ex_posts)) {
+				$dbr->ex_posts = explode(",", $dbr->ex_posts);
+			}
+			if (!empty($dbr->in_postTypes)) {
+				$dbr->in_postTypes = explode(",", $dbr->in_postTypes);
+			}
+			if (!empty($dbr->in_categories)) {
+				$dbr->in_categories = explode(",", $dbr->in_categories);
+			}
+			if (!empty($dbr->in_tags)) {
+				$dbr->in_tags = explode(",", $dbr->in_tags);
+			}
+			return (array) $dbr;
+		}
+
+		return [];
 	}
 
 	/**
@@ -187,27 +259,18 @@ class Site_Options {
 		$stags = 'tags' === $training['siteType'] ? '' : 'display:none;';
 		$cposts = 'postTypes' === $training['siteType'] ? '' : 'display:none;';
 
-		$ty = array(
-			'all' => chat_essential_localize('Site Wide'),
-			'pages' => chat_essential_localize('Specific Pages'),
-			'posts' => chat_essential_localize('Specific Posts'),
-			'categories' => chat_essential_localize('Specific Categories'),
-			'tags' => chat_essential_localize('Specific Tags'),
-			'postTypes' => chat_essential_localize('Specific Post Types'),
-			'none' => chat_essential_localize('None'),
-		);
-
 		$l1 = chat_essential_localize('Site Display');
 		$l2 = chat_essential_localize('Exclude Pages');
-		$l3 = chat_essential_localize('Pages');
-		$l4 = chat_essential_localize('Posts');
-		$l5 = chat_essential_localize('Categories');
-		$l6 = chat_essential_localize('Tags');
-		$l7 = chat_essential_localize('Post Types');
+		$l3 = chat_essential_localize('Exclude Posts');
+		$l4 = chat_essential_localize('Pages');
+		$l5 = chat_essential_localize('Posts');
+		$l6 = chat_essential_localize('Categories');
+		$l7 = chat_essential_localize('Tags');
+		$l8 = chat_essential_localize('Post Types');
 
 		$html = '<tr><th><label for="data[current_type]">' . $l1 . '</label></th>';
 		$html .= '<td><select name="data[current_type]" id="siteTypeSelect" onchange="showTypeOptions(this.value);">';
-		foreach ($ty as $key => $val) {
+		foreach (Site_Options::optionNames() as $key => $val) {
 			if ($training['siteType'] === $key) {
 				$html .= '<option selected="selected" value="' . $key . '">' . $val . '</option>';
 			} else {
@@ -229,7 +292,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="excludePosts" style="' . $expages . $exposts . $extags . $expostTypes . $excategories . '">';
-		$html .= '<th><label for="data[ex_posts][]">' . $l2 . '</label></th>';
+		$html .= '<th><label for="data[ex_posts][]">' . $l3 . '</label></th>';
 		$html .= '<td><select id="exPosts" name="data[ex_posts][]" multiple>';
 		foreach ( $posts as $pdata ) {
 			if ( !empty($training['ex_posts']) && in_array( $pdata->ID, $training['ex_posts'] ) ) {
@@ -241,7 +304,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="pages" style="' . $spages . '">';
-		$html .= '<th><label for="data[in_pages][]">' . $l3 . '</label></th>';
+		$html .= '<th><label for="data[in_pages][]">' . $l4 . '</label></th>';
 		$html .= '<td><select id="inPages" name="data[in_pages][]" multiple>';
 		foreach ( $pages as $pdata ) {
 			if ( !empty($training['in_pages']) && in_array( $pdata->ID, $training['in_pages'] ) ) {
@@ -253,7 +316,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="posts" style="' . $sposts . '">';
-		$html .= '<th><label for="data[in_posts][]">' . $l4 . '</label></th>';
+		$html .= '<th><label for="data[in_posts][]">' . $l5 . '</label></th>';
 		$html .= '<td><select id="inPosts" name="data[in_posts][]" multiple>';
 		foreach ( $posts as $pdata ) {
 			if ( !empty($training['in_posts']) && in_array( $pdata->ID, $training['in_posts'] ) ) {
@@ -265,7 +328,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="categories" style="' . $scategories . '">';
-		$html .= '<th><label for="data[in_categories][]">' . $l5 . '</label></th>';
+		$html .= '<th><label for="data[in_categories][]">' . $l6 . '</label></th>';
 		$html .= '<td><select id="inCategories" name="data[in_categories][]" multiple>';
 		foreach ( $categories as $cdata ) {
 			if ( !empty($training['in_categories']) && in_array( $cdata->term_id, $training['in_categories'] ) ) {
@@ -277,7 +340,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="tags" style="' . $stags . '">';
-		$html .= '<th><label for="data[in_tags][]">' . $l6 . '</label></th>';
+		$html .= '<th><label for="data[in_tags][]">' . $l7 . '</label></th>';
 		$html .= '<td><select id="inTags" name="data[in_tags][]" multiple>';
 		foreach ( $tags as $tdata ) {
 			if ( !empty($training['in_tags']) && in_array( $tdata->term_id, $training['in_tags'] ) ) {
@@ -289,7 +352,7 @@ class Site_Options {
 		$html .= '</select></td></tr>';
 
 		$html .= '<tr id="postTypes" style="' . $cposts . '">';
-		$html .= '<th><label for="data[in_postTypes][]">' . $l7 . '</label></th>';
+		$html .= '<th><label for="data[in_postTypes][]">' . $l8 . '</label></th>';
 		$html .= '<td><select id="inPostTypes" name="data[in_postTypes][]" multiple>';
 		foreach ( $cpostTypes as $cpkey => $cpdata ) {
 			if ( !empty($training['in_postTypes']) && in_array( $cpkey, $training['in_postTypes'] ) ) {

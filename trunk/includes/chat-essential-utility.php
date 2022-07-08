@@ -10,6 +10,19 @@
  */
 class Chat_Essential_Utility {
 
+	public static function current_url() {
+		$protocol = 'http://';
+		if (is_ssl() ||
+			(isset($_SERVER['HTTPS']) &&
+			($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+			isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+				$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+		) {
+			$protocol = 'https://';
+		}
+		return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	}
+
 	public static function sanitize_json_array( $arr ) {
 		$narr = array();
 		foreach ($arr as $k => $v) {
@@ -222,6 +235,7 @@ class Chat_Essential_Utility {
 				`api_key` varchar(255) NOT NULL,
 				`flow_name` varchar(255) DEFAULT NULL,
 				`options` text,
+                `order` int DEFAULT NULL,
 				`display_on` enum('all','pages', 'posts','categories','postTypes','tags') NOT NULL DEFAULT 'all',
 				`in_pages` varchar(300) DEFAULT NULL,
 				`ex_pages` varchar(300) DEFAULT NULL,
@@ -245,18 +259,31 @@ class Chat_Essential_Utility {
 		add_option( 'chat_essential_db_version', $chat_essential_db_version );
 	}
 
+    /**
+     * @since    0.2
+     */
+    public static function db_migrate($version_from, $version_to) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        switch ("$version_from-$version_to") {
+            case '0.1-0.2':
+                update_option( 'chat_essential_db_version', $version_to );
+                $query = "ALTER TABLE `{$table_name}` ADD `order` int DEFAULT NULL AFTER `options`;";
+                $wpdb->query( $query );
+                break;
+        }
+    }
+
 	/**
 	 * @since    0.0.1
 	 */
 	public static function db_check() {
 		global $chat_essential_db_version;
-		global $wpdb;
-		if ( get_site_option( 'chat_essential_db_version' ) != $chat_essential_db_version ) {
-			$wpdb->show_errors();
-			echo '<script>console.log("missing db");</script>';
-
-			Chat_Essential_Utility::db_install();
-		}
+        $current_version = get_site_option( 'chat_essential_db_version' );
+        if ( $current_version != $chat_essential_db_version ) {
+            Chat_Essential_Utility::db_migrate($current_version, $chat_essential_db_version);
+        }
 	}
 
 	public static function logout($apiKey) {
@@ -273,21 +300,48 @@ class Chat_Essential_Utility {
 		);
 	}
 
-	public static function update_web_status($platform_id, $status) {
-		global $wpdb;
+    public static function update_web_status($rules_id, $status) {
+        global $wpdb;
 
-		$table_name = $wpdb->prefix . 'chat_essential';
+        $table_name = $wpdb->prefix . 'chat_essential';
 
-		$wpdb->update( $table_name,
-				array(
-					'status' => $status,
-				), array(
-					'platform_id' => $platform_id,
-				), array(
-					'%s',
-				)
-			);
-	}
+        $wpdb->update( $table_name,
+            array(
+                'status' => $status,
+            ), array(
+                'rules_id' => $rules_id,
+            ), array(
+                '%s',
+            )
+        );
+    }
+
+    public static function create_web_rule($data) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+        $max_order = $wpdb->get_results( "SELECT `order` FROM $table_name ORDER BY `order` DESC LIMIT 1;" );
+        $data['order'] = $max_order[0]->order + 1;
+
+        $n = $wpdb->insert( $table_name, $data );
+		return array(
+			'n' => $n,
+			'rid' => $wpdb->insert_id,
+		);
+    }
+
+	public static function update_web_rule($rid, $data) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        return $wpdb->update( $table_name, $data, array( 'rules_id' => $rid ) );
+    }
+
+	public static function delete_web_rule($rid) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        return $wpdb->delete( $table_name, array( 'rules_id' => $rid ) );
+    }
 
 	public static function get_rules($platformId) {
 		global $wpdb;
@@ -303,6 +357,42 @@ class Chat_Essential_Utility {
 		return array();
 	}
 
+	public static function get_rule($rid) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+        $rule = $wpdb->get_results( "SELECT * FROM $table_name WHERE rules_id='$rid' ORDER BY `order` ASC" );
+		if (count($rule) > 0) {
+			return $rule[0];
+		}
+
+        return [];
+    }
+
+    public static function get_all_rules() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+        $rule = $wpdb->get_results( "SELECT * FROM $table_name ORDER BY `order` ASC" );
+
+        return $rule ?: [];
+    }
+
+    public static function reorder_rules($data) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'chat_essential';
+
+        foreach ($data as $order => $rules_id) {
+            $wpdb->update( $table_name,
+                array(
+                    'order' => $order + 1,
+                ), array(
+                    'rules_id' => $rules_id,
+                ), array(
+                    '%s',
+                )
+            );
+        }
+    }
+
 	public static function init_user($apiKey, $webs) {
 		global $wpdb;
 
@@ -316,6 +406,7 @@ class Chat_Essential_Utility {
 			)
 		);
 
+        $order = 1;
 		foreach ($webs as $web) {
 			$wpdb->insert( $table_name,
 				array(
@@ -323,13 +414,16 @@ class Chat_Essential_Utility {
 					'platform_id' => $web['platformId'],
 					'api_key' => $apiKey,
 					'display_on' => 'all',
+                    'order' => $order,
 				), array(
 					'%s',
 					'%s',
 					'%s',
 					'%s',
+                    '%d',
 				)
 			);
+            $order++;
 		}
 	}
 
@@ -393,13 +487,16 @@ class Chat_Essential_Utility {
 		$home_url = get_option('home');
 
 		$options = array(
-			'customer' => array(
-				'email' => $email,
-			),
 			'integration' => array(
 				'installations' => array()
 			),
 		);
+		if (!empty($email)) {
+			$options['customer'] = array(
+				'email' => $email,
+			);
+		}
+
 		$tz = wp_timezone();
 /*
 		'offhoursSetting' => array(
@@ -514,4 +611,68 @@ class Chat_Essential_Utility {
 		return $options;
 	}
 
+    public static function premium_banner() {
+        return !CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
+            ? '
+                <div class="chat-essential-upgrade-banner">
+                    <h2>Upgrade to Premium</h2>
+                    <ul>
+                      <li><strong>+ Automatic re-training:</strong> Your AI assistant will automatically update and re-train when you make content updates</li>
+                      <li><strong>+ Unlimited website roles:</strong> Control where your chat appears on your website and which chat flows load</li>
+                      <li><strong>+ Unlimited chat themes and flows:</strong> Create customized chat flows for each of section of your website</li>
+                    </ul>
+                    <a class="button button-primary ey-button top-margin" href="https://www.chatessential.com/wp-premium" target="_blank">Get Chat Essential Premium</a>
+                </div>
+            '
+            : '';
+    }
+
+    public static function train_ai_hook($api, $post) {
+        $options = get_option(CHAT_ESSENTIAL_OPTION);
+
+		$training = [];
+		if (empty($options) || empty($options['training'])) {
+			$res = $api->request($options['apiKey'], 'GET', 'nlp/model/' . $options['apiKey'], null, null);
+			if ($res['code'] != 200) {
+				wp_die('There was an issue loading your settings.', $res['code']);
+			}
+
+			if (!empty($res['data'])) {
+				$data = json_decode($res['data']);
+				if (!empty($data->nlp) &&
+					!empty($data->nlp->model)) {
+					if (!empty($data->nlp->model->training) &&
+						!empty($data->nlp->model->training->metadata)
+					) {
+						$training = json_decode($data->nlp->model->training->metadata, true);
+						$options['training'] = $training;
+						update_option(CHAT_ESSENTIAL_OPTION, $options);
+					}
+				}
+			}
+		} else {
+			$training = $options['training'];
+		}
+
+		if (Site_Options::shouldInclude($training, $post)) {
+			$content = Site_Options::processOptions($training);
+			$fname = uniqid(random_int(0, 10), true);
+			$res = $api->upload($fname, $content);
+			if ($res['code'] != 200) {
+				return;
+			}
+			$reqData = array(
+				'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
+				'metadata' => json_encode($training),
+				'modelId' => $options['modelId'],
+				'engines' => array(
+					'gpt3',
+				),
+			);
+
+			$res = $api->request($options['apiKey'], 'POST', 'nlp/train/' . $options['apiKey'], array(
+				'nlp' => $reqData,
+			), null);
+		}
+    }
 }

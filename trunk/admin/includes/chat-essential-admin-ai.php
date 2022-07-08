@@ -50,14 +50,19 @@ class Chat_Essential_Admin_AI {
 
 		$h1 = chat_essential_localize('Core Knowledge');
 		$loading = chat_essential_localize('Loading...');
-		$h1_desc = chat_essential_localize('Select the topics you want your AI to be knowledgeable about');
+		//$h1_desc = chat_essential_localize('Select the topics you want your AI to be knowledgeable about');
+		$h1_desc = chat_essential_localize('Topics your AI is knowledgeable about');
 
 		$h2 = chat_essential_localize('Business Knowledge');
 		$h2_desc = chat_essential_localize('Select the website content you want your AI to consume to learn about your business');
 
 		$res = $this->api->request($settings['apiKey'], 'GET', 'nlp/model/' . $settings['apiKey'], null, null);
 		if ($res['code'] != 200) {
-			wp_die('There was an issue loading your settings.', $res['code']);
+			$errMsg = new Chat_Essential_Admin_Error(
+				Chat_Essential_API_client::error_content($res),
+			);
+			$errMsg->html();
+			return;
 		}
 
 		$training = array();
@@ -72,6 +77,8 @@ class Chat_Essential_Admin_AI {
 					!empty($data->nlp->model->training->metadata)
 				) {
 					$training = json_decode($data->nlp->model->training->metadata, true);
+					$settings['training'] = $training;
+					update_option(CHAT_ESSENTIAL_OPTION, $settings);
 				}
 			}
 		}
@@ -79,9 +86,7 @@ class Chat_Essential_Admin_AI {
 		$siteOptions = Site_Options::typeSelector($training);
 
 		$submit = chat_essential_localize('Train Your AI');
-        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
-            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
-            : '';
+        $premium_banner = Chat_Essential_Utility::premium_banner();
 
     	echo <<<END
 		$model_script
@@ -96,17 +101,6 @@ class Chat_Essential_Admin_AI {
 							<table class="form-table">
 								<tbody>
 									<tr>
-										<th colspan="2" class="no-top">
-											<h2>$h1</h2>
-											<p>$h1_desc</p>
-										</th>
-									</tr>
-									<tr>
-										<td colspan="2" class="ai-model-container">
-											<table id="aiModels" class="form-table ai-model-table"></table>
-										</td>
-									</tr>
-									<tr>
 										<th colspan="2">
 											<h2>$h2</h2>
 											<p>$h2_desc</p>
@@ -120,13 +114,24 @@ class Chat_Essential_Admin_AI {
 										<th colspan="2" class="status-th">
 											<p class="submit status-p">
 												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
-												$plugin_pro_link
 											</p>
 										</th>
+									</tr>
+									<tr>
+										<th colspan="2" class="no-top">
+											<h2>$h1</h2>
+											<p>$h1_desc</p>
+										</th>
+									</tr>
+									<tr>
+										<td colspan="2" class="ai-model-container">
+											<table id="aiModels" class="form-table ai-model-table"></table>
+										</td>
 									</tr>
 								</tbody>
 							</table>
 						</form>
+						$premium_banner
 					</div>
 				</div>
 		</div>

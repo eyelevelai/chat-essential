@@ -19,6 +19,9 @@
 	font-weight: normal !important;
 	text-align: center;
 }
+.ey-button-save {
+	width: 80px;
+}
 .ey-button-cancel {
 	width: 80px;
 }
@@ -30,6 +33,24 @@
 }
 .widefat .column-logo {
 	text-align: center;
+}
+.widefat td.vendasta-logo {
+	padding: 20px 10px;
+}
+.widefat td.vendasta-login {
+	padding: 0 10px 30px;
+}
+.vendasta-login-button {
+	width: 100px;
+}
+.column-center {
+	text-align: center;
+}
+.column-logout {
+	text-align: center;
+}
+.logout-btn {
+	width: 100px;
 }
 .form-table th.ey-settings {
 	padding: 0 10px 20px 0;
@@ -175,6 +196,9 @@ td.loading-message {
 	-webkit-transition: .4s;
 	transition: .4s;
 }
+.text-button {
+	cursor: pointer;
+}
 input:checked + .slider {
 	background-color: #53a497;
 }
@@ -209,8 +233,19 @@ input:checked + .slider:before {
 	height: 20px;
 	font-size: 14px;
 }
+.status-msg-vendasta {
+	text-align: center;
+	height: 20px;
+	font-size: 14px;
+}
 td.status-msg {
 	padding: 8px 0 0;
+}
+td.status-msg-vendasta {
+	padding: 0 20px 14px;
+}
+td.status-msg-vendasta-spaced {
+	padding: 0 20px 20px;
 }
 td.status-msg.ey-settings {
 	padding: 0 0 16px;
@@ -301,6 +336,44 @@ input.login-input {
 	display: inline-block;
 	padding-top: 10px;
 }
+
+.ce-add-new-rule-table tr th {
+	width: 200px;
+}
+.ce-add-new-rule-table input,
+.ce-add-new-rule-table select {
+	width: 400px;
+}
+.add-rule-title-container .notice,
+.reorder-container .notice {
+	height: 34px;
+	line-height: 34px;
+}
+.sortable-block {
+	margin: 15px 0;
+}
+.column-sortable {
+	width: 20px;
+}
+.chat-essential-upgrade-banner {
+	background-color: #ffffff;
+	padding: 20px 10px;
+	margin-top: 30px;
+	border: 1px solid #c3c4c7;
+}
+.chat-essential-upgrade-banner h2 {
+	font-size: 23px;
+	font-weight: 400;
+	margin: 0 0 20px;
+}
+.chat-essential-upgrade-banner ul {
+	margin: 0;
+	list-style: none;
+}
+.chat-essential-upgrade-banner ul li {
+	margin-left: 15px;
+}
+
 @media (max-width: 782px) {
 	table.web-rules-form td {
 		padding: 10px 21px 0 17px;
@@ -313,6 +386,14 @@ input.login-input {
 	}
 	.ey-form select[multiple] {
 		height: auto;
+	}
+	.ce-add-new-rule-table tr > * {
+		display: block;
+		width: 100%;
+	}
+	.ce-add-new-rule-table input,
+	.ce-add-new-rule-table select {
+		width: 100%;
 	}
 }
 @media (min-width: 783px) {

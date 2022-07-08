@@ -70,10 +70,17 @@ class Chat_Essential {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-ai.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-website.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-add-new-rule.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-facebook-page.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-qr-code.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/chat-essential-admin-phone.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/chat-essential-public.php';
+
+		if (defined('CHAT_ESSENTIAL_DEPENDENCIES')) {
+			foreach (CHAT_ESSENTIAL_DEPENDENCIES as $k => $v) {
+				require_once plugin_dir_path( dirname( __FILE__ ) ) . $v;
+			}
+		}
 
 		$this->loader = new Chat_Essential_Loader();
 	}

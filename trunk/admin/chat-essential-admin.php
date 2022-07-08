@@ -58,6 +58,8 @@ class Chat_Essential_Admin {
 		add_action( 'wp_ajax_chat_essential_switch_platform_status', array( $this, 'switch_platform_status' ) );
 		add_action( 'wp_ajax_chat_essential_auth', array( $this, 'auth' ) );
 		add_action( 'wp_ajax_chat_essential_phone_signup', array( $this, 'phone_signup' ) );
+		add_action( 'wp_ajax_chat_essential_rule_update', array( $this, 'rule_update' ) );
+		add_action( 'wp_ajax_chat_essential_rule_delete', array( $this, 'rule_delete' ) );
 		add_action( 'wp_ajax_chat_essential_settings_change', array( $this, 'settings_change' ) );
 		add_action( 'wp_ajax_chat_essential_logout', array( $this, 'logout_call' ) );
 		add_action( 'wp_ajax_chat_essential_get', array( $this, 'ajax_call' ) );
@@ -68,7 +70,7 @@ class Chat_Essential_Admin {
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
         $install_date = get_option( 'chat_essential_activation_date' );
         $past_date = strtotime( '-3 days' );
-        if ( $past_date >= $install_date ) {
+        if ( !CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM && $past_date >= $install_date ) {
             add_action('admin_notices', function () {
                 $current_screen = get_current_screen();
                 $user_id = get_current_user_id();
@@ -88,6 +90,16 @@ class Chat_Essential_Admin {
                         </div>';
                 }
             });
+        }
+
+        if (CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM) {
+            // Hooks for training AI during post/page publishing/updating
+            add_action('post_updated', function($pid, $post) {
+                Chat_Essential_Utility::train_ai_hook($this->api, $post);
+            }, 10, 2);
+            add_action('publish_post', function($pid, $post) {
+                Chat_Essential_Utility::train_ai_hook($this->api, $post);
+            }, 10, 2);
         }
 	}
 
@@ -151,6 +163,27 @@ class Chat_Essential_Admin {
 			array( $this, 'menu_main_page' ),
 			20
 		);
+
+        if (CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM) {
+            add_submenu_page(
+                null,
+                __('Chat Essential - Create Load On Rule', 'chat-essential'),
+                __('Create Load On Rule', 'chat-essential'),
+                'manage_options',
+                'chat-essential-create-load-on-rule',
+                array( $this, 'menu_main_page' ),
+                20
+            );
+			add_submenu_page(
+                null,
+                __('Chat Essential - Edit Load On Rule', 'chat-essential'),
+                __('Edit Load On Rule', 'chat-essential'),
+                'manage_options',
+                'chat-essential-edit-load-on-rule',
+                array( $this, 'menu_main_page' ),
+                20
+            );
+        }
 /*
 		add_submenu_page(
 			'chat-essential',
@@ -217,8 +250,10 @@ class Chat_Essential_Admin {
 		}
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		$options['training'] = $body;
+
 		$reqData = array(
-			'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . $fname . '.json',
+			'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
 			'metadata' => json_encode($body),
 			'modelId' => $options['modelId'],
 			'engines' => array(
@@ -282,6 +317,9 @@ class Chat_Essential_Admin {
 		}
 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		$options['training'] = $_POST['body'];
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+
 		$reqData = array(
 			'metadata' => json_encode($_POST['body']),
 			'modelId' => $options['modelId'],
@@ -294,7 +332,7 @@ class Chat_Essential_Admin {
 				wp_die($res['data'], $res['code']);
 			}
 
-			$reqData['fileUrl'] = CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . $fname . '.json';
+			$reqData['fileUrl'] = CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json';
 		}
 
 		if (!empty($kits)) {
@@ -350,6 +388,91 @@ class Chat_Essential_Admin {
 		wp_send_json(Chat_Essential_Utility::sanitize_json_array($jdata));
 
 		die();
+	}
+
+	/**
+	 * @since    0.0.1
+	 */
+	public function rule_update() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+
+		if (empty($_POST['body'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$data = $_POST['body'];
+		if (empty($data['flow'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$fv = json_decode(stripcslashes($data['flow']), true);
+		if (empty($fv['id']) || empty($fv['platformId']) || empty($fv['apiKey'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$rule_data = [
+			"display_on" => $data['siteType'],
+			"platform_id" => $fv['platformId'],
+            "api_key" => $fv['apiKey'],
+            "flow_name" => $fv['id'],
+			"in_pages" => !empty($data['in_pages']) ? implode(',', $data['in_pages']) : null,
+			"ex_pages" => !empty($data['ex_pages']) ? implode(',', $data['ex_pages']) : null,
+			"in_posts" => !empty($data['in_posts']) ? implode(',', $data['in_posts']) : null,
+			"ex_posts" => !empty($data['ex_posts']) ? implode(',', $data['ex_posts']) : null,
+			"in_postTypes" => !empty($data['in_postTypes']) ? implode(',', $data['in_postTypes']) : null,
+			"in_categories" => !empty($data['in_categories']) ? implode(',', $data['in_categories']) : null,
+			"in_tags" => !empty($data['in_tags']) ? implode(',', $data['in_tags']) : null,
+			"status" => $data['status'],
+		];
+
+		if (!empty($data['rid'])) {
+			$n = Chat_Essential_Utility::update_web_rule($data['rid'], $rule_data) ? 1 : 2;
+			wp_send_json(array(
+				'n' => $n,
+				'rid' => $data['rid'],
+				'message' => 'The rule has been updated',
+			));
+		} else {
+			global $current_user;
+
+			$rule_data['options'] = '';
+			$rule_data['created_by'] = $current_user->data->user_login;
+
+			$rn = Chat_Essential_Utility::create_web_rule($rule_data);
+			if (!empty($rn['rid']) && $rn['rid'] > 0) {
+				$rn['url'] = '?page=chat-essential-edit-load-on-rule&rid=' . $rn['rid'];
+				$rn['message'] = 'The rule has been created';
+			}
+
+			wp_send_json($rn);
+		}
+	}
+
+		/**
+	 * @since    0.0.1
+	 */
+	public function rule_delete() {
+		if (wp_verify_nonce($_POST['_wpnonce'], Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE) === false) {
+            wp_die('', 403);
+        }
+
+		if (empty($_POST['body'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$data = $_POST['body'];
+		if (empty($data['rid'])) {
+			wp_die('{"message":"Corrupted plugin installation. Reinstall."}', 500);
+		}
+
+		$n = Chat_Essential_Utility::delete_web_rule($data['rid']) ? 1 : 2;
+		wp_send_json(array(
+			'n' => $n,
+			'rid' => $data['rid'],
+			'message' => 'The rule has been deleted',
+		));
 	}
 
 	/**
@@ -553,6 +676,11 @@ class Chat_Essential_Admin {
 			'password' => $pass,
 		), ['timeout' => 120]);
 		if ($res['code'] != 200) {
+			if ($res['code'] == 401) {
+				if ($type == 'chat-essential-login') {
+					$res['data'] = '{"message":"Your account is not authorized to use this plugin."}';
+				}
+			}
 			wp_die($res['data'], $res['code']);
 		}
 
@@ -662,9 +790,9 @@ class Chat_Essential_Admin {
 			wp_die('{"message":"Body is missing"}', 400);
 		}
 
-		$pid = sanitize_text_field($_POST['body']['platformId']);
-		$status = sanitize_text_field($_POST['body']['status']);
-		Chat_Essential_Utility::update_web_status($pid, $status);
+        $rid = sanitize_text_field($_POST['body']['rulesId']);
+        $status = sanitize_text_field($_POST['body']['status']);
+        Chat_Essential_Utility::update_web_status($rid, $status);
 
 		echo 'OK';
 
@@ -715,6 +843,9 @@ class Chat_Essential_Admin {
 			switch ($slug) {
 				case 'chat-essential':
 				case 'chat-essential-ai':
+				case 'chat-essential-edit-load-on-rule':
+					add_thickbox();
+                case 'chat-essential-create-load-on-rule':
 					$page_params['coreEngines'] = CHAT_ESSENTIAL_CORE_ENGINES;
 					wp_register_script( 'showTypeOptions', plugin_dir_url( __FILE__ ) . 'js/show-site-options.js', array( 'jquery' ) );
 					wp_enqueue_script( 'showTypeOptions' );
@@ -723,6 +854,15 @@ class Chat_Essential_Admin {
 					wp_register_script( 'selectize-js', plugins_url( 'js/selectize.min.js', __FILE__ ), array( 'jquery' ) );
 					wp_enqueue_script( 'selectize-js' );
 					break;
+                case 'chat-essential-website':
+					add_thickbox();
+                    wp_register_script( 'jQuery-EC', 'https://code.jquery.com/jquery-3.6.0.min.js', null, null );
+                    wp_enqueue_script('jQuery-EC');
+                    wp_register_script( 'jQuery-UI-EC', 'https://code.jquery.com/ui/1.13.1/jquery-ui.min.js', null, null );
+                    wp_enqueue_script('jQuery-UI-EC');
+                    wp_register_style( 'jQuery-UI-CSS-EC', 'https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.min.css', null, null );
+                    wp_enqueue_style('jQuery-UI-CSS-EC');
+                    break;
 				case 'chat-essential-settings':
 					add_thickbox();
 				case 'chat-essential-signup-phone':
@@ -738,12 +878,82 @@ class Chat_Essential_Admin {
 		wp_localize_script( $this->plugin_name, 'pageParams', $page_params );
 	}
 
+	private function auth_vendasta($isLogin) {
+		$body = Chat_Essential_Utility::signup_data('');
+
+		$res = $this->api->request(VENDASTA_ACCOUNT_ID, 'POST', 'customer/vendasta/' . VENDASTA_ACCOUNT_ID, $body, null);
+		if ($res['code'] != 200) {
+			return $res;
+		}
+		if (empty($res['data'])) {
+			$res['code'] = 500;
+			return $res;
+		}
+
+		$data = json_decode($res['data'], true);
+		if (empty($data) ||
+			empty($data['customer']) ||
+			empty($data['customer']['apiKey']) ||
+			empty($data['customer']['email'])) {
+			$res['code'] = 500;
+			$res['message'] = 'Missing user account information';
+			return $res;
+		}
+
+		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (empty($options)) {
+			$options = array();
+		}
+		$options['signup-complete'] = false;
+		$options['initAI'] = false;
+
+		if (!empty($data['flows']) &&
+			count($data['flows']) > 0) {
+			$webs = array();
+			foreach ($data['flows'] as $flow) {
+				if ($flow['platform'] === 'web') {
+					$webs[] = $flow;
+				}
+			}
+
+			if (empty($webs)) {
+				$options['signup-complete'] = false;
+			} else {	
+				Chat_Essential_Utility::init_user($data['customer']['apiKey'], $webs);
+				$options['signup-complete'] = true;
+			}
+		}
+
+		if (!empty($data['nlp']) &&
+			!empty($data['nlp']['model']) &&
+			!empty($data['nlp']['model']['modelId'])) {
+			$options['modelId'] = $data['nlp']['model']['modelId'];
+			if(!empty($data['nlp']['model']['training']) &&
+				!empty($data['nlp']['model']['training']['status']) &&
+				$data['nlp']['model']['training']['status'] == 'complete') {
+				$options['initAI'] = true;
+			}
+		}
+
+		$options['apiKey'] = $data['customer']['apiKey'];
+		$options['email'] = $data['customer']['email'];
+		update_option(CHAT_ESSENTIAL_OPTION, $options);
+
+		return $res;
+	}
+
 	/**
 	 * @since    0.0.1
 	 */
 	public function menu_main_page() {
 		if (!current_user_can('manage_options')) {
-			$settings_page = new Chat_Essential_Admin_Error('You do not have sufficient permissions to access these settings.');
+			$settings_page = new Chat_Essential_Admin_Error(
+				array(
+					'title' => 'Uh oh...We have a problem.',
+					'message' => 'You do not have sufficient permissions to access these settings.',
+					'logout' => false,
+				)
+			);
 			$settings_page->html();
 			return;
   		}
@@ -754,12 +964,71 @@ class Chat_Essential_Admin {
 			$slug = 'chat-essential-logout';
 		} 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (!isset($options) || empty($options)) {
+			$options = array();
+		}
+
 		$web_name = get_option('blogname');
 		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
 
-		if ($slug !== 'chat-essential-logout') {
+		if (defined('CHAT_ESSENTIAL_AUTH_TYPE') && CHAT_ESSENTIAL_AUTH_TYPE === 'vendasta') {
+			if (!function_exists('validate_vendasta')) {
+				$slug = 'vendasta-error';
+				$options['error'] = 'This plugin has been corrupted. Please install a valid version of the plugin.';
+			} else {
+				$vres = validate_vendasta();
+				if (empty($vres)) {
+					$slug = 'vendasta-error';
+					$options['error'] = 'This plugin has been corrupted. Please install a valid version of the plugin.';
+				} else {
+					if (!empty($vres['error'])) {
+						$slug = 'vendasta-error';
+						$options['error'] = $vres['error'];
+					} else if (!empty($vres['warning'])) {
+						$options['warning'] = $vres['warning'];
+					}
+					if (empty($vres['domain'])) {
+						$slug = 'vendasta-error';
+						$options['error'] = 'This plugin has been corrupted. Please install a valid version of the plugin.';
+					} else {
+						$options['domain'] = $vres['domain'];
+					}
+				}
+			}
+			if (!empty($_GET['message'])) {
+				switch($_GET['message']) {
+					case 'login':
+						$res = $this->auth_vendasta(true);
+						if ($res['code'] != 200) {
+							$errMsg = new Chat_Essential_Admin_Error(
+								Chat_Essential_API_client::error_content($res),
+							);
+							$errMsg->html();
+							return $res;
+						}
+
+						$options = get_option(CHAT_ESSENTIAL_OPTION);
+						break;
+					case 'train':
+						$res = $this->auth_vendasta(false);
+						if ($res['code'] != 200) {
+							$errMsg = new Chat_Essential_Admin_Error(
+								Chat_Essential_API_client::error_content($res),
+							);
+							$errMsg->html();
+							return $res;
+						}
+
+						$options = get_option(CHAT_ESSENTIAL_OPTION);
+						break;
+					default:
+						$options['error'] = $_GET['message'];
+				}
+			}
+		}
+
+		if ($slug !== 'chat-essential-logout' && $slug !== 'vendasta-error') {
 			if (!isset($options) || empty($options)) {
-				$options = array();
 				$slug = 'chat-essential-signup';
 			} else {
 				if (empty($options['apiKey'])) {
@@ -779,7 +1048,7 @@ class Chat_Essential_Admin {
 
 		if (!empty($options['apiKey']) &&
 			!empty($options['modelId']) &&
-			empty($options['initAI'])) {
+			(empty($options['initAI']) || $options['initAI'] === false)) {
 			$this->init_ai();
 		}
 
@@ -790,7 +1059,17 @@ class Chat_Essential_Admin {
 				if (empty($options['previewChat'])) {
 					$res = $this->api->request($options['apiKey'], 'GET', 'flow/' . $options['apiKey'] . '?type=nlp', null, null);
 					if ($res['code'] != 200) {
-						$settings_page = new Chat_Essential_Admin_Error('There was an issue loading your AI settings.');
+						if ($res['code'] == 301) {
+
+						} else {
+							$settings_page = new Chat_Essential_Admin_Error(
+								array(
+									'title' => 'Uh oh...We have a problem.',
+									'message' => 'There was an issue loading your AI settings.',
+									'logout' => false,
+								)
+							);
+						}
 						break;
 					}
 					$data = json_decode($res['data']);
@@ -798,7 +1077,13 @@ class Chat_Essential_Admin {
 						empty($data->flows) ||
 						empty($data->flows[0]) ||
 						empty($data->flows[0]->id)) {
-						$settings_page = new Chat_Essential_Admin_Error('There was an issue loading your AI settings.');
+						$settings_page = new Chat_Essential_Admin_Error(
+							array(
+								'title' => 'Uh oh...We have a problem.',
+								'message' => 'There was an issue loading your AI settings.',
+								'logout' => false,
+							)
+						);
 						break;
 					}
 					$newOptions = get_option(CHAT_ESSENTIAL_OPTION);
@@ -822,6 +1107,10 @@ class Chat_Essential_Admin {
 			case 'chat-essential-phone':
 				$settings_page = new Chat_Essential_Admin_Phone($options, $this->api);
 				break;
+			case 'chat-essential-edit-load-on-rule':
+            case 'chat-essential-create-load-on-rule':
+                $settings_page = new Chat_Essential_Admin_Add_New_Rule($options, $this->api);
+                break;
 			case 'chat-essential-logout':
 				if (!empty($options) && !empty($options['apiKey'])) {
 					Chat_Essential_Utility::logout($options['apiKey']);
@@ -832,10 +1121,24 @@ class Chat_Essential_Admin {
 				));
 				return;
 			default:
-				$settings_page = new Chat_Essential_Admin_Login($options, $this->api);
+				$auth = 'default';
+
+				if (defined('CHAT_ESSENTIAL_AUTH_TYPE')) {
+					$auth = CHAT_ESSENTIAL_AUTH_TYPE;
+				}
+
+				switch ($auth) {
+					case 'vendasta':
+						$settings_page = new Vendasta_Admin_Login($options, $this->api);
+						break;
+					default:
+						$settings_page = new Chat_Essential_Admin_Login($options, $this->api);
+				}
 		}
 
-  		$settings_page->html();
+		if (!empty($settings_page)) {
+  			$settings_page->html();
+		}
 	}
 
 }

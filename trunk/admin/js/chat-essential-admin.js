@@ -2,6 +2,7 @@
 	'use strict';
 
 	let apiInProgress = false;
+	const selectKitsDisabled = true;
 
 	$(document).ready(function(){
 		var ChatEssential = {
@@ -13,6 +14,8 @@
         	},
 			loadPage: function() {
 				this.pageContent.hide();
+				this.logoutBtn = $('#logoutBtn');
+				this.logoutBtn.click(this.logout.bind(this));
 				if (pageParams && pageParams.slug) {
 					switch(pageParams.slug) {
 						case 'chat-essential':
@@ -30,8 +33,6 @@
 						case 'chat-essential-settings':
 							this.form = $('#settingsForm');
 							this.form.submit(this.onSettingsSubmit.bind(this));
-							this.logoutBtn = $('#logoutBtn');
-							this.logoutBtn.click(this.logout.bind(this));
 							this.emailInput = $('#email');
 							this.emailInput.change(this.onSettingsChange.bind(this));
 							this.phoneInput = $('#phone');
@@ -51,6 +52,18 @@
 							this.switchBtn = $('#footerBtn');
 							this.switchBtn.click(this.switchAuth.bind(this));
 							return;
+						case 'chat-essential-edit-load-on-rule':
+							this.deleteRule = $('#deleteRule');
+							this.deleteRule.click(this.confirmDeleteRule.bind(this));
+							this.deleteRuleContent = $('#deleteRuleContent');
+							this.confirmDeleteRule = $('#confirmDeleteRule');
+							this.confirmDeleteRule.click(this.deleteRuleConfirmed.bind(this));
+							this.cancelDeleteRule = $('#cancelDeleteRule');
+							this.cancelDeleteRule.click(this.deleteRuleCancelled.bind(this));
+						case 'chat-essential-create-load-on-rule':
+							this.form = $('#ruleForm');
+							this.form.submit(this.onRuleSubmit.bind(this));
+							return;
 						case 'chat-essential-signup-phone':
 							this.form = $('#loginForm');
 							this.form.submit(this.onPhoneSubmit.bind(this));
@@ -58,6 +71,15 @@
 							this.skipBtn.click(this.skipPhone.bind(this));
 							return;
 						case 'chat-essential-website':
+							const parent = this;
+							$('.delete-rule').each(function(i, e) {
+								$(e).click(parent.confirmDeleteRule.bind(parent));
+							});
+							this.deleteRuleContent = $('#deleteRuleContent');
+							this.confirmDeleteRule = $('#confirmDeleteRule');
+							this.confirmDeleteRule.click(this.deleteRuleConfirmed.bind(this));
+							this.cancelDeleteRule = $('#cancelDeleteRule');
+							this.cancelDeleteRule.click(this.deleteRuleCancelled.bind(this));
 							this.switches = $('.ey-switch');
 							this.switches.click(this.websiteSwitch.bind(this));
 							return;
@@ -118,23 +140,38 @@
 					if (!existingKits[val.kitId]) {
 						existingKits[val.kitId] = true;
 						const id = val.name.replace(' ', '-');
-						let col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
-						let classes = 'ai-input-label';
-						if (val.engine) {
-							col += ' class="ai-model-checkbox" value="' + val.engine + '"';
-							if (!modelSelected) {
-								modelSelected = true;
-								this.aiEngines.push('topic-' + id);
+						let col = '';
+						if (selectKitsDisabled) {
+							if (val.engine) {
+								if (!modelSelected) {
+									modelSelected = true;
+									this.aiEngines.push('topic-' + id);
+									col += '<input id="topic-' + id + '" type="hidden" value="' + val.engine + '" />';
+								}
+							} else {
+								col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
+								col += ' value="' + val.kitId + '" class="ai-model-checkbox" checked disabled';
+								col += ' /><div class="ai-input-label">' + val.name + '</div></td>';
 							}
-							col += ' checked disabled';
 						} else {
-							col += ' value="' + val.kitId + '" class="ai-checkbox"';
-							if (modelKits[val.kitId]) {
-								col += ' checked';
-								this.aiTopics['topic-' + id] = val.kitId;
+							col = '<td><input id="topic-' + id + '" type="checkbox" name="topic-' + id + '"';
+							let classes = 'ai-input-label';
+							if (val.engine) {
+								col += ' class="ai-model-checkbox" value="' + val.engine + '"';
+								if (!modelSelected) {
+									modelSelected = true;
+									this.aiEngines.push('topic-' + id);
+								}
+								col += ' checked disabled';
+							} else {
+								col += ' value="' + val.kitId + '" class="ai-checkbox"';
+								if (modelKits[val.kitId]) {
+									col += ' checked';
+									this.aiTopics['topic-' + id] = val.kitId;
+								}
 							}
+							col += ' /><div class="' + classes + '">' + val.name + '</div></td>';
 						}
-						col += ' /><div class="' + classes + '">' + val.name + '</div></td>';
 
 						if (idx % 4) {
 							models += col;
@@ -324,6 +361,115 @@
 				}).bind(this));
 				return false;
 			},
+			onRuleSubmit: function () {
+				if (apiInProgress) {
+					return false;
+				}
+
+				const data = this.siteOptionValues();
+				const rid = $('#ruleId').val();
+				if (rid) {
+					data['rid'] = rid;
+				}
+
+				const flow = $('#flow').val();
+				if (flow) {
+					data['flow'] = flow;
+				} else {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				}
+
+				const device = $('#device_display').val();
+				if (device) {
+					data['device_display'] = device;
+				} else {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				}
+
+				const status = $('#status').val();
+				if (device) {
+					data['status'] = status;
+				} else {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				}
+
+				if (!data) {
+					this.showStatus('There was an internal issue submitting your request', 'error');
+					return false;
+				} else if (data.error) {
+					this.showStatus(data.error, 'error');
+					return false;
+				}
+				apiInProgress = true;
+
+				api(this.n, 'chat_essential_rule_update', null, data)
+				.then((function(v1) {
+					apiInProgress = false;
+					console.log(v1);
+					if (v1.url) {
+						location.href = location.origin + location.pathname + v1.url;
+					} else {
+						this.showStatus(v1.message ? v1.message : 'The rule has been added', 'success');
+					}
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+				return false;
+			},
+			confirmDeleteRule: function(e) {
+				this.deleteValue = $(e.target).attr('value');
+				this.deleteRuleContent.html('<p>Are you sure you want to delete this Load On Rule? You cannot undo this change.</p>');
+				const url = '#TB_inline?inlineId=deleteRuleModal';
+				tb_show('CONFIRM DELETE LOAD ON RULE', url);
+				return false;
+			},
+			deleteRuleCancelled: function() {
+				this.deleteValue = null;
+				tb_remove();
+			},
+			deleteRuleConfirmed: function() {
+				if (this.deleteValue) {
+					this.processDeleteRuleSubmit({ rid: this.deleteValue });
+				}
+				tb_remove();
+				return false;
+			},
+			processDeleteRuleSubmit: function(data) {
+				console.log('delete');
+				if (apiInProgress) {
+					return false;
+				}
+				apiInProgress = true;
+				this.showStatus('Deleting...');
+
+				api(this.n, 'chat_essential_rule_delete', null, data)
+				.then((function(v1) {
+					apiInProgress = false;
+					location.href = '?page=chat-essential-website';
+				}).bind(this))
+				.catch((function(e1) {
+					apiInProgress = false;
+					var err = '';
+					if (e1.responseText) {
+						err = parseError(e1);
+						this.showStatus(err, 'error');
+					} else {
+						console.error(e1);
+					}
+				}).bind(this));
+				return false;
+			},
 			confirmSettingsSubmit: function(addingNumber) {
 				if (addingNumber) {
 					this.confirmContent.html('<p>We will automatically update your chat to enable live chatting.</p><p>Any changes you may have made to your chat flows will be overwritten by these updates.</p><p>Do you wish to proceed?</p>');
@@ -395,8 +541,6 @@
 						console.error(e1);
 					}
 				}).bind(this));
-				
-
 				return false;
 			},
 			onSettingsChange: function(evt) {
@@ -622,14 +766,17 @@
 					siteType: $('#siteTypeSelect').val(),
 				};
 
-				var topics = Object.keys(this.aiTopics).length;
-				if (topics > 0) {
-					data['kits'] = [];
-					for (var k in this.aiTopics) {
-						data['kits'].push(parseInt(this.aiTopics[k]));
+				var topics = 0;
+				if (this.aiTopics) {
+					topics = Object.keys(this.aiTopics).length;
+					if (topics > 0) {
+						data['kits'] = [];
+						for (var k in this.aiTopics) {
+							data['kits'].push(parseInt(this.aiTopics[k]));
+						}
 					}
 				}
-				if (this.aiEngines.length > 0) {
+				if (this.aiEngines && this.aiEngines.length > 0) {
 					data['engines'] = [];
 					for (var k in this.aiEngines) {
 						const md = $('#' + this.aiEngines[k]);
@@ -742,7 +889,7 @@
 				const swtch = $('#' + swt.attr('for') + '-preview');
 				swtch.toggle();
 				api(this.n, 'chat_essential_switch_platform_status', null, {
-					platformId: swt.attr('for').replace('status', ''),
+					rulesId: swt.attr('for').replace('status', ''),
 					status: !inp.is(':checked') ? 'active' : 'inactive',
 				})
 				.then((function(v) {

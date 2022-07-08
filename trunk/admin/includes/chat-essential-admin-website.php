@@ -24,34 +24,37 @@ class Chat_Essential_Admin_Website {
 	 */
 	private $settings;
 
-	/**
-	 * @since    0.0.1
-	 * @param      array    $settings       The settings to load on the website management page.
-	 */
+    /**
+     * @since    0.0.1
+     * @access   private
+     * @var      array     $flows    The state of reordered rules.
+     */
+    private $reordered_rules = false;
+
 	public function __construct( $settings, $api ) {
 		$this->settings = $settings;
 		$this->api = $api;
+
+        if (!empty($_POST)) {
+            Chat_Essential_Utility::reorder_rules($_POST['order']);
+            $this->reordered_rules = true;
+        }
 	}
 
-	private function row($settings, $web) {
-		$pid = sanitize_text_field($web->platformId);
-		$wid = sanitize_text_field($web->id);
-		$flow_name = sanitize_text_field($web->name);
+    private function row($settings, $rule, $web) {
+        $rid = sanitize_text_field($rule->rules_id);
+        $wid = sanitize_text_field($web->id);
+        $flow_name = sanitize_text_field($web->name);
 
-		$rule = Chat_Essential_Utility::get_rules($pid);
-		if (empty($rule)) {
-			return;
-		}
-
-		$checked = '';
-		if ($rule->status === 'active') {
-			$checked = 'checked';
-		}
-		$isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' . $pid . '" /><label class="ey-switch" for="status' . $pid . '">Toggle</label>';
+        $checked = '';
+        if ($rule->status === 'active') {
+            $checked = 'checked';
+        }
+        $isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' . $rid . '" /><label class="ey-switch" for="status' . $rid . '">Toggle</label>';
 
 		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($web->versionId);
 		$edit = chat_essential_localize('Edit');
-		$lot_val = chat_essential_localize('Site Wide');
+		$delete = chat_essential_localize('Delete');
 		$analytics = chat_essential_localize('View');
 		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $wid;
 		$theme_name = '';
@@ -61,6 +64,18 @@ class Chat_Essential_Admin_Website {
 		$offhours_name = '';
 		if (!empty($web->offhoursSetting) && !empty($web->offhoursSetting->name)) {
 			$offhours_name = sanitize_text_field($web->offhoursSetting->name);
+		}
+
+		$names = Site_Options::optionNames();
+		$lot_val = chat_essential_localize('Site Wide');
+		switch ($rule->display_on) {
+			case 'posts':
+			case 'pages':
+			case 'categories':
+			case 'tags':
+			case 'postTypes':
+				$lot_val = $names[$rule->display_on];
+				break;
 		}
 
 		$preview = '';
@@ -76,21 +91,31 @@ class Chat_Essential_Admin_Website {
 		}
 		$data = json_decode($res['data'], true);
 
-		if (!empty($data)) {
-			if (!empty($data['publish'])) {
-				if (!empty($data['publish']['url'])) {
-					$disp = '';
-					if ($rule->status === 'inactive') {
-						$disp = 'style="display:none;"';
-					}
-					$preview_url = esc_url($data['publish']['url']) . '&eystate=open&eyreset=true&clearcache=true';
-					$preview = '<span ' . $disp . ' id="status' .$pid . '-preview" class="preview-web"><a href="' . $preview_url . '" target="_blank">' . chat_essential_localize('Preview') . '</a></span>';
-				}
-			}
-		}
+        if (!empty($data)) {
+            if (!empty($data['publish'])) {
+                if (!empty($data['publish']['url'])) {
+                    $disp = '';
+                    if ($rule->status === 'inactive') {
+                        $disp = 'style="display:none;"';
+                    }
+                    $preview_url = esc_url($data['publish']['url']) . '&eystate=open&eyreset=true&clearcache=true';
+                    $preview = '<span ' . $disp . ' id="status' .$rid . '-preview" class="preview-web"><a href="' . $preview_url . '" target="_blank">' . chat_essential_localize('Preview') . '</a></span>';
+                }
+            }
+        }
+
+        $sortable_column = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
+            ? '<td class="column-sortable">
+                    <div class="sortable-block">
+                      <span class="ui-icon ui-icon-caret-2-n-s"></span>
+                      <input type="hidden" name="order[]" value="'. $rule->rules_id .'">
+                    </div>
+                </td>'
+            : '';
 
 		return <<<END
 	<tr>
+	    $sortable_column
 		<td class="status column-status">$isOn</td>
 		<td class="flow-name column-flow-name">
 			<strong>$flow_name</strong>
@@ -103,6 +128,14 @@ class Chat_Essential_Admin_Website {
 		</td>
 		<td class="load-on column-load-on">
 			$lot_val
+			<div class="row-actions visible">
+				<span class="edit">
+					<a href="?page=chat-essential-edit-load-on-rule&rid=$rid">$edit</a>
+				</span>
+				<span class="edit">
+					<a class="text-button delete-rule" value="$rid" id="deleteRule" name="delete_rule">$delete</a>
+				</span>
+			</div>
 		</td>
 		<td class="theme column-analytics">
 			<a href="$analytics_url" target="_blank">$analytics</a>
@@ -125,7 +158,11 @@ END;
 	
 		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=web&type=flow&data=full', null, null);
 		if ($res['code'] != 200) {
-			wp_die('There was an issue loading your settings.', $res['code']);
+			$errMsg = new Chat_Essential_Admin_Error(
+				Chat_Essential_API_client::error_content($res),
+			);
+			$errMsg->html();
+			return;
 		}
 
 		if (empty($res['data'])) {
@@ -133,14 +170,17 @@ END;
 		}
 		$data = json_decode($res['data']);
 
-		$webflows = '';
-		if (!empty($data->flows)) {
-			foreach ($data->flows as $flow) {
-				$webflows .= $this->row($settings, $flow);
-			}
-		} else {
-			// empty state?
-		}
+        $rules = Chat_Essential_Utility::get_all_rules();
+
+        $webflows = '';
+        if (!empty($rules)) {
+            foreach ($rules as $rule) {
+                $flow = $this->getFlowById($data->flows, $rule->flow_name);
+                if (!empty($flow)) {
+                    $webflows .= $this->row($settings, $rule, $flow);
+                }
+            }
+        }
 
 		$h1 = chat_essential_localize('Status');
 		$h2 = chat_essential_localize('Chat Flow');
@@ -149,16 +189,35 @@ END;
 		$h5 = chat_essential_localize('Theme');
 		$h6 = chat_essential_localize('Business Hours Settings');
 
-		$submit = chat_essential_localize('Add New Settings');
-        $plugin_pro_link = CHAT_ESSENTIAL_SUBSCRIPTION !== 'pro'
-            ? '<a href="https://www.chatessential.com/wp-premium" target="_blank" class="chat-essential-upgrade-link">Upgrade to premium</a>'
+        $premium_banner = Chat_Essential_Utility::premium_banner();
+        $sortable_column = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
+            ? '<th scope="col" id="sortable" class="manage-column column-sortable"></th>'
+            : '';
+        $sortable_script = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
+            ? '<script>$(function() {
+                  $( ".ui-sortable" ).sortable({
+                    update: function() {
+                      $("#save-order-button").removeAttr("disabled");
+                    }
+                  });
+                });</script>'
+            : '';
+        $add_new_links = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
+            ? '<div class="ce-add-new-links">
+                <a class="button button-primary ey-button top-margin" href="?page=chat-essential-create-load-on-rule">Create Load On Rule</a>
+                <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create Chat Flow</a>
+				<button class="button button-primary ey-button top-margin" id="save-order-button" disabled>Save Rule Priority</button>
+               </div>'
+            : '';
+        $reordered_notice = $this->reordered_rules
+            ? '<div class="notice notice-success is-dismissible">The rules have been reordered</div>'
             : '';
 
     	echo <<<END
 		<div class="wrap">
-			<div class="upgrade-title-container">
+			<div class="upgrade-title-container reorder-container">
 				<h1 class="upgrade-title">$title</h1>
-				$plugin_pro_link
+				$reordered_notice
 			</div>
 				<div class="metabox-holder columns-2">
 					<div style="position: relative;">
@@ -167,6 +226,7 @@ END;
 							<table class="wp-list-table widefat fixed striped table-view-excerpt">
 								<thead class="manage-head">
 									<tr>
+									    $sortable_column
 										<th scope="col" id="status" class="manage-column column-status">
 											$h1
 										</th>
@@ -187,23 +247,37 @@ END;
 										</th>
 									</tr>
 								</thead>
-								<tbody>
+								<tbody class="ui-sortable">
 									$webflows
 								</tbody>
 							</table>
+                            $sortable_script
+                            $add_new_links
 						</form>
+						$premium_banner
+						<div id="deleteRuleModal" style="display:none;">
+    						<p id="deleteRuleContent"></p>
+							<div class="ey-modal-buttons buttons-centered">
+								<input class="button button-primary ey-button" id="confirmDeleteRule" value="DELETE">
+								<input class="button button-primary ey-button-secondary ey-button-cancel" id="cancelDeleteRule" value="CANCEL">
+							</div>
+						</div>
 					</div>
 				</div>
 		</div>
 END;
   	}
 
-/*
-<p class="submit">
-<input disabled type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_web_rules">
-<i>Upgrade to premium</i>
-</p>
-*/
+
+    private function getFlowById($flows, $flowId) {
+        foreach ($flows as $flow) {
+            if ($flow->id == $flowId) {
+                return $flow;
+            }
+        }
+        return false;
+    }
+
 
 	/**
 	 * @since    0.0.1
