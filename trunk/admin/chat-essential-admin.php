@@ -964,6 +964,9 @@ class Chat_Essential_Admin {
 			$slug = 'chat-essential-logout';
 		} 
 		$options = get_option(CHAT_ESSENTIAL_OPTION);
+		if (!isset($options) || empty($options)) {
+			$options = array();
+		}
 
 		$web_name = get_option('blogname');
 		$nonce = wp_nonce_field(Chat_Essential_Admin::CHAT_ESSENTIAL_NONCE);
@@ -1026,7 +1029,6 @@ class Chat_Essential_Admin {
 
 		if ($slug !== 'chat-essential-logout' && $slug !== 'vendasta-error') {
 			if (!isset($options) || empty($options)) {
-				$options = array();
 				$slug = 'chat-essential-signup';
 			} else {
 				if (empty($options['apiKey'])) {
