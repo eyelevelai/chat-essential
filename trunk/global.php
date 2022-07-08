@@ -5,7 +5,7 @@ define( 'CHAT_ESSENTIAL_VERSION', '0.20' );
 define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
 define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
 
-define( 'CHAT_ESSENTIAL_ENV', 'dev' );
+define( 'CHAT_ESSENTIAL_ENV', 'prod' );
 
 if (CHAT_ESSENTIAL_ENV == 'dev') {
     define( 'CHAT_ESSENTIAL_API_URL', 'https://devapi.eyelevel.ai' );
