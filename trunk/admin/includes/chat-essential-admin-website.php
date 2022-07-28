@@ -53,10 +53,19 @@ class Chat_Essential_Admin_Website {
         $isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' . $rid . '" /><label class="ey-switch" for="status' . $rid . '">Toggle</label>';
 
 		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($web->versionId);
+		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+			$edit_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+		}
 		$edit = chat_essential_localize('Edit');
+
 		$delete = chat_essential_localize('Delete');
+
 		$analytics = chat_essential_localize('View');
 		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $wid;
+		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+			$analytics_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+		}
+
 		$theme_name = '';
 		if (!empty($web->theme) && !empty($web->theme->name)) {
 			$theme_name = sanitize_text_field($web->theme->name);
@@ -189,6 +198,11 @@ END;
 		$h5 = chat_essential_localize('Theme');
 		$h6 = chat_essential_localize('Business Hours Settings');
 
+		$dashboardUrl = CHAT_ESSENTIAL_DASHBOARD_URL;
+		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+			$dashboardUrl .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+		}
+
         $premium_banner = Chat_Essential_Utility::premium_banner();
         $sortable_column = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
             ? '<th scope="col" id="sortable" class="manage-column column-sortable"></th>'
@@ -205,7 +219,7 @@ END;
         $add_new_links = CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM
             ? '<div class="ce-add-new-links">
                 <a class="button button-primary ey-button top-margin" href="?page=chat-essential-create-load-on-rule">Create Load On Rule</a>
-                <a class="button button-primary ey-button top-margin" href="' . CHAT_ESSENTIAL_DASHBOARD_URL . '" target="_blank">Create Chat Flow</a>
+                <a class="button button-primary ey-button top-margin" href="' . $dashboardUrl . '" target="_blank">Create Chat Flow</a>
 				<button class="button button-primary ey-button top-margin" id="save-order-button" disabled>Save Rule Priority</button>
                </div>'
             : '';

@@ -96,6 +96,9 @@ class Chat_Essential_Admin_Settings {
 		if (!empty($data->themes)) {
 			foreach ($data->themes as $theme) {
 				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?themeId=' . sanitize_text_field($theme->themeId);
+				if (defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+				}
 				$themes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
 			}
 		} else {
@@ -109,6 +112,9 @@ class Chat_Essential_Admin_Settings {
 			$hours = '<tr><th colspan="2" class="no-padding-bottom"><h2>'.$h4.'</h2><p>'.$h4_desc.'</p></th></tr>';
 			foreach ($data->offhoursSettings as $off) {
 				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?hoursId=' . sanitize_text_field($off->hoursId);
+				if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+				}
 				$hours .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($off->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
 			}
 		} else {
@@ -121,6 +127,9 @@ class Chat_Essential_Admin_Settings {
 		if (!empty($data->qrThemes)) {
 			foreach ($data->qrThemes as $theme) {
 				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?qrThemeId=' . sanitize_text_field($theme->qrThemeId);
+				if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+				}
 				$qrThemes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
 			}
 		} else {
@@ -152,6 +161,9 @@ END;
 		$fb_pages = array();
 		$num_pages = count($fb_pages);
         $chat_essential_edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/account';
+		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+			$chat_essential_edit_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+		}
 		if ($num_pages > 0) {
 			$l7_val = "";
 			foreach ($fb_pages as $idx => $val) {

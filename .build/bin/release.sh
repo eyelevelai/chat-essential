@@ -71,7 +71,6 @@ then
 
     copy_common_files
 
-    cp $DIST_TYPE/vendasta.png "dist/$BASE_NAME/images"
     cp -r $DIST_TYPE/vendasta "dist/$BASE_NAME/admin/includes"
 
     zip_dist

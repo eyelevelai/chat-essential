@@ -1008,7 +1008,8 @@ class Chat_Essential_Admin {
 						}
 
 						$options = get_option(CHAT_ESSENTIAL_OPTION);
-						break;
+						echo '<script>location.reload();</script>';
+						return;
 					case 'train':
 						$res = $this->auth_vendasta(false);
 						if ($res['code'] != 200) {
@@ -1020,7 +1021,8 @@ class Chat_Essential_Admin {
 						}
 
 						$options = get_option(CHAT_ESSENTIAL_OPTION);
-						break;
+						echo '<script>location.reload();</script>';
+						return;
 					default:
 						$options['error'] = $_GET['message'];
 				}

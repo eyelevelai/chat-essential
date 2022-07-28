@@ -38,9 +38,17 @@ class Chat_Essential_Admin_QRCode {
 		$flowName = sanitize_text_field($qr->name);
 
 		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($qr->versionId);
+		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+			$edit_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+		}
 		$edit = chat_essential_localize('Edit');
+
 		$analytics = chat_essential_localize('View');
 		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $qid;
+		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
+			$analytics_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+		}
+
 		$theme_name = '';
 		if (!empty($qr->theme) && !empty($qr->theme->name)) {
 			$theme_name = sanitize_text_field($qr->theme->name);

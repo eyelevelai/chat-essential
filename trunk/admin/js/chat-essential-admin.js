@@ -194,6 +194,7 @@
 					return;
 				}
 				if (model === undefined || !pageParams.coreEngines) {
+					console.error(model, pageParams);
 					return;
 				}
 				apiInProgress = true;
