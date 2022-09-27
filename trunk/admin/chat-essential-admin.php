@@ -1088,9 +1088,9 @@ class Chat_Essential_Admin {
 						);
 						break;
 					}
-					$newOptions = get_option(CHAT_ESSENTIAL_OPTION);
-					$newOptions['previewChat'] = $data->flows[0]->id;
-					update_option(CHAT_ESSENTIAL_OPTION, $newOptions);
+					$options = get_option(CHAT_ESSENTIAL_OPTION);
+					$options['previewChat'] = $data->flows[0]->id;
+					update_option(CHAT_ESSENTIAL_OPTION, $options);
 				}
 				$settings_page = new Chat_Essential_Admin_AI($options, $this->api);
 				break;
