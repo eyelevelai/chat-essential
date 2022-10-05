@@ -1,6 +1,6 @@
 <?php
 
-define( 'CHAT_ESSENTIAL_VERSION', '0.23' );
+define( 'CHAT_ESSENTIAL_VERSION', '0.24' );
 
 define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
 define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );

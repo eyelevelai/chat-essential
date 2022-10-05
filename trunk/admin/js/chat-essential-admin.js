@@ -225,7 +225,7 @@
 					this.aiModel = $('.ai-model-checkbox');
 					this.aiModel.click(this.aiModelSelect.bind(this));
 				}).bind(this))
-				.catch((function(e1, e2) {
+				.fail((function(e1, e2) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -249,7 +249,7 @@
 				.then((function(v) {
 					location.reload();
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -289,7 +289,7 @@
 					this.showStatus('Upload complete! Training started...This might also take a while...', 'success');
 					this.pollTrainingStatus();
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -320,7 +320,7 @@
 				.then((function(v1) {
 					location.reload();
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.status && e1.status === 405) {
@@ -350,7 +350,7 @@
 				.then((function(v1) {
 					location.reload();
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -416,7 +416,7 @@
 						this.showStatus(v1.message ? v1.message : 'The rule has been added', 'success');
 					}
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -459,7 +459,7 @@
 					apiInProgress = false;
 					location.href = '?page=chat-essential-website';
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -532,7 +532,7 @@
 					}
 					this.submitBtn.prop('disabled', true);
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -566,7 +566,7 @@
 				.then((function(v1) {
 					location.reload();
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -593,7 +593,7 @@
 								this.showTrainingStatus(data.nlp.task.status, data.nlp.task);
 							}
 						}).bind(this))
-						.catch((function(e1) {
+						.fail((function(e1) {
 							var err = '';
 							if (e1.responseText) {
 								err = parseError(e1);
@@ -868,7 +868,7 @@
 					apiInProgress = false;
 					location.reload();
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					var err = '';
 					if (e1.responseText) {
@@ -896,7 +896,7 @@
 				.then((function(v) {
 					apiInProgress = false;
 				}).bind(this))
-				.catch((function(e1) {
+				.fail((function(e1) {
 					apiInProgress = false;
 					swtch.toggle();
 					var err = '';

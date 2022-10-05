@@ -99,7 +99,7 @@ class Chat_Essential_Admin_Settings {
 				if (defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
 					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
 				}
-				$themes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
+				$themes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '" target="_blank">Edit</a></td></tr>';
 			}
 		} else {
 // create theme button
@@ -115,7 +115,7 @@ class Chat_Essential_Admin_Settings {
 				if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
 					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
 				}
-				$hours .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($off->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
+				$hours .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($off->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '" target="_blank">Edit</a></td></tr>';
 			}
 		} else {
 // here handle when no phone number entered
@@ -130,7 +130,7 @@ class Chat_Essential_Admin_Settings {
 				if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
 					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
 				}
-				$qrThemes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '">Edit</a></td></tr>';
+				$qrThemes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '" target="_blank">Edit</a></td></tr>';
 			}
 		} else {
 // create theme button
@@ -145,7 +145,7 @@ class Chat_Essential_Admin_Settings {
 				<i>No pages added</i>
 			</td>
 			<td class="large-padding-bottom">
-				<a href="https://ssp.eyelevel.ai/account">Edit</a>
+				<a href="https://ssp.eyelevel.ai/account" target="_blank">Edit</a>
 			</td>
 END;
 
@@ -174,7 +174,7 @@ END;
 							$val
 						</td>
 						<td class="large-padding-bottom">
-							<a href="$chat_essential_edit_url">Edit</a>
+							<a href="$chat_essential_edit_url" target="_blank">Edit</a>
 						</td>
 					</tr>
 END;
