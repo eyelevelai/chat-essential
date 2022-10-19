@@ -168,7 +168,7 @@ END;
 		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=web&type=flow&data=full', null, null);
 		if ($res['code'] != 200) {
 			$errMsg = new Chat_Essential_Admin_Error(
-				Chat_Essential_API_client::error_content($res),
+				Chat_Essential_API_client::error_content($res)
 			);
 			$errMsg->html();
 			return;

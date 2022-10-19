@@ -42,7 +42,7 @@ class Chat_Essential_Admin_Settings {
 		$res = $this->api->request($settings['apiKey'], 'GET', 'customer/account/' . $settings['apiKey'], null, null);
 		if ($res['code'] != 200) {
 			$errMsg = new Chat_Essential_Admin_Error(
-				Chat_Essential_API_client::error_content($res),
+				Chat_Essential_API_client::error_content($res)
 			);
 			$errMsg->html();
 			return;

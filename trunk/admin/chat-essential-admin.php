@@ -1001,7 +1001,7 @@ class Chat_Essential_Admin {
 						$res = $this->auth_vendasta(true);
 						if ($res['code'] != 200) {
 							$errMsg = new Chat_Essential_Admin_Error(
-								Chat_Essential_API_client::error_content($res),
+								Chat_Essential_API_client::error_content($res)
 							);
 							$errMsg->html();
 							return $res;
@@ -1014,7 +1014,7 @@ class Chat_Essential_Admin {
 						$res = $this->auth_vendasta(false);
 						if ($res['code'] != 200) {
 							$errMsg = new Chat_Essential_Admin_Error(
-								Chat_Essential_API_client::error_content($res),
+								Chat_Essential_API_client::error_content($res)
 							);
 							$errMsg->html();
 							return $res;
