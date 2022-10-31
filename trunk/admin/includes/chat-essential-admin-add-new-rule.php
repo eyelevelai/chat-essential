@@ -114,9 +114,15 @@ class Chat_Essential_Admin_Add_New_Rule {
 								</tbody>
 							</table>
 							<button class="button button-primary ey-button ey-button-save top-margin">Save</button>
-                            $delete
                             <a class="button button-primary ey-button-secondary ey-button-cancel top-margin" href="?page=chat-essential-website">Done</a>
 						</form>
+					</div>
+				</div>
+		</div>
+END;
+    }
+/*
+                            $delete
                         <div id="deleteRuleModal" style="display:none;">
     						<p id="deleteRuleContent"></p>
 							<div class="ey-modal-buttons buttons-centered">
@@ -124,11 +130,7 @@ class Chat_Essential_Admin_Add_New_Rule {
 								<input class="button button-primary ey-button-secondary ey-button-cancel" id="cancelDeleteRule" value="CANCEL">
 							</div>
 						</div>
-					</div>
-				</div>
-		</div>
-END;
-    }
+*/
 
     private function getRuleAddedNotice() {
         $n = 0;

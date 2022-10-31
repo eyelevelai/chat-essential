@@ -141,9 +141,6 @@ class Chat_Essential_Admin_Website {
 				<span class="edit">
 					<a href="?page=chat-essential-edit-load-on-rule&rid=$rid">$edit</a>
 				</span>
-				<span class="edit">
-					<a class="text-button delete-rule" value="$rid" id="deleteRule" name="delete_rule">$delete</a>
-				</span>
 			</div>
 		</td>
 		<td class="theme column-analytics">
@@ -158,6 +155,11 @@ class Chat_Essential_Admin_Website {
 	</tr>
 END;
 	}
+/*
+				<span class="edit">
+					<a class="text-button delete-rule" value="$rid" id="deleteRule" name="delete_rule">$delete</a>
+				</span>
+*/
 
 	public function html() {
     	$settings = $this->getSettings();
@@ -266,9 +268,15 @@ END;
 								</tbody>
 							</table>
                             $sortable_script
-                            $add_new_links
 						</form>
 						$premium_banner
+					</div>
+				</div>
+		</div>
+END;
+  	}
+/*
+						$add_new_links
 						<div id="deleteRuleModal" style="display:none;">
     						<p id="deleteRuleContent"></p>
 							<div class="ey-modal-buttons buttons-centered">
@@ -276,11 +284,7 @@ END;
 								<input class="button button-primary ey-button-secondary ey-button-cancel" id="cancelDeleteRule" value="CANCEL">
 							</div>
 						</div>
-					</div>
-				</div>
-		</div>
-END;
-  	}
+*/
 
 
     private function getFlowById($flows, $flowId) {
