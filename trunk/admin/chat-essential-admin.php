@@ -1075,7 +1075,7 @@ class Chat_Essential_Admin {
 						break;
 					}
 					$data = json_decode($res['data']);
-					if ($data->count !== 1 ||
+					if ($data->count < 1 ||
 						empty($data->flows) ||
 						empty($data->flows[0]) ||
 						empty($data->flows[0]->id)) {

@@ -100,6 +100,7 @@ class Chat_Essential_API_client {
 				'Content-Type' => 'application/json',
 				'X-WordPress-Subscription' => CHAT_ESSENTIAL_SUBSCRIPTION,
 				'X-Customer-Key' => $apiKey,
+				'X-Website-URL' => get_option('home'),
 			];
 			if ($auth !== null) {
 				$credentials = base64_encode($auth['username'] . ':' . $auth['password']);
