@@ -127,7 +127,7 @@ END;
 		$title = chat_essential_localize('QR Code Chat');
 		$nonce = $settings['nonce'];
 
-		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=qr&type=flow&data=full', null, null);
+		$res = $this->api->request($settings['apiKey'], 'GET', 'flow/' . $settings['apiKey'] . '?platform=qr&type=flow&data=full&modelId=' . $settings['modelId'], null, null);
 		if ($res['code'] != 200) {
 			$errMsg = new Chat_Essential_Admin_Error(
 				Chat_Essential_API_client::error_content($res)
