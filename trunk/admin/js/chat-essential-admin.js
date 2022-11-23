@@ -389,9 +389,9 @@
 					return false;
 				}
 
-				const status = $('#status').val();
+				const bubble = $('#bubble_placement').val();
 				if (device) {
-					data['status'] = status;
+					data['bubble_placement'] = bubble;
 				} else {
 					this.showStatus('There was an internal issue submitting your request', 'error');
 					return false;

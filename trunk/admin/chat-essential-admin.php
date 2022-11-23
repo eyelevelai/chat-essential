@@ -424,8 +424,16 @@ class Chat_Essential_Admin {
 			"in_postTypes" => !empty($data['in_postTypes']) ? implode(',', $data['in_postTypes']) : null,
 			"in_categories" => !empty($data['in_categories']) ? implode(',', $data['in_categories']) : null,
 			"in_tags" => !empty($data['in_tags']) ? implode(',', $data['in_tags']) : null,
-			"status" => $data['status'],
 		];
+		if (!empty($data['device_display'])) {
+			$rule_data['device_display'] = $data['device_display'];
+		}
+		if (!empty($data['status'])) {
+			$rule_data['status'] = $data['status'];
+		}
+		if (!empty($data['bubble_placement'])) {
+			$rule_data['bubble_placement'] = $data['bubble_placement'];
+		}
 
 		if (!empty($data['rid'])) {
 			$n = Chat_Essential_Utility::update_web_rule($data['rid'], $rule_data) ? 1 : 2;

@@ -65,6 +65,14 @@ class Chat_Essential_Admin_Add_New_Rule {
         }
 
         $siteOptions = Site_Options::typeSelector($rule);
+        $bothVal = $rule['device_display'] == 'both' ? 'selected="selected"' : '';
+        $desktopVal = $rule['device_display'] == 'desktop' ? 'selected="selected"' : '';
+        $mobileVal = $rule['device_display'] == 'mobile' ? 'selected="selected"' : '';
+        $rightVal = $rule['bubble_placement'] == 'right' ? 'selected="selected"' : '';
+        $leftVal = $rule['bubble_placement'] == 'left' ? 'selected="selected"' : '';
+        if ($rightVal == '' && $leftVal == '') {
+            $rightVal = 'selected="selected"';
+        }
 
         if (!empty($rule)) {
             $title = chat_essential_localize('Edit Load On Rule');
@@ -96,19 +104,19 @@ class Chat_Essential_Admin_Add_New_Rule {
                                       <th><label for="device_display">Device Display</label></th>
                                       <td>
                                         <select name="data[device_display]" id="device_display">
-				                            <option value="both">Show on All Devices</option>
-				                            <option value="desktop">Only Desktop</option>
-				                            <option value="mobile">Only Mobile Devices</option>
-                                          </select>
+				                            <option $bothVal value="both">Show on All Devices</option>
+				                            <option $desktopVal value="desktop">Only Desktop</option>
+				                            <option $mobileVal value="mobile">Only Mobile Devices</option>
+                                        </select>
                                       </td>
                                     </tr>
                                     <tr>
-                                      <th><label for="status">Status</label></th>
+                                      <th><label for="bubble_placement">Chat Bubble Placement</label></th>
                                       <td>
-                                        <select name="data[status]" id="status">
-									        <option value="active">Active</option>
-									        <option value="inactive">Inactive</option>
-									      </select>
+                                        <select name="data[bubble_placement]" id="bubble_placement">
+				                            <option $rightVal value="right">Lower Right Corner</option>
+				                            <option $leftVal value="left">Lower Left Corner</option>
+                                        </select>
                                       </td>
                                     </tr>
 								</tbody>

@@ -1,6 +1,6 @@
 <?php
 
-define( 'CHAT_ESSENTIAL_VERSION', '0.27' );
+define( 'CHAT_ESSENTIAL_VERSION', '0.28' );
 
 define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
 define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
@@ -22,7 +22,7 @@ define( 'CHAT_ESSENTIAL_MIN_TRAINING_CONTENT', 1000 );
 define( 'CHAT_ESSENTIAL_MIN_TRAINING_PAGE_CONTENT', 100 );
 
 global $chat_essential_db_version;
-$chat_essential_db_version = '0.2';
+$chat_essential_db_version = '0.3';
 
 $engines = array();
 $engines[] = array(

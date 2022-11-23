@@ -53,6 +53,17 @@ class Chat_Essential_Public {
 
         $output = [];
         foreach ($rules as $rule) {
+            if (!empty($rule->device_display) && $rule->device_display != 'both') {
+                if ($rule->device_display == 'mobile' && !wp_is_mobile()) {
+                    $output = [];
+                    break;
+                }
+                if ($rule->device_display == 'desktop' && wp_is_mobile()) {
+                    $output = [];
+                    break;
+                }
+            }
+
             switch ($rule->display_on) {
                 case 'all':
                     $output[] = $rule;
@@ -125,6 +136,9 @@ class Chat_Essential_Public {
             $chat = ['origin' => 'web'];
             if (CHAT_ESSENTIAL_ENV !== 'prod') {
                 $chat['env'] = CHAT_ESSENTIAL_ENV;
+            }
+            if (!empty($rule->bubble_placement) && $rule->bubble_placement == 'left') {
+                $chat['invert'] = true;
             }
             $out .= Chat_Essential_Pixel::generatePixel($apiKey, $rule->flow_name, $chat);
         }

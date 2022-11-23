@@ -212,15 +212,20 @@ class Chat_Essential_Utility {
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-		dbDelta( $sql );
+		$wpdb->query( $sql );
 
 		delete_option('chat_essential_activation_date');
 		delete_option('chat_essential_db_version');
 	}
 
+	/**
+     * @since    0.28
+     */
 	public static function db_install() {
 		global $chat_essential_db_version;
 		global $wpdb;
+
+		Chat_Essential_Utility::db_uninstall();
 
 		$now = strtotime( "now" );
 		add_option( 'chat_essential_activation_date', $now );
@@ -236,6 +241,8 @@ class Chat_Essential_Utility {
 				`flow_name` varchar(255) DEFAULT NULL,
 				`options` text,
                 `order` int DEFAULT NULL,
+				`device_display` enum('both','desktop', 'mobile') NOT NULL DEFAULT 'both',
+				`bubble_placement` enum('left','right') NOT NULL DEFAULT 'right',
 				`display_on` enum('all','pages', 'posts','categories','postTypes','tags') NOT NULL DEFAULT 'all',
 				`in_pages` varchar(300) DEFAULT NULL,
 				`ex_pages` varchar(300) DEFAULT NULL,
@@ -254,13 +261,13 @@ class Chat_Essential_Utility {
 			)	$charset_collate; ";
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		dbDelta( $sql );
+		$wpdb->query( $sql );
 
 		add_option( 'chat_essential_db_version', $chat_essential_db_version );
 	}
 
     /**
-     * @since    0.2
+     * @since    0.28
      */
     public static function db_migrate($version_from, $version_to) {
         global $wpdb;
@@ -271,7 +278,15 @@ class Chat_Essential_Utility {
                 update_option( 'chat_essential_db_version', $version_to );
                 $query = "ALTER TABLE `{$table_name}` ADD `order` int DEFAULT NULL AFTER `options`;";
                 $wpdb->query( $query );
-                break;
+			case '0.3-0.2':
+			case '0.1-0.3':
+			case '0.2-0.3':
+				update_option( 'chat_essential_db_version', $version_to );
+				$query = "ALTER TABLE `{$table_name}` ADD `device_display` enum('both','desktop','mobile') NOT NULL DEFAULT 'both' AFTER `order`;";
+				$wpdb->query( $query );
+				$query = "ALTER TABLE `{$table_name}` ADD `bubble_placement` enum('left','right') NOT NULL DEFAULT 'right' AFTER `device_display`;";
+				$wpdb->query( $query );
+				break;
         }
     }
 
