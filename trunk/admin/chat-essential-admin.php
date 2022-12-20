@@ -1099,6 +1099,9 @@ class Chat_Essential_Admin {
 					$options = get_option(CHAT_ESSENTIAL_OPTION);
 					$options['previewChat'] = $data->flows[0]->id;
 					update_option(CHAT_ESSENTIAL_OPTION, $options);
+					$options['nonce'] = $nonce;
+					$options['slug'] = $slug;
+					$options['website_name'] = $web_name;
 				}
 				$settings_page = new Chat_Essential_Admin_AI($options, $this->api);
 				break;

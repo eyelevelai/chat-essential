@@ -52,10 +52,6 @@ class Chat_Essential_Admin_Website {
         }
         $isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' . $rid . '" /><label class="ey-switch" for="status' . $rid . '">Toggle</label>';
 
-		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($web->versionId);
-		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-			$edit_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
-		}
 		$edit = chat_essential_localize('Edit');
 
 		$delete = chat_essential_localize('Delete');
@@ -130,9 +126,6 @@ class Chat_Essential_Admin_Website {
 			<strong>$flow_name</strong>
 			<div class="row-actions visible">
 				$preview
-				<span class="edit">
-					<a href="$edit_url" target="_blank">$edit</a>
-				</span>
 			</div>
 		</td>
 		<td class="load-on column-load-on">

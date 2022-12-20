@@ -15,6 +15,12 @@ use GuzzleHttp\Client;
  */
 
 class Chat_Essential_API_client {
+	/**
+	 * @since    0.30
+	 * @access   protected
+	 * @var      Client    $alert    Guzzle HTTP client for alerts.
+	 */
+	protected $alert;
 
 	/**
 	 * @since    0.0.1
@@ -26,6 +32,10 @@ class Chat_Essential_API_client {
 	public function __construct() {
 		$this->client = new Client([
 			'base_uri' => CHAT_ESSENTIAL_API_URL,
+		]);
+
+		$this->alert = new Client([
+			'base_uri' => CHAT_ESSENTIAL_ALERT_URL,
 		]);
 	}
 
@@ -51,6 +61,17 @@ class Chat_Essential_API_client {
 			'message' => $msg,
 			'title' => $title,
 		);
+	}
+
+	public function track($body) {
+		try {
+			$headers = [
+				'X-API-Key' => CHAT_ESSENTIAL_PLUGIN_ID,
+				'Content-Type' => 'application/json',
+			];
+			$request = new Request('POST', '/track', $headers, $body);
+			$this->alert->send($request);
+		} catch (ClientException $e) {}
 	}
 
 	public function upload($name, $data) {

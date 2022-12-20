@@ -37,10 +37,6 @@ class Chat_Essential_Admin_QRCode {
 		$qid = sanitize_text_field($qr->id);
 		$flowName = sanitize_text_field($qr->name);
 
-		$edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/view/' . sanitize_text_field($qr->versionId);
-		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-			$edit_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
-		}
 		$edit = chat_essential_localize('Edit');
 
 		$analytics = chat_essential_localize('View');
@@ -96,9 +92,6 @@ class Chat_Essential_Admin_QRCode {
 			<div class="row-actions visible">
 				<span class="preview-web">
 					<a href="$preview_url" target="_blank">$preview</a>
-				</span>
-				<span class="edit">
-					<a href="$edit_url" target="_blank">$edit</a>
 				</span>
 			</div>
 		</td>

@@ -28,6 +28,7 @@ pre_check() {
 
 clean_dir () {
   rm -rf $DIST_FOLDER/*
+  rm trunk/vendasta-creds.php
 }
 
 get_version () {
