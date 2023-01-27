@@ -56,7 +56,11 @@ class Chat_Essential_Admin_AI {
 		$h2 = chat_essential_localize('Business Knowledge');
 		$h2_desc = chat_essential_localize('Select the website content you want your AI to consume to learn about your business');
 
-		$res = $this->api->request($settings['apiKey'], 'GET', 'nlp/model/' . $settings['apiKey'], null, null);
+		$modelId = '';
+		if (!empty($settings['modelId'])) {
+			$modelId = '?modelId=' . $settings['modelId'];
+		}
+		$res = $this->api->request($settings['apiKey'], 'GET', 'nlp/model/' . $settings['apiKey']. $modelId, null, null);
 		if ($res['code'] != 200) {
 			$errMsg = new Chat_Essential_Admin_Error(
 				Chat_Essential_API_client::error_content($res)

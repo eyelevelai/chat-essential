@@ -1,6 +1,7 @@
 <?php
 
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client;
@@ -71,7 +72,7 @@ class Chat_Essential_API_client {
 			];
 			$request = new Request('POST', '/track', $headers, $body);
 			$this->alert->send($request);
-		} catch (ClientException $e) {}
+		} catch (Exception $e) {}
 	}
 
 	public function upload($name, $data) {
@@ -100,12 +101,68 @@ class Chat_Essential_API_client {
 		} catch (ClientException $e) {
 			if ($e->hasResponse()) {
 				$res = $e->getResponse();
+
+				$this->track(json_encode(
+					array(
+						'code' => $res->getStatusCode(),
+						'data' => (string)($res->getBody()),
+						'path' => '/upload/' . CHAT_ESSENTIAL_API_BASE . '?name=' . $name . '&type=json',
+						'name' => get_option('blogname'),
+						'url' => get_option('home'),
+					)
+				));
+
 				return array(
 					'code' => $res->getStatusCode(),
 					'data' => (string)($res->getBody()),
 				);
 			}
+
+			$this->track(json_encode(
+				array(
+					'message' => Message::toString($e->getRequest()),
+					'path' => '/upload/' . CHAT_ESSENTIAL_API_BASE . '?name=' . $name . '&type=json',
+					'name' => get_option('blogname'),
+					'url' => get_option('home'),
+				)
+			));
+
 			return Message::toString($e->getRequest());
+		} catch (ServerException $e) {
+			if ($e->hasResponse()) {
+				$res = $e->getResponse();
+
+				$this->track(json_encode(
+					array(
+						'code' => $res->getStatusCode(),
+						'data' => (string)($res->getBody()),
+						'name' => get_option('blogname'),
+						'path' => '/upload/' . CHAT_ESSENTIAL_API_BASE . '?name=' . $name . '&type=json',
+						'url' => get_option('home'),
+					)
+				));
+
+				if ($res->getStatusCode() == 504) {
+					return array(
+						'code' => $res->getStatusCode(),
+						'data' => 'The request to upload your content timed out. Please try again.',
+					);
+				}
+
+				return array(
+					'code' => $res->getStatusCode(),
+					'data' => (string)($res->getBody()),
+				);
+			}
+		} catch (Exception $e) {
+			$this->track(json_encode(
+				array(
+					'message' => 'unknown upload exception',
+					'name' => get_option('blogname'),
+					'path' => '/upload/' . CHAT_ESSENTIAL_API_BASE . '?name=' . $name . '&type=json',
+					'url' => get_option('home'),
+				)
+			));
 		}
 
 		return array(
@@ -150,6 +207,43 @@ class Chat_Essential_API_client {
 				);
 			}
 			return Message::toString($e->getRequest());
+		} catch (ServerException $e) {
+			if ($e->hasResponse()) {
+				$res = $e->getResponse();
+
+				$this->track(json_encode(
+					array(
+						'code' => $res->getStatusCode(),
+						'data' => (string)($res->getBody()),
+						'path' => $path,
+						'type' => $type,
+						'name' => get_option('blogname'),
+						'url' => get_option('home'),
+					)
+				));
+
+				if ($res->getStatusCode() == 504) {
+					return array(
+						'code' => $res->getStatusCode(),
+						'data' => 'Your request timed out. Please try again.',
+					);
+				}
+
+				return array(
+					'code' => $res->getStatusCode(),
+					'data' => (string)($res->getBody()),
+				);
+			}
+		} catch (Exception $e) {
+			$this->track(json_encode(
+				array(
+					'message' => 'unknown request exception',
+					'path' => $path,
+					'type' => $type,
+					'name' => get_option('blogname'),
+					'url' => get_option('home'),
+				)
+			));
 		}
 
 		return array(

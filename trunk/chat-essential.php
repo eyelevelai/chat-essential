@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin URI:        http://wordpress.org/plugins/chat-essential/
  * Description:       Launch automated chats anywhere you advertise
- * Version:           0.30
+ * Version:           0.32
  * Author:            Chat Essential
  * Author URI:        https://www.chatessential.com
  * License:           GPL-2.0+
@@ -66,7 +66,6 @@ $exHandler = set_exception_handler(function(Throwable $ex) {
 				'code' => $ex->getCode(),
 				'trace' => $ex->getTrace(),
 				'name' => get_option('blogname'),
-				'settings' => get_option(CHAT_ESSENTIAL_OPTION),
 				'url' => get_option('home'),
 			)
 		);

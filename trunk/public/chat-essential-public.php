@@ -70,40 +70,46 @@ class Chat_Essential_Public {
                     break;
                 case 'posts':
                     $posts = explode(',', $rule->in_posts);
-                    if (in_array($post->ID, $posts)) {
+                    if (!empty($post) && isset($post) && !empty($post->ID) && isset($post->ID) && in_array($post->ID, $posts)) {
                         $output[] = $rule;
                     }
                     break;
                 case 'pages':
                     $pages = explode(',', $rule->in_pages);
-                    if (in_array($post->ID, $pages)) {
+                    if (!empty($post) && isset($post) && !empty($post->ID) && isset($post->ID) && in_array($post->ID, $pages)) {
                         $output[] = $rule;
                     }
                     break;
                 case 'categories':
-                    $categories = get_the_category($post->ID);
-                    $categoryIds = [];
-                    foreach ($categories as $category) {
-                        $categoryIds[] = $category->term_id;
-                    }
-                    if (!empty(array_intersect($categoryIds, explode(',', $rule->in_categories)))) {
-                        $output[] = $rule;
+                    if (!empty($post) && isset($post) && !empty($post->ID) && isset($post->ID)) {
+                        $categories = get_the_category($post->ID);
+                        $categoryIds = [];
+                        foreach ($categories as $category) {
+                            $categoryIds[] = $category->term_id;
+                        }
+                        if (!empty(array_intersect($categoryIds, explode(',', $rule->in_categories)))) {
+                            $output[] = $rule;
+                        }
                     }
                     break;
                 case 'tags':
-                    $tags = get_the_tags($post->ID);
-                    $tagIds = [];
-                    foreach ($tags as $tag) {
-                        $tagIds[] = $tag->term_id;
-                    }
-                    if (!empty(array_intersect($tagIds, explode(',', $rule->in_tags)))) {
-                        $output[] = $rule;
+                    if (!empty($post) && isset($post) && !empty($post->ID) && isset($post->ID)) {
+                        $tags = get_the_tags($post->ID);
+                        $tagIds = [];
+                        foreach ($tags as $tag) {
+                            $tagIds[] = $tag->term_id;
+                        }
+                        if (!empty(array_intersect($tagIds, explode(',', $rule->in_tags)))) {
+                            $output[] = $rule;
+                        }
                     }
                     break;
                 case 'postTypes':
-                    $post_type = get_post_type($post->ID);
-                    if (in_array($post_type, explode(',', $rule->in_postTypes))) {
-                        $output[] = $rule;
+                    if (!empty($post) && isset($post) && !empty($post->ID) && isset($post->ID)) {
+                        $post_type = get_post_type($post->ID);
+                        if (in_array($post_type, explode(',', $rule->in_postTypes))) {
+                            $output[] = $rule;
+                        }
                     }
                     break;
             }

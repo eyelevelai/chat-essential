@@ -1,5 +1,7 @@
 <?php
 
+use GuzzleHttp\Psr7\Request;
+
 /**
  * @link       http://www.chatessential.com
  * @since      0.0.1
@@ -49,7 +51,32 @@ class Chat_Essential_Admin_Website {
         $checked = '';
         if ($rule->status === 'active') {
             $checked = 'checked';
+        } else if (CHAT_ESSENTIAL_TRACKING) {
+          $options = get_option(CHAT_ESSENTIAL_OPTION);
+          if (isset($options) && !empty($options)) {
+            $doTrack = false;
+            if (empty($options['lastWebStatusUpdate'])) {
+              $doTrack = true;
+            } else if (time() > $options['lastWebStatusUpdate'] + 60 * 60) {
+              $doTrack = true;
+            }
+
+            if ($doTrack === true) {
+              $options['lastWebStatusUpdate'] = time();
+              update_option(CHAT_ESSENTIAL_OPTION, $options);
+              $body = json_encode(
+                array(
+                  'event' => 'website rule is inactive',
+                  'rule' => $rule,
+                  'user' => wp_get_current_user(),
+                  'url' => get_option('home'),
+                )
+              );
+              $this->api->track($body);
+            }
+          }
         }
+
         $isOn = '<input type="checkbox" ' . $checked . ' class="ey-switch-input" id="status' . $rid . '" /><label class="ey-switch" for="status' . $rid . '">Toggle</label>';
 
 		$edit = chat_essential_localize('Edit');

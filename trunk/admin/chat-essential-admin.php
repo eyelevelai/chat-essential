@@ -802,6 +802,22 @@ class Chat_Essential_Admin {
         $status = sanitize_text_field($_POST['body']['status']);
         Chat_Essential_Utility::update_web_status($rid, $status);
 
+        $options = get_option(CHAT_ESSENTIAL_OPTION);
+        if (CHAT_ESSENTIAL_TRACKING && isset($options) && !empty($options)) {
+            $options['lastWebStatusUpdate'] = time();
+            update_option(CHAT_ESSENTIAL_OPTION, $options);
+            $body = json_encode(
+                array(
+                    'event' => 'website rule switched status',
+                    'rid' => $rid,
+                    'status' => $status,
+                    'user' => wp_get_current_user(),
+                    'url' => get_option('home'),
+                )
+            );
+            $this->api->track($body);
+        }
+
 		echo 'OK';
 
 		die();

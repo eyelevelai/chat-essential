@@ -1,9 +1,11 @@
 <?php
 
-define( 'CHAT_ESSENTIAL_VERSION', '0.30' );
+define( 'CHAT_ESSENTIAL_VERSION', '0.32' );
 
 define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
 define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
+
+define( 'CHAT_ESSENTIAL_TRACKING', false);
 
 define( 'CHAT_ESSENTIAL_ENV', 'prod' );
 

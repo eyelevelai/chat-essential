@@ -242,7 +242,7 @@ class Site_Options {
 			$postTypes[] = $cpdata;
 		}
 
-		if (empty($training) || count($training) < 1) {
+		if (empty($training) || count($training) < 1 || !isset($training['siteType']) || empty($training['siteType'])) {
 			$training = array(
 				'siteType' => 'all',
 			);
