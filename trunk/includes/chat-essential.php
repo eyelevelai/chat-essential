@@ -124,8 +124,8 @@ class Chat_Essential {
 	private function define_admin_hooks() {
 		$plugin_admin = new Chat_Essential_Admin( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'ey_styles' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'ey_scripts' );
 	}
 
 	/**
@@ -135,10 +135,10 @@ class Chat_Essential {
 	private function define_public_hooks() {
 		$plugin_public = new Chat_Essential_Public( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'ey_styles' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'ey_scripts' );
 
-		$this->loader->add_action( 'wp_footer', $plugin_public, 'manage_footer' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'ey_load_chat' );
 	}
 
 	/**

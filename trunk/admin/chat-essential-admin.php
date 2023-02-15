@@ -826,14 +826,14 @@ class Chat_Essential_Admin {
 	/**
 	 * @since    0.0.1
 	 */
-	public function enqueue_styles() {
+	public function ey_styles() {
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/chat-essential-admin.css', array(), $this->version, 'all' );
 	}
 
 	/**
 	 * @since    0.0.1
 	 */
-	public function enqueue_scripts() {
+	public function ey_scripts() {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/chat-essential-admin.js', array( 'jquery' ), $this->version, false );
 
 		$slug = '';

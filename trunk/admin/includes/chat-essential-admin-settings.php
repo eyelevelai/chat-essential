@@ -89,6 +89,47 @@ class Chat_Essential_Admin_Settings {
 		$l3_desc = chat_essential_localize('Enter the email address that will receive lead data.');
 		$l3_val = $settings['email'];
 		echo '<script>let og_email = "' . esc_js($l3_val) . '";</script>';
+		$emailChunk = <<<END
+		<tr>
+			<th colspan="2">
+				<h2>$h2</h2>
+				<p>$h2_desc</p>
+			</th>
+		</tr>
+		<tr>
+			<th scope="row">
+				<label for="track-event-type">
+					$l1
+				</label>
+			</th>
+			<td>
+				<select name="track-event-type" id="track-event-select">
+					<option value="email">Receive data by Email</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">$premium_banner</td>
+		</tr>
+		<tr>
+			<th scope="row">
+				<label for="email">
+					$l3
+				</label>
+			</th>
+			<td>
+				<input type="email" class="regular-text" value="$l3_val" id="email" name="email">
+				<p>
+					$l3_desc
+				</p>
+			</td>
+		</tr>
+END;
+		if (defined('CHAT_ESSENTIAL_AUTH_TYPE') && CHAT_ESSENTIAL_AUTH_TYPE === 'vendasta') {
+			$emailChunk = <<<END
+		<input type="hidden" class="regular-text" value="$l3_val" id="email" name="email">
+END;
+		}
 
 		$h3 = chat_essential_localize('Chat Interface Themes');
 		$h3_desc = chat_essential_localize('These are the style settings for your chat window and bubble');
@@ -237,40 +278,7 @@ END;
 											</p>
 										</td>
 									</tr>
-									<tr>
-										<th colspan="2">
-											<h2>$h2</h2>
-											<p>$h2_desc</p>
-										</th>
-									</tr>
-									<tr>
-										<th scope="row">
-											<label for="track-event-type">
-												$l1
-											</label>
-										</th>
-										<td>
-											<select name="track-event-type" id="track-event-select">
-												<option value="email">Receive data by Email</option>
-											</select>
-										</td>
-									</tr>
-									<tr>
-                                        <td colspan="2">$premium_banner</td>
-                                    </tr>
-									<tr>
-										<th scope="row">
-											<label for="email">
-												$l3
-											</label>
-										</th>
-										<td>
-											<input type="email" class="regular-text" value="$l3_val" id="email" name="email">
-    										<p>
-												$l3_desc
-											</p>
-										</td>
-									</tr>
+									$emailChunk
 									<tr>
 										<td colspan="2" class="med-font status-msg ey-settings" id="statusMessage1"></td>
 									</tr>
