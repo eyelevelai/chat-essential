@@ -53,6 +53,8 @@ class Chat_Essential_Admin_Settings {
 		}
 		$data = json_decode($res['data']);
 
+		$premium_banner = Chat_Essential_Utility::premium_banner();
+
 		$h1 = chat_essential_localize('Live Chat');
 		$h1_desc = chat_essential_localize('This is how you will live chat with people in chat');
 		$l1 = chat_essential_localize('Integration Type');
@@ -235,7 +237,6 @@ END;
 */
 
 		$submit = chat_essential_localize('Save Changes');
-        $premium_banner = Chat_Essential_Utility::premium_banner();
 
     	echo <<<END
 		<div class="wrap">
