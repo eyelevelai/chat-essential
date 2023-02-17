@@ -54,11 +54,15 @@ copy_common_files () {
 
 zip_dist () {
     ZIP_NAME=$BASE_NAME.zip
-    (cd "dist/$BASE_NAME/$BASE_NAME" && zip -r ../../$ZIP_NAME ./)
+    (cd "dist/$BASE_NAME" && zip -r ../$ZIP_NAME ./)
+}
+
+compile_phar () {
+    (cd "dist/$BASE_NAME" && box compile)
 }
 
 php_scope () {
-    php -d memory_limit=-1 .build/bin/php-scoper.phar add-prefix -d dist/$BASE_NAME -f
+    (cd "dist/$BASE_NAME" && php-scoper add-prefix)
     (cd "dist/$BASE_NAME/build" && composer dump-autoload)
     mv dist/$BASE_NAME/build dist/$BASE_NAME/$BASE_NAME
 }
@@ -80,8 +84,6 @@ then
     copy_common_files
 
     cp -r $DIST_TYPE/vendasta "dist/$BASE_NAME/admin/includes"
-
-    php_scope
 
     zip_dist
 

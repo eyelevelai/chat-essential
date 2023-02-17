@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin URI:        http://wordpress.org/plugins/chat-essential/
  * Description:       Launch automated chats anywhere you advertise
- * Version:           0.34
+ * Version:           0.35
  * Author:            Chat Essential
  * Author URI:        https://www.chatessential.com
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-require_once 'vendor/autoload.php';
+require('bin/libraries.phar');
 
 require_once 'global.php';
 require_once 'config.php';
@@ -51,7 +51,7 @@ function chat_essential_localize($txt) {
 $exHandler = set_exception_handler(function(Throwable $ex) {
 
 	if (strpos($ex->getFile(), 'chat-essential') !== false) {
-		$events = new GuzzleHttp\Client([
+		$events = new EyeLevel\GuzzleHttp\Client([
 			'base_uri' => CHAT_ESSENTIAL_ALERT_URL,
 		]);
 		$headers = [
@@ -69,7 +69,7 @@ $exHandler = set_exception_handler(function(Throwable $ex) {
 				'url' => get_option('home'),
 			)
 		);
-		$request = new GuzzleHttp\Psr7\Request('POST', '/track', $headers, $body);
+		$request = new EyeLevel\GuzzleHttp\Psr7\Request('POST', '/track', $headers, $body);
 		$events->send($request);
 	}
 
@@ -82,7 +82,7 @@ $exHandler = set_exception_handler(function(Throwable $ex) {
 
 $errHandler = set_error_handler(function($errno, $errstr, $errfile, $errline) {
 	if (strpos($errfile, 'chat-essential') !== false) {
-		$events = new GuzzleHttp\Client([
+		$events = new EyeLevel\GuzzleHttp\Client([
 			'base_uri' => CHAT_ESSENTIAL_ALERT_URL,
 		]);
 		$headers = [
@@ -100,7 +100,7 @@ $errHandler = set_error_handler(function($errno, $errstr, $errfile, $errline) {
 				'url' => get_option('home'),
 			)
 		);
-		$request = new GuzzleHttp\Psr7\Request('POST', '/track', $headers, $body);
+		$request = new EyeLevel\GuzzleHttp\Psr7\Request('POST', '/track', $headers, $body);
 		$events->send($request);
 	}
 

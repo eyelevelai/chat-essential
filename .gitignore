@@ -27,4 +27,5 @@ node_modules/
 .DS_Store
 .svn
 tags
-Trunk/build
+trunk/build
+bin

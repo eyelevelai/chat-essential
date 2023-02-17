@@ -1,10 +1,10 @@
 <?php
 
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Client;
+use EyeLevel\GuzzleHttp\Exception\ClientException;
+use EyeLevel\GuzzleHttp\Exception\ServerException;
+use EyeLevel\GuzzleHttp\Psr7\Message;
+use EyeLevel\GuzzleHttp\Psr7\Request;
+use EyeLevel\GuzzleHttp\Client;
 
 /**
  * @link       https://www.chatessential.com
@@ -186,6 +186,9 @@ class Chat_Essential_API_client {
 			}
 			if ($body !== null) {
 				$body = json_encode($body);
+			}
+			if (!isset($options['timeout']) || empty($options['timeout'])) {
+				$options['timeout'] = 60;
 			}
 			$request = new Request($type, '/' . CHAT_ESSENTIAL_API_BASE . '/' . $path, $headers, $body);
 			$response = $this->client->send($request, $options);

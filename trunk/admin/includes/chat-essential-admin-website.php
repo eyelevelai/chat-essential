@@ -1,6 +1,6 @@
 <?php
 
-use GuzzleHttp\Psr7\Request;
+use EyeLevel\GuzzleHttp\Psr7\Request;
 
 /**
  * @link       http://www.chatessential.com

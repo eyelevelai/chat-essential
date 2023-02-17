@@ -1,6 +1,6 @@
 {
     "require": {
-        "guzzlehttp/guzzle": "7.3.0",
-        "giggsey/libphonenumber-for-php": "8.13.4"
+        "guzzlehttp\/guzzle": "6.5.8",
+        "giggsey\/libphonenumber-for-php": "8.13.4"
     }
 }
