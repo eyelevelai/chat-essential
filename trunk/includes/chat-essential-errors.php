@@ -17,8 +17,6 @@ class Chat_Essential_Errors {
 	 */
 	public function init() {
 		$this->defaultHandler = set_exception_handler(function(Throwable $ex) {
-//var_dump($ex);
-var_dump($this->defaultHandler);
 			$this->defaultHandler($ex);
 		});
 	}

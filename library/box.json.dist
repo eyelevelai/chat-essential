@@ -1,0 +1,11 @@
+{
+  "directories": [
+    "vendor"
+  ],
+  "files": [
+    "composer.json",
+    "composer.lock"
+  ],
+  "output": "bin/libraries.phar",
+  "stub": "phar-bootstrap.php"
+}

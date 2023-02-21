@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin URI:        http://wordpress.org/plugins/chat-essential/
  * Description:       Launch automated chats anywhere you advertise
- * Version:           0.35
+ * Version:           0.36
  * Author:            Chat Essential
  * Author URI:        https://www.chatessential.com
  * License:           GPL-2.0+
@@ -22,6 +22,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+require_once 'vendor/autoload.php';
 require('bin/libraries.phar');
 
 require_once 'global.php';

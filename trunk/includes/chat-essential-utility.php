@@ -208,7 +208,7 @@ class Chat_Essential_Utility {
 
 		$table_name = $wpdb->prefix . 'chat_essential';
 
-		$sql = "DROP TABLE $table_name;";
+		$sql = "DROP TABLE IF EXISTS $table_name;";
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 

@@ -1,0 +1,10 @@
+# for creating vendor, composer.json, and composer.lock
+composer require giggsey/libphonenumber-for-php:8.13.4
+
+# for creating libraries.phar
+composer require guzzlehttp/guzzle:6.5.8
+php-scoper add-prefix -p EyeLevel
+composer dump-autoload --working-dir build --classmap-authoritative
+cd build
+# copy index.php, box.json.dist, phar-bootstrap.php into build
+box compile
