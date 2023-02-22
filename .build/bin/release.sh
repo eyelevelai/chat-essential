@@ -5,6 +5,7 @@
 must_have aws unzip
 
 DIST_TYPE=vendasta
+SUFFIX=""
 
 LOCAL_DIR=`pwd`
 TRUNK_FOLDER=$LOCAL_DIR/trunk
@@ -13,6 +14,9 @@ DIST_FOLDER=$LOCAL_DIR/dist
 for opt in "$@"
 do
     case $opt in
+    -dev|--dev)
+        SUFFIX="-dev"
+    ;;
     *)
         error "unknown option: $opt"
         exit 1
@@ -30,6 +34,8 @@ clean_dir () {
   rm -rf $DIST_FOLDER/*
   rm -rf trunk/build
   rm trunk/vendasta-creds.php
+  rm trunk/env.php
+  cp env$SUFFIX.php trunk/env.php
 }
 
 get_version () {
@@ -44,7 +50,7 @@ get_version () {
 }
 
 copy_common_files () {
-    BASE_NAME="$DIST_TYPE-$version"
+    BASE_NAME="$DIST_TYPE$SUFFIX-$version"
     mkdir "dist/$BASE_NAME"
 
     cp -r trunk/* "dist/$BASE_NAME"
@@ -68,8 +74,8 @@ php_scope () {
 }
 
 push_to_s3 () {
-    aws s3 cp "dist/$ZIP_NAME" "s3://eyelevel-upload/wordpress.plugins/$ZIP_NAME"
-    aws cloudfront create-invalidation --distribution-id EZ5H0AVV9IAV --paths "/wordpress.plugins/$ZIP_NAME"
+    aws s3 cp "dist/$ZIP_NAME" "s3://eyelevel-upload/wordpress.plugins$SUFFIX/$ZIP_NAME"
+    aws cloudfront create-invalidation --distribution-id EZ5H0AVV9IAV --paths "/wordpress.plugins$SUFFIX/$ZIP_NAME"
 }
 
 #status "\u00b7 System pre-flight check"
