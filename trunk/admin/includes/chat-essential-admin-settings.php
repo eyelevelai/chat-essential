@@ -67,14 +67,14 @@ class Chat_Essential_Admin_Settings {
 				if (!empty($int->platform) &&
 					$int->platform === 'mms') {
 					if (!empty($int->phoneNumbers)) {
-						$phoneUtil = \EyeLevel\libphonenumber\PhoneNumberUtil::getInstance();
+						$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 						$phones = explode(",", sanitize_text_field($int->phoneNumbers));
 						foreach ($phones as $val) {
 							if (strlen($l2_val)) {
 								$l2_val .= ',';
 							}
 							$pv = $phoneUtil->parse($val, 'US');
-							$ppv = $phoneUtil->format($pv, \EyeLevel\libphonenumber\PhoneNumberFormat::RFC3966);
+							$ppv = $phoneUtil->format($pv, \libphonenumber\PhoneNumberFormat::RFC3966);
 							$l2_val .= str_replace("tel:+1-", "", $ppv);
 						}
 						break;
