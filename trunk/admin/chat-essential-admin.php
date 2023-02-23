@@ -516,9 +516,9 @@ class Chat_Essential_Admin {
 		);
 		if ($phone !== 'skip') {
 			try {
-				$phoneUtil = \EyeLevel\libphonenumber\PhoneNumberUtil::getInstance();
+				$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 				$pv = $phoneUtil->parse($phone, 'US');
-			} catch (\EyeLevel\libphonenumber\NumberParseException $e) {
+			} catch (\libphonenumber\NumberParseException $e) {
 				wp_die('{"message":"Invalid phone number"}', 400);
 			}
 			$data['customer'] = array(
@@ -581,9 +581,9 @@ class Chat_Essential_Admin {
 		if (!empty($_POST['body']['phones'])) {
 			try {
 				$phones = sanitize_text_field($_POST['body']['phones']);
-				$phoneUtil = \EyeLevel\libphonenumber\PhoneNumberUtil::getInstance();
+				$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 				$pv = $phoneUtil->parse($phones, 'US');
-			} catch (\EyeLevel\libphonenumber\NumberParseException $e) {
+			} catch (\libphonenumber\NumberParseException $e) {
 				wp_die('{"message":"Invalid phone number"}', 400);
 			}
 		}
