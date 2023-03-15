@@ -409,7 +409,6 @@
 				api(this.n, 'chat_essential_rule_update', null, data)
 				.then((function(v1) {
 					apiInProgress = false;
-					console.log(v1);
 					if (v1.url) {
 						location.href = location.origin + location.pathname + v1.url;
 					} else {
@@ -447,7 +446,6 @@
 				return false;
 			},
 			processDeleteRuleSubmit: function(data) {
-				console.log('delete');
 				if (apiInProgress) {
 					return false;
 				}

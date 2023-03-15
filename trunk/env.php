@@ -1,3 +1,3 @@
 <?php
 
-define( 'CHAT_ESSENTIAL_ENV', 'dev' );
+define( 'CHAT_ESSENTIAL_ENV', 'prod' );

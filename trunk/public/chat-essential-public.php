@@ -67,6 +67,18 @@ class Chat_Essential_Public {
             switch ($rule->display_on) {
                 case 'all':
                     $output[] = $rule;
+                    if (isset($rule->ex_pages) && !empty($rule->ex_pages)) {
+                        $pages = explode(',', $rule->ex_pages);
+                        if (!empty($post) && isset($post) && !empty($post->ID) && isset($post->ID) && in_array($post->ID, $pages)) {
+                            $output = [];
+                        }
+                    }
+                    if (isset($rule->ex_posts) && !empty($rule->ex_posts)) {
+                        $posts = explode(',', $rule->ex_posts);
+                        if (!empty($post) && isset($post) && !empty($post->ID) && isset($post->ID) && in_array($post->ID, $posts)) {
+                            $output = [];
+                        }
+                    }
                     break;
                 case 'posts':
                     $posts = explode(',', $rule->in_posts);

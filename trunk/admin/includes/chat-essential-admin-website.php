@@ -86,7 +86,7 @@ class Chat_Essential_Admin_Website {
 		$analytics = chat_essential_localize('View');
 		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $wid;
 		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-			$analytics_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+			$analytics_url .= '?reAuth=true&vAccountId=' . VENDASTA_ACCOUNT_ID . '&vPlanId=' . VENDASTA_APP_ID;
 		}
 
 		$theme_name = '';
@@ -222,7 +222,7 @@ END;
 
 		$dashboardUrl = CHAT_ESSENTIAL_DASHBOARD_URL;
 		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-			$dashboardUrl .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+			$dashboardUrl .= '?reAuth=true&vAccountId=' . VENDASTA_ACCOUNT_ID . '&vPlanId=' . VENDASTA_APP_ID;
 		}
 
         $premium_banner = Chat_Essential_Utility::premium_banner();

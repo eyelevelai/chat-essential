@@ -140,10 +140,7 @@ END;
 			foreach ($data->themes as $theme) {
 				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?themeId=' . sanitize_text_field($theme->themeId);
 				if (defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
-				}
-				if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID)) {
-					$editUrl .= '&vendastaPlanId=' . VENDASTA_APP_ID;
+					$editUrl .= '&reAuth=true&vAccountId=' . VENDASTA_ACCOUNT_ID . '&vPlanId=' . VENDASTA_APP_ID;
 				}
 				$themes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '" target="_blank">Edit</a></td></tr>';
 			}
@@ -159,7 +156,7 @@ END;
 			foreach ($data->offhoursSettings as $off) {
 				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?hoursId=' . sanitize_text_field($off->hoursId);
 				if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID . '&vendastaPlanId=' . VENDASTA_APP_ID;
+					$editUrl .= '&reAuth=true&vAccountId=' . VENDASTA_ACCOUNT_ID . '&vPlanId=' . VENDASTA_APP_ID;
 				}
 				$hours .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($off->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '" target="_blank">Edit</a></td></tr>';
 			}
@@ -174,7 +171,7 @@ END;
 			foreach ($data->qrThemes as $theme) {
 				$editUrl = CHAT_ESSENTIAL_DASHBOARD_URL . '/account?qrThemeId=' . sanitize_text_field($theme->qrThemeId);
 				if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-					$editUrl .= '&vendastaAccountId=' . VENDASTA_ACCOUNT_ID . '&vendastaPlanId=' . VENDASTA_APP_ID;
+					$editUrl .= '&reAuth=true&vAccountId=' . VENDASTA_ACCOUNT_ID . '&vPlanId=' . VENDASTA_APP_ID;
 				}
 				$qrThemes .= '<tr><td class="large-padding-bottom">' . sanitize_text_field($theme->name) . '</td><td class="large-padding-bottom"><a href="' . $editUrl . '" target="_blank">Edit</a></td></tr>';
 			}
@@ -208,7 +205,7 @@ END;
 		$num_pages = count($fb_pages);
         $chat_essential_edit_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/account';
 		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-			$chat_essential_edit_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID . '&vendastaPlanId=' . VENDASTA_APP_ID;
+			$chat_essential_edit_url .= '?reAuth=true&vAccountId=' . VENDASTA_ACCOUNT_ID . '&vPlanId=' . VENDASTA_APP_ID;
 		}
 		if ($num_pages > 0) {
 			$l7_val = "";

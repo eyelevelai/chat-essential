@@ -42,7 +42,7 @@ class Chat_Essential_Admin_QRCode {
 		$analytics = chat_essential_localize('View');
 		$analytics_url = CHAT_ESSENTIAL_DASHBOARD_URL . '/analytics/' . $qid;
 		if (defined('VENDASTA_APP_ID') && !empty(VENDASTA_APP_ID) && defined('VENDASTA_ACCOUNT_ID') && !empty(VENDASTA_ACCOUNT_ID)) {
-			$analytics_url .= '?vendastaAccountId=' . VENDASTA_ACCOUNT_ID;
+			$analytics_url .= '?reAuth=true&vAccountId=' . VENDASTA_ACCOUNT_ID . '&vPlanId=' . VENDASTA_APP_ID;
 		}
 
 		$theme_name = '';
