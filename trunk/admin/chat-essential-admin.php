@@ -725,6 +725,10 @@ class Chat_Essential_Admin {
 			}
 		}
 
+		if (!empty($jdata['subscription']) && !empty($jdata['subscription']['purchaseId'])) {
+			update_option(CHAT_ESSENTIAL_OPTION_SUBSCRIPTION, $jdata['subscription']['purchaseId']);
+		}
+
 		$options['apiKey'] = $jdata['apiKey'];
 		$options['modelId'] = $jdata['nlp']['model']['modelId'];
 		$options['email'] = $email;
@@ -957,6 +961,10 @@ class Chat_Essential_Admin {
 				$data['nlp']['model']['training']['status'] == 'complete') {
 				$options['initAI'] = true;
 			}
+		}
+
+		if (!empty($data['subscription']) && !empty($data['subscription']['purchaseId'])) {
+			update_option(CHAT_ESSENTIAL_OPTION_SUBSCRIPTION, $data['subscription']['purchaseId']);
 		}
 
 		$options['apiKey'] = $data['customer']['apiKey'];

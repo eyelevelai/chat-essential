@@ -2,10 +2,11 @@
 
 require_once 'env.php';
 
-define( 'CHAT_ESSENTIAL_VERSION', '0.39' );
+define( 'CHAT_ESSENTIAL_VERSION', '0.40' );
 
 define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
 define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
+define( 'CHAT_ESSENTIAL_OPTION_SUBSCRIPTION', 'ey_purchaseId' );
 
 define( 'CHAT_ESSENTIAL_TRACKING', false);
 

@@ -173,10 +173,15 @@ class Chat_Essential_API_client {
 
 	public function request($apiKey, $type, $path, $body, $auth, $options = []) {
 		try {
+			$sub = CHAT_ESSENTIAL_SUBSCRIPTION;
+			$opt = get_option(CHAT_ESSENTIAL_OPTION_SUBSCRIPTION);
+			if (isset($opt) && !empty($opt)) {
+				$sub = $opt;
+			}
 			$headers = [
 				'X-API-Key' => CHAT_ESSENTIAL_PLUGIN_ID,
 				'Content-Type' => 'application/json',
-				'X-WordPress-Subscription' => CHAT_ESSENTIAL_SUBSCRIPTION,
+				'X-WordPress-Subscription' => $sub,
 				'X-Customer-Key' => $apiKey,
 				'X-Website-URL' => get_option('home'),
 			];
