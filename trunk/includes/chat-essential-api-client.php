@@ -30,6 +30,13 @@ class Chat_Essential_API_client {
 	 */
 	protected $client;
 
+	/**
+	 * @since    0.0.1
+	 * @access   protected
+	 * @var      Client    $background    Guzzle HTTP client.
+	 */
+	protected $background;
+
 	public function __construct() {
 		$this->client = new Client([
 			'base_uri' => CHAT_ESSENTIAL_API_URL,
@@ -38,6 +45,12 @@ class Chat_Essential_API_client {
 		$this->alert = new Client([
 			'base_uri' => CHAT_ESSENTIAL_ALERT_URL,
 		]);
+
+		$this->background = new Chat_Essential_Async($this);
+	}
+
+	public function queueUpload() {
+		$this->background->data(array('name' => 'start'))->dispatch();
 	}
 
 	public static function error_content( $res ) {
@@ -258,6 +271,57 @@ class Chat_Essential_API_client {
 			'code' => 500,
 			'data' => '{"message": "Internal plugin error"}',
 		);
+	}
+
+}
+
+define( 'CHAT_ESSENTIAL_ASYNC', 'ce_async_request' );
+
+class Chat_Essential_Async extends EyeLevel\WP_Async_Request {
+	protected $action = CHAT_ESSENTIAL_ASYNC;
+
+	/**
+	 * @since    0.0.1
+	 * @access   protected
+	 * @var      Client    $client    Guzzle HTTP client.
+	 */
+	protected $client;
+
+	public function __construct($client) {
+		$this->client = $client;
+
+		parent::__construct();
+	}
+
+	protected function handle() {
+		$options = get_option(CHAT_ESSENTIAL_TRAIN_UPDATE);
+
+		if (isset($options) && !empty($options)) {
+			$fname = uniqid(random_int(0, 10), true);
+			$content = Site_Options::processOptions($options['training']);
+
+			$res = $this->client->upload($fname, $content);
+			if ($res['code'] != 200) {
+				return;
+			}
+
+			$reqData = array(
+				'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
+				'metadata' => json_encode($options['training']),
+				'modelId' => $options['modelId'],
+				'engines' => array(
+					'gpt3',
+				),
+			);
+
+			$res = $this->client->request($options['apiKey'], 'POST', 'nlp/train/' . $options['apiKey'], array(
+				'nlp' => $reqData,
+			), null);
+
+			delete_option(CHAT_ESSENTIAL_TRAIN_UPDATE);
+		}
+
+		return false;
 	}
 
 }

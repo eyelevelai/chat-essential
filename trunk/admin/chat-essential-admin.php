@@ -68,6 +68,11 @@ class Chat_Essential_Admin {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'network_admin_menu', 'add_menu');
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
+		add_action( 'ey_hourly_update', array( $this, 'do_hourly_update' ) );
+		if (! wp_next_scheduled ( 'ey_hourly_update' )) {
+			wp_schedule_event( time()+2, 'hourly', 'ey_hourly_update' );
+		}
+
         $install_date = get_option( 'chat_essential_activation_date' );
         $past_date = strtotime( '-3 days' );
         if ( !CHAT_ESSENTIAL_SUBSCRIPTION_PREMIUM && $past_date >= $install_date ) {
@@ -456,6 +461,10 @@ class Chat_Essential_Admin {
 
 			wp_send_json($rn);
 		}
+	}
+
+	public function do_hourly_update() {
+		$this->api->queueUpload();
 	}
 
 		/**

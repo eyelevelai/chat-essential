@@ -670,24 +670,7 @@ class Chat_Essential_Utility {
 		}
 
 		if (Site_Options::shouldInclude($training, $post)) {
-			$content = Site_Options::processOptions($training);
-			$fname = uniqid(random_int(0, 10), true);
-			$res = $api->upload($fname, $content);
-			if ($res['code'] != 200) {
-				return;
-			}
-			$reqData = array(
-				'fileUrl' => CHAT_ESSENTIAL_UPLOAD_BASE_URL . '/' . CHAT_ESSENTIAL_API_BASE . '/' . $fname . '.json',
-				'metadata' => json_encode($training),
-				'modelId' => $options['modelId'],
-				'engines' => array(
-					'gpt3',
-				),
-			);
-
-			$res = $api->request($options['apiKey'], 'POST', 'nlp/train/' . $options['apiKey'], array(
-				'nlp' => $reqData,
-			), null);
+			update_option(CHAT_ESSENTIAL_TRAIN_UPDATE, $options);
 		}
     }
 }

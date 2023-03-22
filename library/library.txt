@@ -3,6 +3,7 @@ composer require giggsey/libphonenumber-for-php:8.13.4
 
 # for creating libraries.phar
 composer require guzzlehttp/guzzle:6.5.8
+composer require deliciousbrains/wp-background-processing
 php-scoper add-prefix -p EyeLevel
 composer dump-autoload --working-dir build --classmap-authoritative
 cd build
