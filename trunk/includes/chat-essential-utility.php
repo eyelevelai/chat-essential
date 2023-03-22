@@ -450,7 +450,12 @@ class Chat_Essential_Utility {
 	 * @return   string                                 The color that goes best with the given background.
 	 */
 	public static function light_or_dark($color, $dark = '#000000', $light = '#FFFFFF') {
-		return Chat_Essential_Utility::is_light( $color ) ? $dark : $light;
+		$cc = Chat_Essential_Utility::is_light( $color );
+		if ($cc['is_light']) {
+			return $dark;
+		}
+
+		return $light;
 	}
 
 	/**
@@ -645,8 +650,12 @@ class Chat_Essential_Utility {
     public static function train_ai_hook($api, $post) {
         $options = get_option(CHAT_ESSENTIAL_OPTION);
 
+		if (empty($options) || empty($options['apiKey'])) {
+			return;
+		}
+
 		$training = [];
-		if (empty($options) || empty($options['training'])) {
+		if (empty($options['training'])) {
 			$res = $api->request($options['apiKey'], 'GET', 'nlp/model/' . $options['apiKey'], null, null);
 			if ($res['code'] != 200) {
 				wp_die('There was an issue loading your settings.', $res['code']);

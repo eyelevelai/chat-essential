@@ -2,7 +2,7 @@
 
 require_once 'env.php';
 
-define( 'CHAT_ESSENTIAL_VERSION', '0.41' );
+define( 'CHAT_ESSENTIAL_VERSION', '0.42' );
 
 define( 'CHAT_ESSENTIAL_POST_TYPE', 'ce_hosted' );
 define( 'CHAT_ESSENTIAL_OPTION', 'chat-essential' );
