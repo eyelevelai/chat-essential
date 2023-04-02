@@ -24,7 +24,11 @@ class Site_Options {
 
 	public static function cleanContent($content) {
 		$pg = $content->to_array();
-		$raw_txt = html_entity_decode(strip_shortcodes(wp_strip_all_tags(apply_filters('the_content', $content->post_content))));
+		$cnt = apply_filters('the_content', $content->post_content);
+		if (strlen($cnt) === 0) {
+			$cnt = $content->post_content;
+		}
+		$raw_txt = html_entity_decode(strip_shortcodes(wp_strip_all_tags($cnt)));
 		$c_txt = preg_replace( "/(\r\n|\r|\n)+/", "\n", $raw_txt );
 		$c_txt = preg_replace( "/[ \t]+/", "\n", $c_txt );
 		$c_txt = preg_replace( "/(\r\n|\r|\n)+/", " ", $c_txt );
