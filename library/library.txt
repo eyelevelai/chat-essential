@@ -6,6 +6,8 @@ composer require guzzlehttp/guzzle:6.5.8
 composer require deliciousbrains/wp-background-processing
 php-scoper add-prefix -p EyeLevel
 composer dump-autoload --working-dir build --classmap-authoritative
+# copy php-scoper-fix.php
+php php-scoper-fix.php
 cd build
 # copy index.php, box.json.dist, phar-bootstrap.php into build
 box compile

@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin URI:        https://chatessential.eyelevel.ai/
  * Description:       Launch automated chats anywhere you advertise
- * Version:           0.43
+ * Version:           0.44
  * Author:            Chat Essential
  * Author URI:        https://www.chatessential.com
  * License:           GPL-2.0+
