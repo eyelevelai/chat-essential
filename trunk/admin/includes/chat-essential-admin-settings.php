@@ -120,7 +120,7 @@ class Chat_Essential_Admin_Settings {
 				</label>
 			</th>
 			<td>
-				<input type="email" class="regular-text" value="$l3_val" id="email" name="email">
+				<input type="email" class="regular-text" value="$l3_val" id="eyEmail" name="email">
 				<p>
 					$l3_desc
 				</p>
@@ -129,7 +129,7 @@ class Chat_Essential_Admin_Settings {
 END;
 		if (defined('CHAT_ESSENTIAL_AUTH_TYPE') && CHAT_ESSENTIAL_AUTH_TYPE === 'vendasta') {
 			$emailChunk = <<<END
-		<input type="hidden" class="regular-text" value="$l3_val" id="email" name="email">
+		<input type="hidden" class="regular-text" value="$l3_val" id="eyEmail" name="email">
 END;
 		}
 
@@ -273,7 +273,7 @@ END;
 											</label>
 										</th>
 										<td>
-											<input type="tel" class="regular-text" id="phone" name="tel" value="$l2_val">
+											<input type="tel" class="regular-text" id="eyPhone" name="tel" value="$l2_val">
     										<p>
 												$l2_desc
 											</p>
@@ -286,7 +286,7 @@ END;
 									<tr>
 										<th colspan="2" class="ey-settings">
 											<p class="submit ey-settings">
-												<input type="submit" value="$submit" class="button button-primary ey-button" id="submit" name="submit_settings">
+												<input type="submit" value="$submit" class="button button-primary ey-button" id="eySubmit" name="submit_settings">
 											</p>
 										</th>
 									</tr>

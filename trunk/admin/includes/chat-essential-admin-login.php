@@ -77,21 +77,21 @@ END;
 					<tr>
 						<td colspan="4" class="login-body med-font">
 							<label for="email">$l1</label>
-							<input autocomplete="email" type="email" class="login-input" value="$l1_val" id="email" name="email">
+							<input autocomplete="email" type="email" class="login-input" value="$l1_val" id="eyEmail" name="email">
 						</td>
 						<td class="login-spacer"></td>
 					</tr>
 					<tr>
 						<td colspan="4" class="login-body med-font">
 							<label for="password">$l2</label>
-							<input autocomplete="password" type="password" class="login-input" id="password1" name="password">
+							<input autocomplete="password" type="password" class="login-input" id="eyPassword1" name="password">
 						</td>
 						<td class="login-spacer"></td>
 					</tr>
 					<tr>
 						<td colspan="4" class="login-body med-font">
 							<label for="password2">$lc</label>
-							<input autocomplete="password" type="password" class="login-input" id="password2" name="password2">
+							<input autocomplete="password" type="password" class="login-input" id="eyPassword2" name="password2">
 						</td>
 						<td class="login-spacer"></td>
 					</tr>
@@ -120,14 +120,14 @@ END;
 					<tr>
 						<td colspan="4" class="login-body med-font">
 							<label for="email">$l1</label>
-							<input autocomplete="email" type="email" class="login-input" value="$l1_val" id="email" name="email">
+							<input autocomplete="email" type="email" class="login-input" value="$l1_val" id="eyEmail" name="email">
 						</td>
 						<td class="login-spacer"></td>
 					</tr>
 					<tr>
 						<td colspan="4" class="login-body med-font">
 							<label for="password">$l2</label>
-							<input autocomplete="password" type="password" class="login-input" id="password1" name="password">
+							<input autocomplete="password" type="password" class="login-input" id="eyPassword1" name="password">
 						</td>
 						<td class="login-spacer"></td>
 					</tr>
@@ -167,7 +167,7 @@ END;
 					<tr>
 						<td colspan="4" class="login-body med-font">
 							<label for="phone">$l2</label>
-							<input autocomplete="mobile tel" type="tel" class="login-input" id="phone" name="phone">
+							<input autocomplete="mobile tel" type="tel" class="login-input" id="eyPhone" name="phone">
 						</td>
 						<td class="login-spacer"></td>
 					</tr>
@@ -192,7 +192,7 @@ END;
 		<div class="wrap">
 			<div class="metabox-holder columns-2">
 				<div style="position: relative;">
-					<form id="loginForm" action="" method="post" name="login" class="web-rules-form login-form">
+					<form id="eyLoginForm" action="" method="post" name="login" class="web-rules-form login-form">
 						$nonce
 						<input type="hidden" name="request_type" value="login" />
 						$progress_bar

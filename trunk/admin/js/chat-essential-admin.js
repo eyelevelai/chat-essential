@@ -33,21 +33,21 @@
 						case 'chat-essential-settings':
 							this.form = $('#settingsForm');
 							this.form.submit(this.onSettingsSubmit.bind(this));
-							this.emailInput = $('#email');
+							this.emailInput = $('#eyEmail');
 							this.emailInput.change(this.onSettingsChange.bind(this));
-							this.phoneInput = $('#phone');
+							this.phoneInput = $('#eyPhone');
 							this.phoneInput.change(this.onSettingsChange.bind(this));
 							this.confirmContent = $('#confirmContent');
 							this.confirmChange = $('#confirmChange');
 							this.confirmChange.click(this.settingsConfirmed.bind(this));
 							this.cancelChange = $('#cancelChange');
 							this.cancelChange.click(this.settingsCancelled.bind(this));
-							this.submitBtn = $('#submit');
+							this.submitBtn = $('#eySubmit');
 							this.submitBtn.prop('disabled', true);
 							return;
 						case 'chat-essential-signup':
 						case 'chat-essential-login':
-							this.form = $('#loginForm');
+							this.form = $('#eyLoginForm');
 							this.form.submit(this.onAuthSubmit.bind(this));
 							this.switchBtn = $('#footerBtn');
 							this.switchBtn.click(this.switchAuth.bind(this));
@@ -65,7 +65,7 @@
 							this.form.submit(this.onRuleSubmit.bind(this));
 							return;
 						case 'chat-essential-signup-phone':
-							this.form = $('#loginForm');
+							this.form = $('#eyLoginForm');
 							this.form.submit(this.onPhoneSubmit.bind(this));
 							this.skipBtn = $('#footerBtn');
 							this.skipBtn.click(this.skipPhone.bind(this));
@@ -716,11 +716,11 @@
 				};
 				this.hideStatus();
 
-				const email = $('#email');
+				const email = $('#eyEmail');
 				email.removeClass('error-value');
-				const pass1 = $('#password1');
+				const pass1 = $('#eyPassword1');
 				pass1.removeClass('error-value');
-				const pass2 = $('#password2');
+				const pass2 = $('#eyPassword2');
 				if (pass2) {
 					pass2.removeClass('error-value');
 				}
